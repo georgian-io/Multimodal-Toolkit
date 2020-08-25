@@ -1,15 +1,14 @@
 import torch
 from torch import nn
 import torch.nn.functional as F
-from transformers.modeling_bert import BertPreTrainedModel, BertLayerNorm
+from transformers.modeling_bert import BertLayerNorm
 
-from layer_utils import calc_mlp_dims, create_act, glorot, zeros, MLP
+from model.layer_utils import calc_mlp_dims, create_act, glorot, zeros, MLP
 
 
 class TabularFeatCombiner(nn.Module):
-    def __init__(self, hf_model_config):
+    def __init__(self, tabular_config):
         super().__init__()
-        tabular_config = hf_model_config.tabular_config
         self.combine_feat_method = tabular_config.combine_feat_method
         self.cat_feat_dim = tabular_config.cat_feat_dim
         self.numerical_feat_dim = tabular_config.numerical_feat_dim
@@ -18,7 +17,7 @@ class TabularFeatCombiner(nn.Module):
         self.mlp_act = tabular_config.mlp_act
         self.mlp_dropout = tabular_config.mlp_dropout
         self.mlp_division = tabular_config.mlp_division
-        self.text_out_dim = hf_model_config.hidden_size
+        self.text_out_dim = tabular_config.text_feat_dim
         self.tabular_config = tabular_config
 
         if self.numerical_bn and self.numerical_feat_dim > 0:
@@ -48,6 +47,7 @@ class TabularFeatCombiner(nn.Module):
                 num_hidden_lyr=len(dims),
                 dropout_prob=self.mlp_dropout,
                 hidden_channels=dims,
+                return_layer_outs=False,
                 bn=True
             )
             self.final_out_dim = self.text_out_dim + output_dim + self.numerical_feat_dim
@@ -68,6 +68,7 @@ class TabularFeatCombiner(nn.Module):
                 num_hidden_lyr=len(dims),
                 dropout_prob=self.mlp_dropout,
                 hidden_channels=dims,
+                return_layer_outs=False,
                 bn=True
             )
             self.final_out_dim = self.text_out_dim + output_dim
@@ -87,6 +88,7 @@ class TabularFeatCombiner(nn.Module):
                     num_hidden_lyr=len(dims),
                     dropout_prob=self.mlp_dropout,
                     hidden_channels=dims,
+                    return_layer_outs=False,
                     bn=True)
 
             output_dim_num = 0
@@ -98,6 +100,7 @@ class TabularFeatCombiner(nn.Module):
                     act=self.mlp_act,
                     dropout_prob=self.mlp_dropout,
                     num_hidden_lyr=1,
+                    return_layer_outs=False,
                     bn=True)
             self.final_out_dim = self.text_out_dim + output_dim_num + output_dim_cat
         elif self.combine_feat_method == 'weighted_feature_sum_on_bert_cat_and_numerical_feats':
@@ -116,6 +119,7 @@ class TabularFeatCombiner(nn.Module):
                         num_hidden_lyr=len(dims),
                         dropout_prob=self.mlp_dropout,
                         hidden_channels=dims,
+                        return_layer_outs=False,
                         bn=True)
                 else:
                     self.cat_layer = nn.Linear(self.cat_feat_dim, output_dim_cat)
@@ -135,6 +139,7 @@ class TabularFeatCombiner(nn.Module):
                         num_hidden_lyr=len(dims),
                         dropout_prob=self.mlp_dropout,
                         hidden_channels=dims,
+                        return_layer_outs=False,
                         bn=True)
                 else:
                     self.num_layer = nn.Linear(self.numerical_feat_dim,
@@ -144,7 +149,7 @@ class TabularFeatCombiner(nn.Module):
 
             self.act_func = create_act(self.mlp_act)
             self.layer_norm = BertLayerNorm(self.text_out_dim)
-            self.final_dropout = nn.Dropout(hf_model_config.hidden_dropout_prob)
+            self.final_dropout = nn.Dropout(tabular_config.hidden_dropout_prob)
             self.final_out_dim = self.text_out_dim
 
         elif self.combine_feat_method == 'attention_on_cat_and_numerical_feats':
@@ -164,6 +169,7 @@ class TabularFeatCombiner(nn.Module):
                         output_dim_cat,
                         num_hidden_lyr=len(dims),
                         dropout_prob=self.mlp_dropout,
+                        return_layer_outs=False,
                         hidden_channels=dims,
                         bn=True)
                 else:
@@ -184,6 +190,7 @@ class TabularFeatCombiner(nn.Module):
                         output_dim_num,
                         num_hidden_lyr=len(dims),
                         dropout_prob=self.mlp_dropout,
+                        return_layer_outs=False,
                         hidden_channels=dims,
                         bn=True)
                 else:
@@ -215,6 +222,7 @@ class TabularFeatCombiner(nn.Module):
                         num_hidden_lyr=len(dims),
                         dropout_prob=self.mlp_dropout,
                         hidden_channels=dims,
+                        return_layer_outs=False,
                         bn=True)
                 self.g_cat_layer = nn.Linear(self.text_out_dim + min(self.text_out_dim, self.cat_feat_dim),
                                              self.text_out_dim)
@@ -233,6 +241,7 @@ class TabularFeatCombiner(nn.Module):
                         num_hidden_lyr=len(dims),
                         dropout_prob=self.mlp_dropout,
                         hidden_channels=dims,
+                        return_layer_outs=False,
                         bn=True)
                 self.g_num_layer = nn.Linear(min(self.numerical_feat_dim, self.text_out_dim) + self.text_out_dim,
                                              self.text_out_dim)
@@ -259,15 +268,15 @@ class TabularFeatCombiner(nn.Module):
             combined_feats = torch.cat((text_feats, cat_feats, numerical_feats),
                                        dim=1)
         elif self.combine_feat_method == 'mlp_on_categorical_then_concat':
-            cat_feats, _ = self.cat_mlp(cat_feats)
+            cat_feats = self.cat_mlp(cat_feats)
             combined_feats = torch.cat((text_feats, cat_feats, numerical_feats), dim=1)
         elif self.combine_feat_method == 'mlp_on_concatenated_cat_and_numerical_feats_then_concat':
             tabular_feats = torch.cat((cat_feats, numerical_feats), dim=1)
-            tabular_feats, _ = self.cat_and_numerical_mlp(tabular_feats)
+            tabular_feats = self.cat_and_numerical_mlp(tabular_feats)
             combined_feats = torch.cat((text_feats, tabular_feats), dim=1)
         elif self.combine_feat_method == 'individual_mlps_on_cat_and_numerical_feats_then_concat':
             if cat_feats.shape[1] != 0:
-                cat_feats, _ = self.cat_mlp(cat_feats)
+                cat_feats = self.cat_mlp(cat_feats)
             if numerical_feats.shape[1] != 0:
                 numerical_feats, _ = self.num_mlp(numerical_feats)
             combined_feats = torch.cat((text_feats, cat_feats, numerical_feats), dim=1)
@@ -291,7 +300,7 @@ class TabularFeatCombiner(nn.Module):
 
             if cat_feats.shape[1] != 0:
                 if self.cat_feat_dim > self.text_out_dim:
-                    cat_feats, _ = self.cat_mlp(cat_feats)
+                    cat_feats = self.cat_mlp(cat_feats)
                 w_cat = torch.mm(cat_feats, self.weight_cat)
                 g_cat = (torch.cat([w_text, w_cat], dim=-1) * self.weight_a).sum(dim=1).unsqueeze(0).T
             else:
@@ -300,7 +309,7 @@ class TabularFeatCombiner(nn.Module):
 
             if numerical_feats.shape[1] != 0:
                 if self.numerical_feat_dim > self.text_out_dim:
-                    numerical_feats, _ = self.num_mlp(numerical_feats)
+                    numerical_feats = self.num_mlp(numerical_feats)
                 w_num = torch.mm(numerical_feats, self.weight_num)
                 g_num = (torch.cat([w_text, w_cat], dim=-1) * self.weight_a).sum(dim=1).unsqueeze(0).T
             else:
@@ -350,5 +359,3 @@ class TabularFeatCombiner(nn.Module):
             zeros(self.bias_num)
         glorot(self.weight_bert)
         zeros(self.bias_bert)
-
-

@@ -5,28 +5,37 @@ from transformers import (
     DistilBertForSequenceClassification,
 )
 
-from combine_tabular_feat import TabularFeatCombiner
-from layer_utils import MLP, calc_mlp_dims, hf_loss_func
+from model.combine_tabular_feat import TabularFeatCombiner
+from model.multimodal_config import TabularConfig
+from model.layer_utils import MLP, calc_mlp_dims, hf_loss_func
 
 
 class BertWithTabular(BertForSequenceClassification):
 
     def __init__(self, hf_model_config):
         super().__init__(hf_model_config)
-        self.tabular_combiner = TabularFeatCombiner(hf_model_config)
+        tabular_config = hf_model_config.tabular_config
+        if type(tabular_config) is dict:  # when loading from saved model
+            tabular_config = TabularConfig(**tabular_config)
+        else:
+            self.config.tabular_config = tabular_config.__dict__
+
+        tabular_config.text_feat_dim = hf_model_config.hidden_size
+        tabular_config.hidden_dropout_prob = hf_model_config.hidden_dropout_prob
+        self.tabular_combiner = TabularFeatCombiner(tabular_config)
+        self.num_labels = tabular_config.num_labels
         combined_feat_dim = self.tabular_combiner.final_out_dim
-        self.tabular_config = hf_model_config.tabular_config
-        if self.tabular_config.use_simple_classifier:
+        if tabular_config.use_simple_classifier:
             self.tabular_classifier = nn.Linear(combined_feat_dim,
-                                                self.tabular_config.num_labels)
+                                                tabular_config.num_labels)
         else:
             dims = calc_mlp_dims(combined_feat_dim,
-                                 division=self.tabular_config.mlp_division,
-                                 output_dim=self.tabular_config.num_labels)
+                                 division=tabular_config.mlp_division,
+                                 output_dim=tabular_config.num_labels)
             self.tabular_classifier = MLP(combined_feat_dim,
-                                          self.tabular_config.num_labels,
+                                          tabular_config.num_labels,
                                           num_hidden_lyr=len(dims),
-                                          dropout_prob=self.tabular_config.mlp_dropout,
+                                          dropout_prob=tabular_config.mlp_dropout,
                                           hidden_channels=dims,
                                           bn=True)
 
@@ -64,7 +73,7 @@ class BertWithTabular(BertForSequenceClassification):
         loss, logits, classifier_layer_outputs = hf_loss_func(combined_feats,
                                                               self.tabular_classifier,
                                                               labels,
-                                                              self.tabular_config.num_labels,
+                                                              self.num_labels,
                                                               class_weights)
         return loss, logits, classifier_layer_outputs
 
@@ -73,21 +82,29 @@ class RobertaWithTabular(RobertaForSequenceClassification):
 
     def __init__(self, hf_model_config):
         super().__init__(hf_model_config)
-        self.tabular_combiner = TabularFeatCombiner(hf_model_config)
+        tabular_config = hf_model_config.tabular_config
+        if type(tabular_config) is dict:  # when loading from saved model
+            tabular_config = TabularConfig(**tabular_config)
+        else:
+            self.config.tabular_config = tabular_config.__dict__
+
+        tabular_config.text_feat_dim = hf_model_config.hidden_size
+        tabular_config.hidden_dropout_prob = hf_model_config.hidden_dropout_prob
+        self.tabular_combiner = TabularFeatCombiner(tabular_config)
+        self.num_labels = tabular_config.num_labels
         combined_feat_dim = self.tabular_combiner.final_out_dim
-        self.tabular_config = hf_model_config.tabular_config
         self.dropout = nn.Dropout(hf_model_config.hidden_dropout_prob)
-        if self.tabular_config.use_simple_classifier:
+        if tabular_config.use_simple_classifier:
             self.tabular_classifier = nn.Linear(combined_feat_dim,
-                                                self.tabular_config.num_labels)
+                                                tabular_config.num_labels)
         else:
             dims = calc_mlp_dims(combined_feat_dim,
-                                 division=self.tabular_config.mlp_division,
-                                 output_dim=self.tabular_config.num_labels)
+                                 division=tabular_config.mlp_division,
+                                 output_dim=tabular_config.num_labels)
             self.tabular_classifier = MLP(combined_feat_dim,
-                                          self.tabular_config.num_labels,
+                                          tabular_config.num_labels,
                                           num_hidden_lyr=len(dims),
-                                          dropout_prob=self.tabular_config.mlp_dropout,
+                                          dropout_prob=tabular_config.mlp_dropout,
                                           hidden_channels=dims,
                                           bn=True)
 
@@ -127,7 +144,7 @@ class RobertaWithTabular(RobertaForSequenceClassification):
         loss, logits, classifier_layer_outputs = hf_loss_func(combined_feats,
                                                               self.tabular_classifier,
                                                               labels,
-                                                              self.tabular_config.num_labels,
+                                                              self.num_labels,
                                                               class_weights)
         return loss, logits, classifier_layer_outputs
 
@@ -135,21 +152,28 @@ class RobertaWithTabular(RobertaForSequenceClassification):
 class DistilBertWithTabular(DistilBertForSequenceClassification):
     def __init__(self, hf_model_config):
         super().__init__(hf_model_config)
-        self.tabular_combiner = TabularFeatCombiner(hf_model_config)
+        tabular_config = hf_model_config.tabular_config
+        if type(tabular_config) is dict:  # when loading from saved model
+            tabular_config = TabularConfig(**tabular_config)
+        else:
+            self.config.tabular_config = tabular_config.__dict__
+
+        tabular_config.text_feat_dim = hf_model_config.hidden_size
+        tabular_config.hidden_dropout_prob = hf_model_config.seq_classif_dropout
+        self.tabular_combiner = TabularFeatCombiner(tabular_config)
+        self.num_labels = tabular_config.num_labels
         combined_feat_dim = self.tabular_combiner.final_out_dim
-        self.tabular_config = hf_model_config.tabular_config
-        self.dropout = nn.Dropout(hf_model_config.seq_classif_dropout)
-        if self.tabular_config.use_simple_classifier:
+        if tabular_config.use_simple_classifier:
             self.tabular_classifier = nn.Linear(combined_feat_dim,
-                                                self.tabular_config.num_labels)
+                                                tabular_config.num_labels)
         else:
             dims = calc_mlp_dims(combined_feat_dim,
-                                 division=self.tabular_config.mlp_division,
-                                 output_dim=self.tabular_config.num_labels)
+                                 division=tabular_config.mlp_division,
+                                 output_dim=tabular_config.num_labels)
             self.tabular_classifier = MLP(combined_feat_dim,
-                                          self.tabular_config.num_labels,
+                                          tabular_config.num_labels,
                                           num_hidden_lyr=len(dims),
-                                          dropout_prob=self.tabular_config.mlp_dropout,
+                                          dropout_prob=tabular_config.mlp_dropout,
                                           hidden_channels=dims,
                                           bn=True)
 
@@ -186,6 +210,6 @@ class DistilBertWithTabular(DistilBertForSequenceClassification):
         loss, logits, classifier_layer_outputs = hf_loss_func(combined_feats,
                                                               self.tabular_classifier,
                                                               labels,
-                                                              self.tabular_config.num_labels,
+                                                              self.num_labels,
                                                               class_weights)
         return loss, logits, classifier_layer_outputs

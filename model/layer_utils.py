@@ -8,11 +8,12 @@ class MLP(nn.Module):
     """mlp can specify number of hidden layers and hidden layer channels"""
 
     def __init__(self, input_dim, output_dim, act='relu', num_hidden_lyr=2,
-                 dropout_prob=0.5,
+                 dropout_prob=0.5, return_layer_outs=False,
                  hidden_channels=None, bn=False):
         super().__init__()
         self.out_dim = output_dim
         self.dropout = nn.Dropout(dropout_prob)
+        self.return_layer_outs = return_layer_outs
         if not hidden_channels:
             hidden_channels = [input_dim for _ in range(num_hidden_lyr)]
         elif len(hidden_channels) != num_hidden_lyr:
@@ -57,7 +58,10 @@ class MLP(nn.Module):
                 layer_inputs.append(self.dropout(output))
 
         # model.store_layer_output(self, layer_inputs[-1])
-        return layer_inputs[-1], layer_inputs
+        if self.return_layer_outs:
+            return layer_inputs[-1], layer_inputs
+        else:
+            return layer_inputs
 
 
 def calc_mlp_dims(input_dim, division=2, output_dim=1):

@@ -12,18 +12,13 @@ from transformers import (
     DistilBertTokenizer,
     AdamW
 )
-
 # make sure can import modules from the current directory
-cur_folder = dirname(abspath(''))
-src_folder = join(cur_folder, 'src')
-sys.path.insert(0, cur_folder)
-sys.path.insert(1, src_folder)
 
-from multimodal_config import TabularConfig
-from multimodal_transformers import (
+from model.multimodal_config import TabularConfig
+from model.multimodal_transformers import (
     BertWithTabular, RobertaWithTabular, DistilBertWithTabular
 )
-from multimodal_modeling_auto import AutoModelWithTabular
+from model.multimodal_modeling_auto import AutoModelWithTabular
 
 MODEL_CLASSES = {
     'bert_w_tabular': (BertConfig, BertWithTabular, BertTokenizer, 'bert-base-uncased'),
@@ -38,48 +33,18 @@ model = 'distilbert_w_tabular'  # change this to try different with tabular mode
 # Load pre-trained model tokenizer (vocabulary)
 tokenizer = MODEL_CLASSES[model][2].from_pretrained(MODEL_CLASSES[model][3])
 
+text1 = ['Who was Jim Henson ?', 'Jim Henson was a puppeteer']
+text1 = f' {tokenizer.sep_token} '.join(text1)
+text2 = 'Just some random text'
+
+print(f'======= Texts ======\n{text1}\n{text2}\n')
+
 # Tokenize input
-if model in ['bert_w_tabular', 'finbert_w_tabular', 'distilbert_w_tabular']:
-    text1 = 'Who was Jim Henson ?', 'Jim Henson was a puppeteer'
-    text2 = 'Just some random text'
-
-    tokenized_text1 = tokenizer.tokenize(text1[0]), tokenizer.tokenize(text1[1])
-    tokenized_text2 = tokenizer.tokenize(text2)
-    # Convert token to vocabulary indices
-    indexed_tokens1 = (tokenizer.convert_tokens_to_ids(tokenized_text1[0]),
-                       tokenizer.convert_tokens_to_ids(tokenized_text1[1]))
-    indexed_tokens2 = tokenizer.convert_tokens_to_ids(tokenized_text2)
-
-    # Add special tokens
-    tokenized_ids1 = tokenizer.build_inputs_with_special_tokens(indexed_tokens1[0],
-                                                                indexed_tokens1[1])
-    tokenized_ids2 = tokenizer.build_inputs_with_special_tokens(indexed_tokens2)
-
-    # Define sentence A and B indices associated to 1st and 2nd sentences (see paper)
-    segments_ids1 = tokenizer.create_token_type_ids_from_sequences(*indexed_tokens1)
-    segments_ids2 = tokenizer.create_token_type_ids_from_sequences(indexed_tokens2)
-
-    #  Need to do padding for the shorter sentence
-    tokenized_ids2 = tokenized_ids2 + [0] * (len(tokenized_ids1) - len(tokenized_ids2))
-    segments_ids2 = segments_ids2 + [0] * (len(segments_ids1) - len(segments_ids2))
-
-    # Convert inputs to PyTorch tensors
-    tokens_tensor = torch.tensor([tokenized_ids1, tokenized_ids2])
-    if model in ['bert_w_tabular', 'finbert_w_tabular']:
-        segments_tensors = torch.tensor([segments_ids1, segments_ids2])
-    else:
-        segments_tensors = None
-
-elif model == 'roberta_w_tabular':
-    text1 = 'Who was Jim Hensen ? </s> Jim Henson was a puppeteer'
-    text2 = 'Just some random text'
-    indexed_tokens1 = tokenizer(text1)['input_ids']
-    indexed_tokens2 = tokenizer(text2)['input_ids']
-    indexed_tokens2 = indexed_tokens2 + [0] * (len(indexed_tokens1) - len(indexed_tokens2))
-    tokens_tensor = torch.tensor([indexed_tokens1, indexed_tokens2])
-    segments_tensors = None
-
-print(f'input ids shape: {tokens_tensor.shape}')
+model_input = tokenizer([text1, text2], padding=True, truncation=True, return_tensors='pt')
+tokenized_str1 = ' '.join(tokenizer.convert_ids_to_tokens(model_input['input_ids'][0]))
+tokenized_str2 = ' '.join(tokenizer.convert_ids_to_tokens(model_input['input_ids'][0]))
+print(f'====== Tokenized Texts ======:\n{tokenized_str1}\n{tokenized_str2}\n')
+print(f"Input ids shape: {model_input.data['input_ids'].shape}")
 
 # 5 numerical features
 numerical_feat = torch.rand(2, 5).float()
@@ -109,8 +74,7 @@ model = MODEL_CLASSES[model][1].from_pretrained(MODEL_CLASSES[model][3], config=
 print(model)
 
 
-tokens_tensors = tokens_tensor.to(device)
-segments_tensors = segments_tensors.to(device) if segments_tensors is not None else None
+model_input = model_input.to(device)
 numerical_feat = numerical_feat.to(device)
 categorical_feat = categorical_feat.to(device)
 labels = labels.to(device)
@@ -120,14 +84,9 @@ model.to(device)
 optimizer = AdamW(model.parameters(), lr=5e-5)
 # One forward pass and one backward pass
 model.train()
-if segments_tensors is not None:
-    loss, _, _ = model(tokens_tensors, token_type_ids=segments_tensors,
-                       labels=labels, cat_feats=categorical_feat,
-                       numerical_feats=numerical_feat)
-else:
-    loss, _, _ = model(tokens_tensors,
-                       labels=labels, cat_feats=categorical_feat,
-                       numerical_feats=numerical_feat)
+loss, _, _ = model(**model_input,
+                   labels=labels, cat_feats=categorical_feat,
+                   numerical_feats=numerical_feat)
 
 print(f'Loss: {loss.item()}')
 loss.backward()
@@ -138,17 +97,10 @@ model.zero_grad()
 model.eval()
 with torch.no_grad():
     # If labels are passed then loss will also be returned
-    if segments_tensors is not None:
-        _, logits, classifier_outputs = model(tokens_tensors,
-                                              token_type_ids=segments_tensors,
-                                              cat_feats=categorical_feat,
-                                              numerical_feats=numerical_feat
-                                              )
-    else:
-        _, logits, classifier_outputs = model(tokens_tensors,
-                                              cat_feats=categorical_feat,
-                                              numerical_feats=numerical_feat
-                                              )
+    _, logits, classifier_outputs = model(**model_input,
+                                          cat_feats=categorical_feat,
+                                          numerical_feats=numerical_feat
+                                          )
     print(f'Logits:\n{logits.detach().numpy()}')  # shape: batch_size x num_labels
     # The classifier_output is specified by last_ith_layer_as_embd of the bert config
     # The input, hidden, and output embeddings of the final classifier are saved as a list of tensors

@@ -9,7 +9,7 @@ from transformers.configuration_auto import (
 
 )
 
-from multimodal_transformers import RobertaWithTabular, BertWithTabular, DistilBertWithTabular
+from model.multimodal_transformers import RobertaWithTabular, BertWithTabular, DistilBertWithTabular
 
 
 MODEL_FOR_SEQUENCE_W_TABULAR_CLASSIFICATION_MAPPING = OrderedDict(
