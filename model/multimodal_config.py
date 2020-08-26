@@ -4,7 +4,7 @@ class TabularConfig:
         mlp_division (int): how much to decrease each MLP dim for each additional layer
         combine_feat_method (str): method to combine categorical and numerical features
         mlp_dropout (float): dropout ratio used for MLP layers
-        numerical_bn (bool): whehter to use batchnorm on numerical features
+        numerical_bn (bool): whether to use batchnorm on numerical features
         use_simple_classifier (bool): whether to use single layer or MLP as final classifier
         mlp_act (str): the activation function to use for finetuning layers
         gating_beta (float): the beta hyperparameters used for gating tabular data
@@ -36,4 +36,3 @@ class TabularConfig:
         self.numerical_feat_dim = numerical_feat_dim
         self.cat_feat_dim = cat_feat_dim
         self.num_labels = num_labels
-        self.__dict__.update(kwargs)

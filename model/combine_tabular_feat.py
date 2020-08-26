@@ -278,7 +278,7 @@ class TabularFeatCombiner(nn.Module):
             if cat_feats.shape[1] != 0:
                 cat_feats = self.cat_mlp(cat_feats)
             if numerical_feats.shape[1] != 0:
-                numerical_feats, _ = self.num_mlp(numerical_feats)
+                numerical_feats = self.num_mlp(numerical_feats)
             combined_feats = torch.cat((text_feats, cat_feats, numerical_feats), dim=1)
         elif self.combine_feat_method == 'weighted_feature_sum_on_bert_cat_and_numerical_feats':
             if cat_feats.shape[1] != 0:

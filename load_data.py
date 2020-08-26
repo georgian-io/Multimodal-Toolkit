@@ -1,9 +1,86 @@
 from functools import partial
+from os.path import join, exists
 import types
 
 from encode_features import CategoricalFeatures
+import pandas as pd
 from torch_dataset import TorchTextDataset
 from tqdm import tqdm
+
+
+def load_data_from_folder(folder_path,
+                          text_cols,
+                          tokenizer,
+                          label_col,
+                          categorical_cols=None,
+                          numerical_cols=None,
+                          sep_text_token_str=' ',
+                          categorical_encode_type='ohe',
+                          empty_text_values=None,
+                          replace_empty_text=None,
+                          max_token_length=None,
+                          ):
+    train_df = pd.read_csv(join(folder_path, 'train.csv'))
+    test_df = pd.read_csv(join(folder_path, 'test.csv'))
+    if exists(join(folder_path, 'val.csv')):
+        val_df = pd.read_csv(join(folder_path, 'val.csv'))
+    else:
+        val_df = None
+
+    if categorical_encode_type == 'ohe':
+        dfs = [df for df in [train_df, val_df, test_df] if df is not None]
+        data_df = pd.concat(dfs, axis=0)
+        data_df = pd.get_dummies(data_df, columns=categorical_cols,
+                                 dummy_na=True)
+        categorical_cols = [col for col in data_df.columns for old_col in categorical_cols
+                            if col.startswith(old_col) and len(col) > len(old_col)]
+        data_df = data_df.set_index(data_df['Unnamed: 0'])
+        train_df = data_df.loc[train_df.index]
+        if val_df is not None:
+            val_df = data_df.loc[val_df.index]
+        test_df = data_df.loc[test_df.index]
+
+        categorical_encode_type = None
+
+    train_dataset = load_data(train_df,
+                              text_cols,
+                              tokenizer,
+                              label_col,
+                              categorical_cols,
+                              numerical_cols,
+                              sep_text_token_str,
+                              categorical_encode_type,
+                              empty_text_values,
+                              replace_empty_text,
+                              max_token_length)
+    test_dataset = load_data(test_df,
+                             text_cols,
+                             tokenizer,
+                             label_col,
+                             categorical_cols,
+                             numerical_cols,
+                             sep_text_token_str,
+                             categorical_encode_type,
+                             empty_text_values,
+                             replace_empty_text,
+                             max_token_length)
+
+    if val_df is not None:
+        val_dataset = load_data(val_df,
+                                text_cols,
+                                tokenizer,
+                                label_col,
+                                categorical_cols,
+                                numerical_cols,
+                                sep_text_token_str,
+                                categorical_encode_type,
+                                empty_text_values,
+                                replace_empty_text,
+                                max_token_length)
+    else:
+        val_dataset = None
+
+    return train_dataset, val_dataset, test_dataset
 
 
 def load_data(data_df,
@@ -14,9 +91,12 @@ def load_data(data_df,
               numerical_cols=None,
               sep_text_token_str=' ',
               categorical_encode_type='ohe',
-              empty_text_values=['nan', 'None'],
-              replace_empty_text=None
+              empty_text_values=None,
+              replace_empty_text=None,
+              max_token_length=None,
               ):
+    if empty_text_values is None:
+        empty_text_values = ['nan', 'None']
     data_df = data_df[:100]
 
     def convert_to_func(arg):
@@ -44,12 +124,13 @@ def load_data(data_df,
     for i, text in tqdm(enumerate(texts_list), desc='looping texts'):
         texts_list[i] = f' {sep_text_token_str} '.join(text)
     print(f'Raw text example: {texts_list[0]}')
-    hf_model_text_input = tokenizer(texts_list, padding=True, truncation=True)
+    hf_model_text_input = tokenizer(texts_list, padding=True, truncation=True,
+                                    max_length=max_token_length)
     tokenized_text_ex = ' '.join(tokenizer.convert_ids_to_tokens(hf_model_text_input['input_ids'][0]))
     print(f'Tokenized text example: {tokenized_text_ex}')
     labels = data_df[label_col].values
 
-    return TorchTextDataset(hf_model_text_input, categorical_feats,
+    return TorchTextDataset(data_df, hf_model_text_input, categorical_feats,
                             numerical_feats,  labels)
 
 

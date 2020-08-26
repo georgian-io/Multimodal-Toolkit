@@ -61,7 +61,7 @@ class MLP(nn.Module):
         if self.return_layer_outs:
             return layer_inputs[-1], layer_inputs
         else:
-            return layer_inputs
+            return layer_inputs[-1]
 
 
 def calc_mlp_dims(input_dim, division=2, output_dim=1):

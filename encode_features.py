@@ -3,6 +3,7 @@ From https://github.com/abhishekkrthakur/mlframework/blob/master/src/categorical
 """
 from sklearn import preprocessing
 import numpy as np
+import pandas as pd
 
 
 class CategoricalFeatures:
@@ -45,8 +46,10 @@ class CategoricalFeatures:
         return np.concatenate(vals, axis=1)
 
     def _one_hot(self):
+        df = pd.get_dummies(data_df, columns=categorical_cols)
         ohe = preprocessing.OneHotEncoder(sparse=False)
         ohe.fit(self.df[self.cat_feats].values)
+        self.feat_names = ohe.get_feature_names(self.cat_feats)
         return ohe.transform(self.df[self.cat_feats].values)
 
     def fit_transform(self):
