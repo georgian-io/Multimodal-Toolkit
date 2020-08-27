@@ -17,7 +17,7 @@ from transformers import (
 
 
 from args import MultimodalDataTrainingArguments, ModelArguments, OurTrainingArguments
-from eval import calc_classification_metrics, calc_regression_metrics
+from evaluation import calc_classification_metrics, calc_regression_metrics
 from load_data import load_data_from_folder
 from model.multimodal_config import TabularConfig
 from model.multimodal_modeling_auto import AutoModelWithTabular
