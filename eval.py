@@ -28,7 +28,7 @@ def calc_classification_metrics(pred_scores, pred_labels, labels):
                   'pr_auc': pr_auc,
                   'recall': recalls[ix].item(),
                   'precision': precisions[ix].item(), 'f1': fscore[ix].item(),
-                  'tn': tn, 'fp': fp, 'fn': fn, 'tp': tp
+                  'tn': tn.item(), 'fp': fp.item(), 'fn': fn.item(), 'tp': tp.item()
                   }
     else:
         acc = (pred_labels == labels).mean()

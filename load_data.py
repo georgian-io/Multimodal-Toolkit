@@ -12,6 +12,7 @@ def load_data_from_folder(folder_path,
                           text_cols,
                           tokenizer,
                           label_col,
+                          label_list=None,
                           categorical_cols=None,
                           numerical_cols=None,
                           sep_text_token_str=' ',
@@ -20,10 +21,10 @@ def load_data_from_folder(folder_path,
                           replace_empty_text=None,
                           max_token_length=None,
                           ):
-    train_df = pd.read_csv(join(folder_path, 'train.csv'))
-    test_df = pd.read_csv(join(folder_path, 'test.csv'))
+    train_df = pd.read_csv(join(folder_path, 'train.csv'), index_col=0)
+    test_df = pd.read_csv(join(folder_path, 'test.csv'), index_col=0)
     if exists(join(folder_path, 'val.csv')):
-        val_df = pd.read_csv(join(folder_path, 'val.csv'))
+        val_df = pd.read_csv(join(folder_path, 'val.csv'), index_col=0)
     else:
         val_df = None
 
@@ -34,7 +35,6 @@ def load_data_from_folder(folder_path,
                                  dummy_na=True)
         categorical_cols = [col for col in data_df.columns for old_col in categorical_cols
                             if col.startswith(old_col) and len(col) > len(old_col)]
-        data_df = data_df.set_index(data_df['Unnamed: 0'])
         train_df = data_df.loc[train_df.index]
         if val_df is not None:
             val_df = data_df.loc[val_df.index]
@@ -46,6 +46,7 @@ def load_data_from_folder(folder_path,
                               text_cols,
                               tokenizer,
                               label_col,
+                              label_list,
                               categorical_cols,
                               numerical_cols,
                               sep_text_token_str,
@@ -57,6 +58,7 @@ def load_data_from_folder(folder_path,
                              text_cols,
                              tokenizer,
                              label_col,
+                             label_list,
                              categorical_cols,
                              numerical_cols,
                              sep_text_token_str,
@@ -70,6 +72,7 @@ def load_data_from_folder(folder_path,
                                 text_cols,
                                 tokenizer,
                                 label_col,
+                                label_list,
                                 categorical_cols,
                                 numerical_cols,
                                 sep_text_token_str,
@@ -87,6 +90,7 @@ def load_data(data_df,
               text_cols,
               tokenizer,
               label_col,
+              label_list=None,
               categorical_cols=None,
               numerical_cols=None,
               sep_text_token_str=' ',
@@ -131,7 +135,7 @@ def load_data(data_df,
     labels = data_df[label_col].values
 
     return TorchTextDataset(data_df, hf_model_text_input, categorical_feats,
-                            numerical_feats,  labels)
+                            numerical_feats,  labels, label_list)
 
 
 def agg_text_columns_func(empty_row_values, replace_text, texts):

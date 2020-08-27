@@ -108,6 +108,7 @@ class OurTrainingArguments(TrainingArguments):
     )
 
     do_eval: bool = field(default=True, metadata={"help": "Whether to run eval on the dev set."})
+    do_predict: bool = field(default=True, metadata={"help": "Whether to run predictions on the test set."})
 
     evaluate_during_training: bool = field(
         default=True, metadata={"help": "Run evaluation during training at each logging step."},

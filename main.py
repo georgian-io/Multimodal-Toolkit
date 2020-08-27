@@ -11,7 +11,6 @@ from transformers import (
     HfArgumentParser,
     Trainer,
     EvalPrediction,
-    glue_compute_metrics,
     set_seed
 )
 
@@ -60,6 +59,7 @@ def main():
         data_args.column_info['text_cols'],
         tokenizer,
         label_col=data_args.column_info['label_col'],
+        label_list=data_args.column_info['label_list'],
         categorical_cols=data_args.column_info['cat_cols'],
         numerical_cols=data_args.column_info['num_cols'],
         sep_text_token_str=tokenizer.sep_token,
@@ -113,9 +113,58 @@ def main():
     trainer.train(
         model_path=model_args.model_name_or_path if os.path.isdir(model_args.model_name_or_path) else None
     )
+    trainer.save_model()
 
-    print('here')
+    # Evaluation
+    eval_results = {}
+    if training_args.do_eval:
+        logger.info("*** Evaluate ***")
+        eval_result = trainer.evaluate(eval_dataset=val_dataset)
+
+        output_eval_file = os.path.join(
+            training_args.output_dir, f"eval_results_{task}.txt"
+        )
+        if trainer.is_world_master():
+            with open(output_eval_file, "w") as writer:
+                logger.info("***** Eval results {} *****".format(task))
+                for key, value in eval_result.items():
+                    logger.info("  %s = %s", key, value)
+                    writer.write("%s = %s\n" % (key, value))
+
+        eval_results.update(eval_result)
+
+    if training_args.do_predict:
+        logging.info("*** Test ***")
+
+        predictions = trainer.predict(test_dataset=test_dataset).predictions
+        output_test_file = os.path.join(
+            training_args.output_dir, f"test_results_{task}.txt"
+        )
+        eval_result = trainer.evaluate(eval_dataset=test_dataset)
+        if trainer.is_world_master():
+            with open(output_test_file, "w") as writer:
+                logger.info("***** Test results {} *****".format(task))
+                writer.write("index\tprediction\n")
+                if task == "classification":
+                    predictions = np.argmax(predictions, axis=1)
+                for index, item in enumerate(predictions):
+                    if test_dataset == "regression":
+                        writer.write("%d\t%3.3f\n" % (index, item))
+                    else:
+                        item = test_dataset.get_labels()[item]
+                        writer.write("%d\t%s\n" % (index, item))
+            output_test_file = os.path.join(
+                training_args.output_dir, f"test_metric_results_{task}.txt"
+            )
+            with open(output_test_file, "w") as writer:
+                logger.info("***** Test results {} *****".format(task))
+                for key, value in eval_result.items():
+                    logger.info("  %s = %s", key, value)
+                    writer.write("%s = %s\n" % (key, value))
+            eval_results.update(eval_result)
+    return eval_results
 
 
 if __name__ == '__main__':
-    main()
+    results = main()
+    print(results)

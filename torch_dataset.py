@@ -1,3 +1,4 @@
+import numpy as np
 import torch
 from torch.utils.data import Dataset as TorchDataset
 
@@ -9,6 +10,7 @@ class TorchTextDataset(TorchDataset):
                  categorical_feats,
                  numerical_feats,
                  labels,
+                 label_list=None,
                  class_weights=None
                  ):
         """
@@ -21,6 +23,7 @@ class TorchTextDataset(TorchDataset):
         self.numerical_feats = numerical_feats
         self.labels = labels
         self.class_weights = class_weights
+        self.label_list = label_list if label_list is not None else [i for i in range(len(np.unique(labels)))]
 
     def __getitem__(self, idx):
         item = {key: torch.tensor(val[idx])
@@ -34,3 +37,6 @@ class TorchTextDataset(TorchDataset):
 
     def __len__(self):
         return len(self.labels)
+
+    def get_labels(self):
+        return self.label_list
