@@ -25,8 +25,13 @@ def get_args_info_as_str(config_flags):
     d = vars(config_flags)
     for k in sorted_nicely(d.keys()):
         v = d[k]
-        s = '{0:26} : {1}'.format(k, v)
-        rtn.append(s)
+        if type(v) is dict:
+            for k2, v2 in v.items():
+                s = '{0:26} : {1}'.format(k + '_' + k2, v2)
+                rtn.append(s)
+        else:
+            s = '{0:26} : {1}'.format(k, v)
+            rtn.append(s)
     return '\n'.join(rtn)
 
 

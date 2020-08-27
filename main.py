@@ -15,9 +15,8 @@ from transformers import (
     set_seed
 )
 
-
 from args import MultimodalDataTrainingArguments, ModelArguments, OurTrainingArguments
-from eval import calc_classification_metrics, calc_regression_metrics
+from evaluation import calc_classification_metrics, calc_regression_metrics
 from load_data import load_data_from_folder
 from model.multimodal_config import TabularConfig
 from model.multimodal_modeling_auto import AutoModelWithTabular
@@ -125,11 +124,11 @@ def main():
         eval_dataset=val_dataset,
         compute_metrics=build_compute_metrics_fn(task),
     )
-
-    trainer.train(
-        model_path=model_args.model_name_or_path if os.path.isdir(model_args.model_name_or_path) else None
-    )
-    trainer.save_model()
+    if training_args.do_train:
+        trainer.train(
+            model_path=model_args.model_name_or_path if os.path.isdir(model_args.model_name_or_path) else None
+        )
+        trainer.save_model()
 
     # Evaluation
     eval_results = {}

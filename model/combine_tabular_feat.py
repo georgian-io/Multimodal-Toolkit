@@ -264,6 +264,8 @@ class TabularFeatCombiner(nn.Module):
         if self.numerical_bn and self.numerical_feat_dim != 0:
             numerical_feats = self.num_bn(numerical_feats)
 
+        if self.combine_feat_method == 'text_only':
+            combined_feats = text_feats
         if self.combine_feat_method == 'concat':
             combined_feats = torch.cat((text_feats, cat_feats, numerical_feats),
                                        dim=1)
