@@ -1,9 +1,10 @@
 import logging
 import os
 import sys
-from typing import Callable, Dict, Optional
+from typing import Callable, Dict
 
 import numpy as np
+from pprint import pformat
 from scipy.special import softmax
 from transformers import (
     AutoTokenizer,
@@ -20,6 +21,7 @@ from eval import calc_classification_metrics, calc_regression_metrics
 from load_data import load_data_from_folder
 from model.multimodal_config import TabularConfig
 from model.multimodal_modeling_auto import AutoModelWithTabular
+from utils.util import create_dir_if_not_exists
 
 logger = logging.getLogger(__name__)
 
@@ -45,14 +47,20 @@ def main():
         )
 
     # Setup logging
+    create_dir_if_not_exists(training_args.output_dir)
+    stream_handler = logging.StreamHandler(sys.stderr)
+    file_handler = logging.FileHandler(filename=os.path.join(training_args.output_dir, 'train_log.txt'),
+                                       mode='w+')
     logging.basicConfig(
         format="%(asctime)s - %(levelname)s - %(name)s -   %(message)s",
+        level=logging.DEBUG if training_args.local_rank in [-1, 0] else logging.WARN,
         datefmt="%m/%d/%Y %H:%M:%S",
-        level=logging.INFO if training_args.local_rank in [-1, 0] else logging.WARN,
+        handlers=[stream_handler, file_handler]
     )
 
     tokenizer = AutoTokenizer.from_pretrained(
-        model_args.config_name if model_args.config_name else model_args.model_name_or_path,
+        model_args.tokenizer_name if model_args.tokenizer_name else model_args.model_name_or_path,
+        cache_dir=model_args.cache_dir,
     )
     train_dataset, val_dataset, test_dataset = load_data_from_folder(
         data_args.data_path,
@@ -63,7 +71,8 @@ def main():
         categorical_cols=data_args.column_info['cat_cols'],
         numerical_cols=data_args.column_info['num_cols'],
         sep_text_token_str=tokenizer.sep_token,
-        max_token_length=training_args.max_token_length
+        max_token_length=training_args.max_token_length,
+        debug=training_args.debug,
     )
 
     set_seed(training_args.seed)
@@ -75,16 +84,19 @@ def main():
 
     config = AutoConfig.from_pretrained(
         model_args.config_name if model_args.config_name else model_args.model_name_or_path,
+        cache_dir=model_args.cache_dir,
     )
     tabular_config = TabularConfig(num_labels=num_labels,
                                    cat_feat_dim=train_dataset.cat_feats.shape[1],
                                    numerical_feat_dim=train_dataset.numerical_feats.shape[1],
                                    **vars(data_args))
     config.tabular_config = tabular_config
+    logger.info(tabular_config)
 
     model = AutoModelWithTabular.from_pretrained(
         model_args.config_name if model_args.config_name else model_args.model_name_or_path,
-        config=config
+        config=config,
+        cache_dir=model_args.cache_dir
     )
     logger.info(model)
 
@@ -120,9 +132,10 @@ def main():
     if training_args.do_eval:
         logger.info("*** Evaluate ***")
         eval_result = trainer.evaluate(eval_dataset=val_dataset)
+        logger.info(pformat(eval_result, indent=4))
 
         output_eval_file = os.path.join(
-            training_args.output_dir, f"eval_results_{task}.txt"
+            training_args.output_dir, f"eval_metric_results_{task}.txt"
         )
         if trainer.is_world_master():
             with open(output_eval_file, "w") as writer:
@@ -141,6 +154,7 @@ def main():
             training_args.output_dir, f"test_results_{task}.txt"
         )
         eval_result = trainer.evaluate(eval_dataset=test_dataset)
+        logger.info(pformat(eval_result, indent=4))
         if trainer.is_world_master():
             with open(output_test_file, "w") as writer:
                 logger.info("***** Test results {} *****".format(task))
@@ -162,6 +176,7 @@ def main():
                     logger.info("  %s = %s", key, value)
                     writer.write("%s = %s\n" % (key, value))
             eval_results.update(eval_result)
+
     return eval_results
 
 

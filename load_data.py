@@ -20,6 +20,7 @@ def load_data_from_folder(folder_path,
                           empty_text_values=None,
                           replace_empty_text=None,
                           max_token_length=None,
+                          debug=False,
                           ):
     train_df = pd.read_csv(join(folder_path, 'train.csv'), index_col=0)
     test_df = pd.read_csv(join(folder_path, 'test.csv'), index_col=0)
@@ -53,7 +54,9 @@ def load_data_from_folder(folder_path,
                               categorical_encode_type,
                               empty_text_values,
                               replace_empty_text,
-                              max_token_length)
+                              max_token_length,
+                              debug
+                              )
     test_dataset = load_data(test_df,
                              text_cols,
                              tokenizer,
@@ -65,7 +68,9 @@ def load_data_from_folder(folder_path,
                              categorical_encode_type,
                              empty_text_values,
                              replace_empty_text,
-                             max_token_length)
+                             max_token_length,
+                             debug
+                             )
 
     if val_df is not None:
         val_dataset = load_data(val_df,
@@ -79,7 +84,9 @@ def load_data_from_folder(folder_path,
                                 categorical_encode_type,
                                 empty_text_values,
                                 replace_empty_text,
-                                max_token_length)
+                                max_token_length,
+                                debug
+                                )
     else:
         val_dataset = None
 
@@ -98,10 +105,12 @@ def load_data(data_df,
               empty_text_values=None,
               replace_empty_text=None,
               max_token_length=None,
+              debug=False,
               ):
+    if debug:
+        data_df = data_df[:50]
     if empty_text_values is None:
         empty_text_values = ['nan', 'None']
-    data_df = data_df[:100]
 
     def convert_to_func(arg):
         """convert arg to func that returns True if element in arg"""
