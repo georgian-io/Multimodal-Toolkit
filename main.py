@@ -21,7 +21,7 @@ from eval import calc_classification_metrics, calc_regression_metrics
 from load_data import load_data_from_folder
 from model.multimodal_config import TabularConfig
 from model.multimodal_modeling_auto import AutoModelWithTabular
-from utils.util import create_dir_if_not_exists
+from utils.util import create_dir_if_not_exists, get_args_info_as_str
 
 logger = logging.getLogger(__name__)
 
@@ -57,6 +57,10 @@ def main():
         datefmt="%m/%d/%Y %H:%M:%S",
         handlers=[stream_handler, file_handler]
     )
+
+    logger.info(f"======== Model Args ========\n{get_args_info_as_str(model_args)}\n")
+    logger.info(f"======== Data Args ========\n{get_args_info_as_str(data_args)}\n")
+    logger.info(f"======== Training Args ========\n{get_args_info_as_str(training_args)}\n")
 
     tokenizer = AutoTokenizer.from_pretrained(
         model_args.tokenizer_name if model_args.tokenizer_name else model_args.model_name_or_path,
@@ -181,5 +185,4 @@ def main():
 
 
 if __name__ == '__main__':
-    results = main()
-    print(results)
+    main()

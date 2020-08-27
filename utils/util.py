@@ -20,11 +20,9 @@ def create_dir_if_not_exists(folder):
         makedirs(folder)
 
 
-def get_model_info_as_str(config_flags, log_dir=None):
+def get_args_info_as_str(config_flags):
     rtn = []
     d = vars(config_flags)
-    if log_dir is not None:
-        d['log_dir'] = log_dir
     for k in sorted_nicely(d.keys()):
         v = d[k]
         s = '{0:26} : {1}'.format(k, v)

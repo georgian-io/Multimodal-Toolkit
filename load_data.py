@@ -1,4 +1,5 @@
 from functools import partial
+import logging
 from os.path import join, exists
 import types
 
@@ -6,6 +7,8 @@ from encode_features import CategoricalFeatures
 import pandas as pd
 from torch_dataset import TorchTextDataset
 from tqdm import tqdm
+
+logger = logging.getLogger(__name__)
 
 
 def load_data_from_folder(folder_path,
@@ -132,7 +135,7 @@ def load_data(data_df,
                                                                 categorical_encode_type)
     agg_func = partial(agg_text_columns_func, empty_text_values, replace_empty_text)
     texts_cols = get_matching_cols(data_df, text_cols_func)
-    print(f'Text columns: {texts_cols}')
+    logger.info(f'Text columns: {texts_cols}')
     texts_list = data_df[texts_cols].agg(agg_func, axis=1).tolist()
     for i, text in tqdm(enumerate(texts_list), desc='looping texts'):
         texts_list[i] = f' {sep_text_token_str} '.join(text)
@@ -166,7 +169,7 @@ def load_cat_and_num_feats(df, cat_bool_func, num_bool_func, enocde_type=None):
 
 def load_cat_feats(df, cat_bool_func, encode_type=None):
     cat_cols = get_matching_cols(df, cat_bool_func)
-    print(f'{len(cat_cols)} categorical columns')
+    logger.info(f'{len(cat_cols)} categorical columns')
     if len(cat_cols) == 0:
         return None
     cat_feat_processor = CategoricalFeatures(df, cat_cols, encode_type)
@@ -175,7 +178,7 @@ def load_cat_feats(df, cat_bool_func, encode_type=None):
 
 def load_num_feats(df, num_bool_func):
     num_cols = get_matching_cols(df, num_bool_func)
-    print(f'{len(num_cols)} numerical columns')
+    logger.info(f'{len(num_cols)} numerical columns')
     if len(num_cols) == 0:
         return None
     return df[num_cols].values
