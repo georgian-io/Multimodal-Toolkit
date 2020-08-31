@@ -3,10 +3,12 @@ import logging
 from os.path import join, exists
 import types
 
-from encode_features import CategoricalFeatures
 import pandas as pd
+from sklearn.preprocessing import PowerTransformer, QuantileTransformer
 from torch_dataset import TorchTextDataset
 from tqdm import tqdm
+
+from encode_features import CategoricalFeatures
 
 logger = logging.getLogger(__name__)
 
@@ -20,6 +22,7 @@ def load_data_from_folder(folder_path,
                           numerical_cols=None,
                           sep_text_token_str=' ',
                           categorical_encode_type='ohe',
+                          numerical_transformer_method='quantile_normal',
                           empty_text_values=None,
                           replace_empty_text=None,
                           max_token_length=None,
@@ -32,19 +35,42 @@ def load_data_from_folder(folder_path,
     else:
         val_df = None
 
-    if categorical_encode_type == 'ohe':
+    if categorical_encode_type == 'ohe' or categorical_encode_type == 'binary':
         dfs = [df for df in [train_df, val_df, test_df] if df is not None]
         data_df = pd.concat(dfs, axis=0)
-        data_df = pd.get_dummies(data_df, columns=categorical_cols,
-                                 dummy_na=True)
-        categorical_cols = [col for col in data_df.columns for old_col in categorical_cols
-                            if col.startswith(old_col) and len(col) > len(old_col)]
+        if categorical_encode_type == 'ohe':
+            data_df = pd.get_dummies(data_df, columns=categorical_cols,
+                                     dummy_na=True)
+            categorical_cols = [col for col in data_df.columns for old_col in categorical_cols
+                                if col.startswith(old_col) and len(col) > len(old_col)]
+        elif categorical_encode_type == 'binary':
+            cat_feat_processor = CategoricalFeatures(data_df, categorical_cols, 'binary')
+            vals = cat_feat_processor.fit_transform()
+            cat_df = pd.DataFrame(vals, columns=cat_feat_processor.feat_names)
+            data_df = pd.concat([data_df, cat_df], axis=1)
+            categorical_cols = cat_feat_processor.feat_names
+
         train_df = data_df.loc[train_df.index]
         if val_df is not None:
             val_df = data_df.loc[val_df.index]
         test_df = data_df.loc[test_df.index]
 
         categorical_encode_type = None
+
+    if numerical_transformer_method != 'none':
+        if numerical_transformer_method == 'yeo_johnson':
+            numerical_transformer = PowerTransformer(method='yeo-johnson')
+        elif numerical_transformer_method == 'box_cox':
+            numerical_transformer = PowerTransformer(method='box-cox')
+        elif numerical_transformer_method == 'quantile_normal':
+            numerical_transformer = QuantileTransformer(output_distribution='normal')
+        else:
+            raise ValueError(f'preprocessing transfomer method '
+                             f'{numerical_transformer_method} not implemented')
+        num_feats = load_num_feats(train_df, convert_to_func(numerical_cols))
+        numerical_transformer.fit(num_feats)
+    else:
+        numerical_transformer = None
 
     train_dataset = load_data(train_df,
                               text_cols,
@@ -55,6 +81,7 @@ def load_data_from_folder(folder_path,
                               numerical_cols,
                               sep_text_token_str,
                               categorical_encode_type,
+                              numerical_transformer,
                               empty_text_values,
                               replace_empty_text,
                               max_token_length,
@@ -69,6 +96,7 @@ def load_data_from_folder(folder_path,
                              numerical_cols,
                              sep_text_token_str,
                              categorical_encode_type,
+                             numerical_transformer,
                              empty_text_values,
                              replace_empty_text,
                              max_token_length,
@@ -85,6 +113,7 @@ def load_data_from_folder(folder_path,
                                 numerical_cols,
                                 sep_text_token_str,
                                 categorical_encode_type,
+                                numerical_transformer,
                                 empty_text_values,
                                 replace_empty_text,
                                 max_token_length,
@@ -105,6 +134,7 @@ def load_data(data_df,
               numerical_cols=None,
               sep_text_token_str=' ',
               categorical_encode_type='ohe',
+              numerical_transformer=None,
               empty_text_values=None,
               replace_empty_text=None,
               max_token_length=None,
@@ -115,16 +145,6 @@ def load_data(data_df,
     if empty_text_values is None:
         empty_text_values = ['nan', 'None']
 
-    def convert_to_func(arg):
-        """convert arg to func that returns True if element in arg"""
-        if arg is None:
-            return lambda df, x: False
-        if not isinstance(arg, types.FunctionType):
-            assert type(arg) is list or type(arg) is set
-            return lambda df, x: x in arg
-        else:
-            return arg
-
     text_cols_func = convert_to_func(text_cols)
     categorical_cols_func = convert_to_func(categorical_cols)
     numerical_cols_func = convert_to_func(numerical_cols)
@@ -133,6 +153,7 @@ def load_data(data_df,
                                                                 categorical_cols_func,
                                                                 numerical_cols_func,
                                                                 categorical_encode_type)
+    numerical_feats = normalize_numerical_feats(numerical_feats, numerical_transformer)
     agg_func = partial(agg_text_columns_func, empty_text_values, replace_empty_text)
     texts_cols = get_matching_cols(data_df, text_cols_func)
     logger.info(f'Text columns: {texts_cols}')
@@ -148,6 +169,23 @@ def load_data(data_df,
 
     return TorchTextDataset(data_df, hf_model_text_input, categorical_feats,
                             numerical_feats,  labels, label_list)
+
+
+def normalize_numerical_feats(numerical_feats, transformer=None):
+    if numerical_feats is None or transformer is None:
+        return numerical_feats
+    return transformer.transform(numerical_feats)
+
+
+def convert_to_func(arg):
+    """convert arg to func that returns True if element in arg"""
+    if arg is None:
+        return lambda df, x: False
+    if not isinstance(arg, types.FunctionType):
+        assert type(arg) is list or type(arg) is set
+        return lambda df, x: x in arg
+    else:
+        return arg
 
 
 def agg_text_columns_func(empty_row_values, replace_text, texts):
@@ -179,6 +217,7 @@ def load_cat_feats(df, cat_bool_func, encode_type=None):
 def load_num_feats(df, num_bool_func):
     num_cols = get_matching_cols(df, num_bool_func)
     logger.info(f'{len(num_cols)} numerical columns')
+    df[num_cols] = df[num_cols].fillna(df[num_cols].median())
     if len(num_cols) == 0:
         return None
     return df[num_cols].values

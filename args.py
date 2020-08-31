@@ -49,6 +49,16 @@ class MultimodalDataTrainingArguments:
         'help': 'the path to the json file detailing which columns are text, categorical, numerical, and the label'
     })
 
+    categorical_encode_type: str = field(default='ohe',
+                                         metadata={
+                                             'help': 'sklearn encoder to use for categorical data',
+                                             'choices': ['ohe', 'binary', 'label', 'none']
+                                         })
+    numerical_transformer_method: str = field(default='yeo_johnson',
+                                              metadata={
+                                                  'help': 'sklearn numerical transformer to preprocess numerical data',
+                                                  'choices': ['yeo_johnson', 'box_cox', 'quantile_normal', 'none']
+                                              })
     task: str = field(default="classification",
                       metadata={
                           "help": "The downstream training task",
@@ -123,7 +133,7 @@ class OurTrainingArguments(TrainingArguments):
     )
 
     gradient_accumulation_steps: int = field(
-        default=2,
+        default=1,
         metadata={"help": "Number of updates steps to accumulate before performing a backward/update pass."},
     )
 
@@ -136,6 +146,7 @@ class OurTrainingArguments(TrainingArguments):
         if self.debug:
             self.max_token_length = 16
             self.logging_steps = 5
+            self.overwrite_output_dir = True
 
 
     @cached_property

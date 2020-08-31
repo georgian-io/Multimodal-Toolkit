@@ -73,6 +73,8 @@ def main():
         label_list=data_args.column_info['label_list'],
         categorical_cols=data_args.column_info['cat_cols'],
         numerical_cols=data_args.column_info['num_cols'],
+        categorical_encode_type=data_args.categorical_encode_type,
+        numerical_transformer_method=data_args.numerical_transformer_method,
         sep_text_token_str=tokenizer.sep_token,
         max_token_length=training_args.max_token_length,
         debug=training_args.debug,
@@ -165,7 +167,7 @@ def main():
                 if task == "classification":
                     predictions = np.argmax(predictions, axis=1)
                 for index, item in enumerate(predictions):
-                    if test_dataset == "regression":
+                    if task == "regression":
                         writer.write("%d\t%3.3f\n" % (index, item))
                     else:
                         item = test_dataset.get_labels()[item]

@@ -3,7 +3,6 @@ From https://github.com/abhishekkrthakur/mlframework/blob/master/src/categorical
 """
 from sklearn import preprocessing
 import numpy as np
-import pandas as pd
 
 
 class CategoricalFeatures:
@@ -37,16 +36,24 @@ class CategoricalFeatures:
 
     def _label_binarization(self):
         vals =[]
+        self.feat_names = []
+
+        def change_name_func(x):
+            return x.lower().replace(', ', '_').replace(' ', '_')
         for c in self.cat_feats:
-            lbl = preprocessing.LabelBinarizer()
-            lbl.fit(self.df[c].values)
-            val = lbl.transform(self.df[c].values)
+            self.df[c] = self.df[c].astype(str)
+            classes_orig = self.df[c].unique()
+            val = preprocessing.label_binarize(self.df[c].values, classes=classes_orig)
             vals.append(val)
-            self.binary_encoders[c] = lbl
+            if len(classes_orig) == 2:
+                classes = [c + '_binary']
+            else:
+                change_classes_func_vec = np.vectorize(lambda x: c + '_' + change_name_func(x))
+                classes = change_classes_func_vec(classes_orig)
+            self.feat_names.extend(classes)
         return np.concatenate(vals, axis=1)
 
     def _one_hot(self):
-        df = pd.get_dummies(data_df, columns=categorical_cols)
         ohe = preprocessing.OneHotEncoder(sparse=False)
         ohe.fit(self.df[self.cat_feats].values)
         self.feat_names = ohe.get_feature_names(self.cat_feats)
@@ -59,7 +66,7 @@ class CategoricalFeatures:
             return self._label_binarization()
         elif self.enc_type == "ohe":
             return self._one_hot()
-        elif self.enc_type is None:
+        elif self.enc_type is None or self.enc_type == "none":
             return self.df[self.cat_feats].values
         else:
             raise Exception("Encoding type not understood")
