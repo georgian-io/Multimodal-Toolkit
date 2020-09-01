@@ -1,0 +1,14 @@
+{
+  "output_dir": "./logs/gating_on_cat_and_num_feats_then_sum/",
+  "debug": true,
+  "task": "classification",
+  "combine_feat_method": "gating_on_cat_and_num_feats_then_sum",
+  "experiment_name": "Bert Base Uncased",
+  "model_name_or_path": "bert-base-uncased",
+  "do_train": true,
+  "tokenizer_name": "bert-base-uncased",
+  "per_device_train_batch_size": 16,
+  "data_path": "./datasets/Womens_Clothing_E-Commerce_Reviews",
+  "column_info_path":  "./datasets/Womens_Clothing_E-Commerce_Reviews/column_info.json"
+}
+

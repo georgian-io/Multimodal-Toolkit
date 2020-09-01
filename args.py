@@ -45,8 +45,17 @@ class MultimodalDataTrainingArguments:
     data_path: str = field(metadata={
                               'help': 'the path to the csv file containing the dataset'
                           })
-    column_info_path: str = field(metadata={
-        'help': 'the path to the json file detailing which columns are text, categorical, numerical, and the label'
+    column_info_path: str = field(
+        default=None,
+        metadata={
+            'help': 'the path to the json file detailing which columns are text, categorical, numerical, and the label'
+    })
+
+    column_info: dict = field(
+        default=None,
+        metadata={
+            'help': 'a dict referencing the text, categorical, numerical, and label columns'
+                    'its keys are text_cols, num_cols, cat_cols, and label_col'
     })
 
     categorical_encode_type: str = field(default='ohe',
@@ -99,8 +108,10 @@ class MultimodalDataTrainingArguments:
                                })
 
     def __post_init__(self):
-        with open(self.column_info_path, 'r') as f:
-            self.column_info = json.load(f)
+        assert self.column_info != self.column_info_path
+        if self.column_info is None and self.column_info_path:
+            with open(self.column_info_path, 'r') as f:
+                self.column_info = json.load(f)
 
 
 @dataclass
