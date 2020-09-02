@@ -1,0 +1,24 @@
+{
+  "output_dir": "./logs_airbnb/bertmultilingual_gating_on_cat_and_num_feats_then_sum_full_model_lr_3e-3/",
+  "debug": false,
+  "task": "regression",
+  "combine_feat_method": "gating_on_cat_and_num_feats_then_sum",
+  "experiment_name": "Bert Base Uncased",
+  "model_name_or_path": "bert-base-multilingual-uncased",
+  "do_train": true,
+  "categorical_encode_type": "binary",
+  "numerical_transformer_method": "quantile_normal",
+  "tokenizer_name": "bert-base-multilingual-uncased",
+  "use_simple_classifier": false,
+  "logging_dir": "./logs_airbnb/bertmultilingual_gating_on_cat_and_num_feats_then_sum_full_model_lr_3e-3/",
+  "num_train_epochs": 5,
+  "overwrite_output_dir": true,
+  "learning_rate": 3e-3,
+  "per_device_train_batch_size": 12,
+  "per_device_eval_batch_size": 12,
+  "logging_steps": 500,
+  "save_steps": 3000,
+  "data_path": "./datasets/Melbourne_Airbnb_Open_Data",
+  "column_info_path":  "./datasets/Melbourne_Airbnb_Open_Data/column_info.json"
+}
+

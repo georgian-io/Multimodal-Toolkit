@@ -1,0 +1,374 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Introduction by Example &mdash; multimodal toolkit  documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+
+  
+  
+  
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Combine Methods" href="combine_methods.html" />
+    <link rel="prev" title="Multimodal Toolkit Documentation" href="../index.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home" alt="Documentation Home"> multimodal toolkit
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Notes</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Introduction by Example</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#how-to-initialize-transformer-with-tabular-modules">How to Initialize Transformer With Tabular Modules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#foward-pass-of-transformer-with-tabular-models">Foward Pass of Transformer with Tabular Models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#modifications-only-one-type-of-tabular-feature-or-no-tabular-features">Modifications: Only One Type of Tabular Feature or No Tabular Features</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#inference">Inference</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="combine_methods.html">Combine Methods</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Package Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../modules/model.html">multimodal.model</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../modules/data.html">multimodal.data</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">multimodal toolkit</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+      <li>Introduction by Example</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/notes/introduction.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="introduction-by-example">
+<h1>Introduction by Example<a class="headerlink" href="#introduction-by-example" title="Permalink to this headline">¶</a></h1>
+<p>This guide covers how to use the PyTorch module bert_w_tabular in your own project. It shows</p>
+<div class="contents local topic" id="contents">
+<ul class="simple">
+<li><p><a class="reference internal" href="#how-to-initialize-transformer-with-tabular-modules" id="id1">How to Initialize Transformer With Tabular Modules</a></p></li>
+<li><p><a class="reference internal" href="#foward-pass-of-transformer-with-tabular-models" id="id2">Foward Pass of Transformer with Tabular Models</a></p></li>
+<li><p><a class="reference internal" href="#modifications-only-one-type-of-tabular-feature-or-no-tabular-features" id="id3">Modifications: Only One Type of Tabular Feature or No Tabular Features</a></p></li>
+<li><p><a class="reference internal" href="#inference" id="id4">Inference</a></p></li>
+</ul>
+</div>
+<div class="section" id="how-to-initialize-transformer-with-tabular-modules">
+<h2><a class="toc-backref" href="#id1">How to Initialize Transformer With Tabular Modules</a><a class="headerlink" href="#how-to-initialize-transformer-with-tabular-modules" title="Permalink to this headline">¶</a></h2>
+<p>The models which support tabular features are located in <code class="xref py py-obj docutils literal notranslate"><span class="pre">multimodal.tabular_transformers</span></code>.
+These adapted transformer modules expect the same transformer config instances as
+the ones from HuggingFace. However, expect a <code class="xref py py-class docutils literal notranslate"><span class="pre">multimodal.tabular_config.TabularConfig</span></code> instance specifying
+the configs.</p>
+<p>Say for example we had categorical features of dim 9 and numerical features of dim 5.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">transformers</span> <span class="kn">import</span> <span class="n">BertConfig</span>
+
+<span class="kn">from</span> <span class="nn">multimodal.model.tabular_transformers</span> <span class="kn">import</span> <span class="n">BertWithTabular</span>
+<span class="kn">from</span> <span class="nn">multimodal.model.tabular_config</span> <span class="kn">import</span> <span class="n">TabularConfig</span>
+
+<span class="n">bert_config</span> <span class="o">=</span> <span class="n">BertConfig</span><span class="o">.</span><span class="n">from_pretrained</span><span class="p">(</span><span class="s1">&#39;bert-base-uncased&#39;</span><span class="p">)</span>
+
+<span class="n">tabular_config</span> <span class="o">=</span> <span class="n">TabularConfig</span><span class="p">(</span>
+        <span class="n">combine_feat_method</span><span class="o">=</span><span class="s1">&#39;attention_on_cat_and_numerical_feats&#39;</span><span class="p">,</span>  <span class="c1"># change this to specify the method of combining tabular data</span>
+        <span class="n">cat_feat_dim</span><span class="o">=</span><span class="mi">9</span><span class="p">,</span>  <span class="c1"># need to specify this</span>
+        <span class="n">numerical_feat_dim</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>  <span class="c1"># need to specify this</span>
+        <span class="n">num_labels</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>   <span class="c1"># need to specify this, assuming our task is binary classification</span>
+        <span class="n">use_num_bn</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="n">bert_config</span><span class="o">.</span><span class="n">tabular_config</span> <span class="o">=</span> <span class="n">tabular_config</span>
+
+<span class="n">model</span> <span class="o">=</span> <span class="n">BertWithTabular</span><span class="o">.</span><span class="n">from_pretrained</span><span class="p">(</span><span class="s1">&#39;bert-base-uncased&#39;</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">bert_config</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>In fact for any HuggingFace transformer model supported in <code class="xref py py-obj docutils literal notranslate"><span class="pre">multimodal.tabular_transformers</span></code> we
+can initialize it using <code class="xref py py-obj docutils literal notranslate"><span class="pre">multimodal.tabular_modelling_auto.AutoModelWithTabular</span></code> to
+leverage any community trained transformer models</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">transformers</span> <span class="kn">import</span> <span class="n">AutoConfig</span>
+
+<span class="kn">from</span> <span class="nn">multimodal.model.tabular_modelling_auto</span> <span class="kn">import</span> <span class="n">AutoModelWithTabular</span>
+<span class="kn">from</span> <span class="nn">multimodal.model.tabular_config</span> <span class="kn">import</span> <span class="n">TabularConfig</span>
+
+<span class="n">hf_config</span> <span class="o">=</span> <span class="n">AutoConfig</span><span class="o">.</span><span class="n">from_pretrained</span><span class="p">(</span><span class="s1">&#39;ipuneetrathore/bert-base-cased-finetuned-finBERT&#39;</span><span class="p">)</span>
+<span class="n">tabular_config</span> <span class="o">=</span> <span class="n">TabularConfig</span><span class="p">(</span>
+        <span class="n">combine_feat_method</span><span class="o">=</span><span class="s1">&#39;attention_on_cat_and_numerical_feats&#39;</span><span class="p">,</span>  <span class="c1"># change this to specify the method of combining tabular data</span>
+        <span class="n">cat_feat_dim</span><span class="o">=</span><span class="mi">9</span><span class="p">,</span>  <span class="c1"># need to specify this</span>
+        <span class="n">numerical_feat_dim</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>  <span class="c1"># need to specify this</span>
+        <span class="n">num_labels</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>   <span class="c1"># need to specify this, assuming our task is binary classification</span>
+<span class="p">)</span>
+<span class="n">hf_config</span><span class="o">.</span><span class="n">tabular_config</span> <span class="o">=</span> <span class="n">tabular_config</span>
+
+<span class="n">model</span> <span class="o">=</span> <span class="n">AutoModelWithTabular</span><span class="o">.</span><span class="n">from_pretrained</span><span class="p">(</span><span class="s1">&#39;ipuneetrathore/bert-base-cased-finetuned-finBERT&#39;</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">hf_config</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="foward-pass-of-transformer-with-tabular-models">
+<h2><a class="toc-backref" href="#id2">Foward Pass of Transformer with Tabular Models</a><a class="headerlink" href="#foward-pass-of-transformer-with-tabular-models" title="Permalink to this headline">¶</a></h2>
+<p>During the forward pass we pass HuggingFace’s normal <a class="reference external" href="https://huggingface.co/transformers/glossary.html">transformer inputs</a>
+as well as our categorical and numerical features.</p>
+<p>The forward pass returns</p>
+<ul class="simple">
+<li><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">torch.FloatTensor</span></code> of shape <code class="xref py py-obj docutils literal notranslate"><span class="pre">(1,)</span></code>: The classification (or regression if tabular_config.num_labels==1) loss</p></li>
+<li><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">torch.FloatTensor</span></code> of shape <code class="xref py py-obj docutils literal notranslate"><span class="pre">(batch_size,</span> <span class="pre">tabular_config.num_labels)</span></code>: The classification (or regression if tabular_config.num_labels==1) scores (before SoftMax)</p></li>
+<li><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">list</span></code> of <code class="xref py py-obj docutils literal notranslate"><span class="pre">torch.FloatTensor</span></code> The outputs of each layer of the final classification layers. The 0th index of this list is the
+combining module’s output</p></li>
+</ul>
+<p>The following example shows a forward pass on two data examples</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">transformers</span> <span class="kn">import</span> <span class="n">BertTokenizer</span>
+<span class="n">tokenizer</span> <span class="o">=</span> <span class="n">BertTokenizer</span><span class="o">.</span><span class="n">from_pretrained</span><span class="p">(</span><span class="s2">&quot;bert-base-cased&quot;</span><span class="p">)</span>
+
+<span class="n">text_1</span> <span class="o">=</span> <span class="s2">&quot;HuggingFace is based in NYC&quot;</span>
+<span class="n">text_2</span> <span class="o">=</span> <span class="s2">&quot;Where is HuggingFace based?&quot;</span>
+<span class="n">model_inputs</span> <span class="o">=</span> <span class="n">tokenizer</span><span class="p">([</span><span class="n">text1</span><span class="p">,</span> <span class="n">text2</span><span class="p">]</span>
+
+<span class="c1"># 5 numerical features</span>
+<span class="n">numerical_feat</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span><span class="o">.</span><span class="n">float</span><span class="p">()</span>
+<span class="c1"># 9 categorical features</span>
+<span class="n">categorical_feat</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">([[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+                                 <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]])</span><span class="o">.</span><span class="n">float</span><span class="p">()</span>
+<span class="n">labels</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
+
+<span class="n">model_inputs</span><span class="p">[</span><span class="s1">&#39;cat_feats&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">categorical_feat</span>
+<span class="n">model_inputs</span><span class="p">[</span><span class="s1">&#39;num_feats&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">numerical_feat</span>
+<span class="n">model_inputs</span><span class="p">[</span><span class="s1">&#39;labels&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">labels</span>
+
+<span class="n">loss</span><span class="p">,</span> <span class="n">logits</span><span class="p">,</span> <span class="n">layer_outs</span> <span class="o">=</span> <span class="n">model</span><span class="p">(</span><span class="o">**</span><span class="n">model_inputs</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>We can also pass in the arguments explicitly</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">loss</span><span class="p">,</span> <span class="n">logits</span><span class="p">,</span> <span class="n">layer_outs</span> <span class="o">=</span> <span class="n">model</span><span class="p">(</span>
+    <span class="n">model_inputs</span><span class="p">[</span><span class="s1">&#39;input_ids&#39;</span><span class="p">],</span>
+    <span class="n">token_type_ids</span><span class="o">=</span><span class="n">model_inputs</span><span class="p">[</span><span class="s1">&#39;token_type_ids&#39;</span><span class="p">],</span>
+    <span class="n">labels</span><span class="o">=</span><span class="n">labels</span><span class="p">,</span>
+    <span class="n">cat_feats</span><span class="o">=</span><span class="n">categorical_feat</span><span class="p">,</span>
+    <span class="n">numerical_feats</span><span class="o">=</span><span class="n">numerical_feat</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="modifications-only-one-type-of-tabular-feature-or-no-tabular-features">
+<h2><a class="toc-backref" href="#id3">Modifications: Only One Type of Tabular Feature or No Tabular Features</a><a class="headerlink" href="#modifications-only-one-type-of-tabular-feature-or-no-tabular-features" title="Permalink to this headline">¶</a></h2>
+<p>If there are no tabular features, the models basically default to the ForSequenceClassification
+models from HuggingFace. We must specify <code class="xref py py-obj docutils literal notranslate"><span class="pre">combine_feat_method='text_only'</span></code> in
+<code class="xref py py-class docutils literal notranslate"><span class="pre">multimodal.tabular_config.TabularConfig</span></code>. During the forward pass
+we can simply pass the text related inputs</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">loss</span><span class="p">,</span> <span class="n">logits</span><span class="p">,</span> <span class="n">layer_outs</span> <span class="o">=</span> <span class="n">model</span><span class="p">(</span>
+    <span class="n">model_inputs</span><span class="p">[</span><span class="s1">&#39;input_ids&#39;</span><span class="p">],</span>
+    <span class="n">token_type_ids</span><span class="o">=</span><span class="n">model_inputs</span><span class="p">[</span><span class="s1">&#39;token_type_ids&#39;</span><span class="p">],</span>
+    <span class="n">labels</span><span class="o">=</span><span class="n">labels</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>If only one of the features is available, we first must specify a
+<code class="xref py py-obj docutils literal notranslate"><span class="pre">combine_feat_method</span></code> that supports only one type of feature available.
+See supported methods for more details.
+When initializing our tabular config we specify the dimensions of the feature we have.
+For example if we only have categorical features</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">tabular_config</span> <span class="o">=</span> <span class="n">TabularConfig</span><span class="p">(</span>
+    <span class="n">combine_feat_method</span><span class="o">=</span><span class="s1">&#39;attention_on_cat_and_numerical_feats&#39;</span><span class="p">,</span>  <span class="c1"># change this to specify the method of combining tabular data</span>
+    <span class="n">cat_feat_dim</span><span class="o">=</span><span class="mi">9</span><span class="p">,</span>  <span class="c1"># need to specify this</span>
+    <span class="n">num_labels</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>   <span class="c1"># need to specify this, assuming our task is binary classification</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>During the forward pass, we also pass only the tabular data that we have.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">loss</span><span class="p">,</span> <span class="n">logits</span><span class="p">,</span> <span class="n">layer_outs</span> <span class="o">=</span> <span class="n">model</span><span class="p">(</span>
+    <span class="n">model_inputs</span><span class="p">[</span><span class="s1">&#39;input_ids&#39;</span><span class="p">],</span>
+    <span class="n">token_type_ids</span><span class="o">=</span><span class="n">model_inputs</span><span class="p">[</span><span class="s1">&#39;token_type_ids&#39;</span><span class="p">],</span>
+    <span class="n">labels</span><span class="o">=</span><span class="n">labels</span><span class="p">,</span>
+    <span class="n">cat_feats</span><span class="o">=</span><span class="n">categorical_feat</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="inference">
+<h2><a class="toc-backref" href="#id4">Inference</a><a class="headerlink" href="#inference" title="Permalink to this headline">¶</a></h2>
+<p>During inference we do not need to pass the labels and we can take the logits from the second output from the forward pass of the model.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">with</span> <span class="n">torch</span><span class="o">.</span><span class="n">no_grad</span><span class="p">():</span>
+    <span class="n">_</span><span class="p">,</span> <span class="n">logits</span><span class="p">,</span> <span class="n">classifier_outputs</span> <span class="o">=</span> <span class="n">model</span><span class="p">(</span>
+        <span class="n">model_inputs</span><span class="p">[</span><span class="s1">&#39;input_ids&#39;</span><span class="p">],</span>
+        <span class="n">token_type_ids</span><span class="o">=</span><span class="n">model_inputs</span><span class="p">[</span><span class="s1">&#39;token_type_ids&#39;</span><span class="p">],</span>
+        <span class="n">cat_feats</span><span class="o">=</span><span class="n">categorical_feat</span><span class="p">,</span>
+        <span class="n">numerical_feats</span><span class="o">=</span><span class="n">numerical_feat</span>
+    <span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="combine_methods.html" class="btn btn-neutral float-right" title="Combine Methods" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="../index.html" class="btn btn-neutral float-left" title="Multimodal Toolkit Documentation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        
+        &copy; Copyright 2020, Ken
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

@@ -1,0 +1,346 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>multimodal.model.tabular_modeling_auto &mdash; multimodal toolkit  documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+
+  
+  
+  
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home" alt="Documentation Home"> multimodal toolkit
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Notes</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../notes/introduction.html">Introduction by Example</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../notes/combine_methods.html">Combine Methods</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Package Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../modules/model.html">multimodal.model</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../modules/data.html">multimodal.data</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">multimodal toolkit</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>multimodal.model.tabular_modeling_auto</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for multimodal.model.tabular_modeling_auto</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">OrderedDict</span>
+
+<span class="kn">from</span> <span class="nn">transformers.configuration_utils</span> <span class="kn">import</span> <span class="n">PretrainedConfig</span>
+<span class="kn">from</span> <span class="nn">transformers.configuration_auto</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">AutoConfig</span><span class="p">,</span>
+    <span class="n">BertConfig</span><span class="p">,</span>
+    <span class="n">DistilBertConfig</span><span class="p">,</span>
+    <span class="n">RobertaConfig</span><span class="p">,</span>
+
+<span class="p">)</span>
+
+<span class="kn">from</span> <span class="nn">multimodal.model.tabular_transformers</span> <span class="kn">import</span> <span class="n">RobertaWithTabular</span><span class="p">,</span> <span class="n">BertWithTabular</span><span class="p">,</span> <span class="n">DistilBertWithTabular</span>
+
+
+<span class="n">MODEL_FOR_SEQUENCE_W_TABULAR_CLASSIFICATION_MAPPING</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">(</span>
+    <span class="p">[</span>
+        <span class="p">(</span><span class="n">RobertaConfig</span><span class="p">,</span> <span class="n">RobertaWithTabular</span><span class="p">),</span>
+        <span class="p">(</span><span class="n">BertConfig</span><span class="p">,</span> <span class="n">BertWithTabular</span><span class="p">),</span>
+        <span class="p">(</span><span class="n">DistilBertConfig</span><span class="p">,</span> <span class="n">DistilBertWithTabular</span><span class="p">)</span>
+    <span class="p">]</span>
+<span class="p">)</span>
+
+
+<div class="viewcode-block" id="AutoModelWithTabular"><a class="viewcode-back" href="../../../modules/model.html#multimodal.model.tabular_modeling_auto.AutoModelWithTabular">[docs]</a><span class="k">class</span> <span class="nc">AutoModelWithTabular</span><span class="p">:</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">EnvironmentError</span><span class="p">(</span>
+            <span class="s2">&quot;AutoModelWithTabular is designed to be instantiated &quot;</span>
+            <span class="s2">&quot;using the `AutoModelWithTabular.from_pretrained(pretrained_model_name_or_path)` or &quot;</span>
+            <span class="s2">&quot;`AutoModelWithTabular.from_config(config)` methods.&quot;</span>
+        <span class="p">)</span>
+
+<div class="viewcode-block" id="AutoModelWithTabular.from_config"><a class="viewcode-back" href="../../../modules/model.html#multimodal.model.tabular_modeling_auto.AutoModelWithTabular.from_config">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_config</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">config</span><span class="p">):</span>
+        <span class="sa">r</span><span class="sd">&quot;&quot;&quot; Instantiates one of the base model classes of the library</span>
+<span class="sd">        from a configuration.</span>
+
+<span class="sd">        Note:</span>
+<span class="sd">            Only the models in multimodal_transformers.py are implemented</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            config (:class:`~transformers.PretrainedConfig`):</span>
+<span class="sd">                The model class to instantiate is selected based on the configuration class:</span>
+<span class="sd">                    see multimodal_transformers.py for supported transformer models</span>
+
+<span class="sd">        Examples::</span>
+
+<span class="sd">            config = BertConfig.from_pretrained(&#39;bert-base-uncased&#39;)    # Download configuration from S3 and cache.</span>
+<span class="sd">            model = AutoModelWithTabular.from_config(config)  # E.g. model was saved using `save_pretrained(&#39;./test/saved_model/&#39;)`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">config_class</span><span class="p">,</span> <span class="n">model_class</span> <span class="ow">in</span> <span class="n">MODEL_FOR_SEQUENCE_W_TABULAR_CLASSIFICATION_MAPPING</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">config_class</span><span class="p">):</span>
+                <span class="k">return</span> <span class="n">model_class</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="s2">&quot;Unrecognized configuration class </span><span class="si">{}</span><span class="s2"> for this kind of AutoModel: </span><span class="si">{}</span><span class="s2">.</span><span class="se">\n</span><span class="s2">&quot;</span>
+            <span class="s2">&quot;Model type should be one of </span><span class="si">{}</span><span class="s2">.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="n">config</span><span class="o">.</span><span class="vm">__class__</span><span class="p">,</span>
+                <span class="bp">cls</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span>
+                <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="vm">__name__</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">MODEL_FOR_SEQUENCE_W_TABULAR_CLASSIFICATION_MAPPING</span><span class="o">.</span><span class="n">keys</span><span class="p">()),</span>
+            <span class="p">)</span>
+        <span class="p">)</span></div>
+
+<div class="viewcode-block" id="AutoModelWithTabular.from_pretrained"><a class="viewcode-back" href="../../../modules/model.html#multimodal.model.tabular_modeling_auto.AutoModelWithTabular.from_pretrained">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_pretrained</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">pretrained_model_name_or_path</span><span class="p">,</span> <span class="o">*</span><span class="n">model_args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sa">r</span><span class="sd">&quot;&quot;&quot; Instantiates one of the sequence classification model classes of the library</span>
+<span class="sd">        from a pre-trained model configuration.</span>
+<span class="sd">        See multimodal_transformers.py for supported transformer models</span>
+
+<span class="sd">        The `from_pretrained()` method takes care of returning the correct model class instance</span>
+<span class="sd">        based on the `model_type` property of the config object, or when it&#39;s missing,</span>
+<span class="sd">        falling back to using pattern matching on the `pretrained_model_name_or_path` string:</span>
+
+<span class="sd">        The model is set in evaluation mode by default using `model.eval()` (Dropout modules are deactivated)</span>
+<span class="sd">        To train the model, you should first set it back in training mode with `model.train()`</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            pretrained_model_name_or_path: either:</span>
+
+<span class="sd">                - a string with the `shortcut name` of a pre-trained model to load from cache or download, e.g.: ``bert-base-uncased``.</span>
+<span class="sd">                - a string with the `identifier name` of a pre-trained model that was user-uploaded to our S3, e.g.: ``dbmdz/bert-base-german-cased``.</span>
+<span class="sd">                - a path to a `directory` containing model weights saved using :func:`~transformers.PreTrainedModel.save_pretrained`, e.g.: ``./my_model_directory/``.</span>
+<span class="sd">                - a path or url to a `tensorflow index checkpoint file` (e.g. `./tf_model/model.ckpt.index`). In this case, ``from_tf`` should be set to True and a configuration object should be provided as ``config`` argument. This loading path is slower than converting the TensorFlow checkpoint in a PyTorch model using the provided conversion scripts and loading the PyTorch model afterwards.</span>
+
+<span class="sd">            model_args: (`optional`) Sequence of positional arguments:</span>
+<span class="sd">                All remaining positional arguments will be passed to the underlying model&#39;s ``__init__`` method</span>
+
+<span class="sd">            config: (`optional`) instance of a class derived from :class:`~transformers.PretrainedConfig`:</span>
+<span class="sd">                Configuration for the model to use instead of an automatically loaded configuation. Configuration can be automatically loaded when:</span>
+
+<span class="sd">                - the model is a model provided by the library (loaded with the ``shortcut-name`` string of a pretrained model), or</span>
+<span class="sd">                - the model was saved using :func:`~transformers.PreTrainedModel.save_pretrained` and is reloaded by suppling the save directory.</span>
+<span class="sd">                - the model is loaded by suppling a local directory as ``pretrained_model_name_or_path`` and a configuration JSON file named `config.json` is found in the directory.</span>
+
+<span class="sd">            state_dict: (`optional`) dict:</span>
+<span class="sd">                an optional state dictionary for the model to use instead of a state dictionary loaded from saved weights file.</span>
+<span class="sd">                This option can be used if you want to create a model from a pretrained configuration but load your own weights.</span>
+<span class="sd">                In this case though, you should check if using :func:`~transformers.PreTrainedModel.save_pretrained` and :func:`~transformers.PreTrainedModel.from_pretrained` is not a simpler option.</span>
+
+<span class="sd">            cache_dir: (`optional`) string:</span>
+<span class="sd">                Path to a directory in which a downloaded pre-trained model</span>
+<span class="sd">                configuration should be cached if the standard cache should not be used.</span>
+
+<span class="sd">            force_download: (`optional`) boolean, default False:</span>
+<span class="sd">                Force to (re-)download the model weights and configuration files and override the cached versions if they exists.</span>
+
+<span class="sd">            resume_download: (`optional`) boolean, default False:</span>
+<span class="sd">                Do not delete incompletely recieved file. Attempt to resume the download if such a file exists.</span>
+
+<span class="sd">            proxies: (`optional`) dict, default None:</span>
+<span class="sd">                A dictionary of proxy servers to use by protocol or endpoint, e.g.: {&#39;http&#39;: &#39;foo.bar:3128&#39;, &#39;http://hostname&#39;: &#39;foo.bar:4012&#39;}.</span>
+<span class="sd">                The proxies are used on each request.</span>
+
+<span class="sd">            output_loading_info: (`optional`) boolean:</span>
+<span class="sd">                Set to ``True`` to also return a dictionary containing missing keys, unexpected keys and error messages.</span>
+
+<span class="sd">            kwargs: (`optional`) Remaining dictionary of keyword arguments:</span>
+<span class="sd">                These arguments will be passed to the configuration and the model.</span>
+
+<span class="sd">        Examples::</span>
+
+<span class="sd">            model = AutoModelWithTabular.from_pretrained(&#39;bert-base-uncased&#39;)    # Download model and configuration from S3 and cache.</span>
+<span class="sd">            model = AutoModelWithTabular.from_pretrained(&#39;./test/bert_model/&#39;)  # E.g. model was saved using `save_pretrained(&#39;./test/saved_model/&#39;)`</span>
+<span class="sd">            assert model.config.output_attention == True</span>
+<span class="sd">            # Loading from a TF checkpoint file instead of a PyTorch model (slower)</span>
+<span class="sd">            config = AutoConfig.from_json_file(&#39;./tf_model/bert_tf_model_config.json&#39;)</span>
+<span class="sd">            model = AutoModelWithTabular.from_pretrained(&#39;./tf_model/bert_tf_checkpoint.ckpt.index&#39;, from_tf=True, config=config)</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">config</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;config&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">PretrainedConfig</span><span class="p">):</span>
+            <span class="n">config</span> <span class="o">=</span> <span class="n">AutoConfig</span><span class="o">.</span><span class="n">from_pretrained</span><span class="p">(</span><span class="n">pretrained_model_name_or_path</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">config_class</span><span class="p">,</span> <span class="n">model_class</span> <span class="ow">in</span> <span class="n">MODEL_FOR_SEQUENCE_W_TABULAR_CLASSIFICATION_MAPPING</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">config_class</span><span class="p">):</span>
+                <span class="k">return</span> <span class="n">model_class</span><span class="o">.</span><span class="n">from_pretrained</span><span class="p">(</span><span class="n">pretrained_model_name_or_path</span><span class="p">,</span> <span class="o">*</span><span class="n">model_args</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="s2">&quot;Unrecognized configuration class </span><span class="si">{}</span><span class="s2"> for this kind of AutoModel: </span><span class="si">{}</span><span class="s2">.</span><span class="se">\n</span><span class="s2">&quot;</span>
+            <span class="s2">&quot;Model type should be one of </span><span class="si">{}</span><span class="s2">.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="n">config</span><span class="o">.</span><span class="vm">__class__</span><span class="p">,</span>
+                <span class="bp">cls</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span>
+                <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="vm">__name__</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">MODEL_FOR_SEQUENCE_W_TABULAR_CLASSIFICATION_MAPPING</span><span class="o">.</span><span class="n">keys</span><span class="p">()),</span>
+            <span class="p">)</span>
+        <span class="p">)</span></div></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        
+        &copy; Copyright 2020, Ken
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

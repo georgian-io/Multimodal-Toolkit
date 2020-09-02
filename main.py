@@ -15,12 +15,12 @@ from transformers import (
     set_seed
 )
 
-from args import MultimodalDataTrainingArguments, ModelArguments, OurTrainingArguments
+from multimodal_exp_args import MultimodalDataTrainingArguments, ModelArguments, OurTrainingArguments
 from evaluation import calc_classification_metrics, calc_regression_metrics
-from load_data import load_data_from_folder
-from model.multimodal_config import TabularConfig
-from model.multimodal_modeling_auto import AutoModelWithTabular
-from utils.util import create_dir_if_not_exists, get_args_info_as_str
+from multimodal.data.load_data import load_data_from_folder
+from multimodal.model.tabular_config import TabularConfig
+from multimodal.model.tabular_modeling_auto import AutoModelWithTabular
+from util import create_dir_if_not_exists, get_args_info_as_str
 
 logger = logging.getLogger(__name__)
 
@@ -168,7 +168,7 @@ def main():
                     predictions = np.argmax(predictions, axis=1)
                 for index, item in enumerate(predictions):
                     if task == "regression":
-                        writer.write("%d\t%3.3f\n" % (index, item))
+                        writer.write("%d\t%3.3f\t%d\n" % (index, item, test_dataset.labels[index]))
                     else:
                         item = test_dataset.get_labels()[item]
                         writer.write("%d\t%s\n" % (index, item))

@@ -4,7 +4,7 @@
   "task": "classification",
   "combine_feat_method": "gating_on_cat_and_num_feats_then_sum",
   "experiment_name": "Bert Base Uncased",
-  "model_name_or_path": "bert-base-uncased",
+  "model_name_or_path": "ipuneetrathore/bert-base-cased-finetuned-finBERT",
   "do_train": true,
   "tokenizer_name": "bert-base-uncased",
   "per_device_train_batch_size": 16,

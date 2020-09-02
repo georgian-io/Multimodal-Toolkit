@@ -47,9 +47,8 @@ def calc_regression_metrics(preds, labels):
     mse = mean_squared_error(labels, preds)
     rmse = math.sqrt(mse)
     mae = mean_absolute_error(labels, preds)
-
     return {
         'mse': mse,
         'rmse': rmse,
-        'mae': mae
+        'mae': mae,
     }

@@ -1,0 +1,243 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>multimodal.model.tabular_config &mdash; multimodal toolkit  documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+
+  
+  
+  
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home" alt="Documentation Home"> multimodal toolkit
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Notes</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../notes/introduction.html">Introduction by Example</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../notes/combine_methods.html">Combine Methods</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Package Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../modules/model.html">multimodal.model</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../modules/data.html">multimodal.data</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">multimodal toolkit</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>multimodal.model.tabular_config</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for multimodal.model.tabular_config</h1><div class="highlight"><pre>
+<div class="viewcode-block" id="TabularConfig"><a class="viewcode-back" href="../../../modules/model.html#multimodal.model.tabular_config.TabularConfig">[docs]</a><span></span><span class="k">class</span> <span class="nc">TabularConfig</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot; Config used for tabular combiner</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        mlp_division (int): how much to decrease each MLP dim for each additional layer</span>
+<span class="sd">        combine_feat_method (str): method to combine categorical and numerical features</span>
+<span class="sd">        mlp_dropout (float): dropout ratio used for MLP layers</span>
+<span class="sd">        numerical_bn (bool): whether to use batchnorm on numerical features</span>
+<span class="sd">        use_simple_classifier (bool): whether to use single layer or MLP as final classifier</span>
+<span class="sd">        mlp_act (str): the activation function to use for finetuning layers</span>
+<span class="sd">        gating_beta (float): the beta hyperparameters used for gating tabular data</span>
+<span class="sd">            see `https://www.aclweb.org/anthology/2020.acl-main.214.pdf`,</span>
+<span class="sd">        numerical_feat_dim (int): the number of numerical features</span>
+<span class="sd">        cat_feat_dim (int): the number of categorical features</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                 <span class="n">num_labels</span><span class="p">,</span>
+                 <span class="n">mlp_division</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span>
+                 <span class="n">combine_feat_method</span><span class="o">=</span><span class="s1">&#39;text_only&#39;</span><span class="p">,</span>
+                 <span class="n">mlp_dropout</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span>
+                 <span class="n">numerical_bn</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                 <span class="n">use_simple_classifier</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                 <span class="n">mlp_act</span><span class="o">=</span><span class="s1">&#39;relu&#39;</span><span class="p">,</span>
+                 <span class="n">gating_beta</span><span class="o">=</span><span class="mf">0.2</span><span class="p">,</span>
+                 <span class="n">numerical_feat_dim</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+                 <span class="n">cat_feat_dim</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+                 <span class="o">**</span><span class="n">kwargs</span>
+                 <span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mlp_division</span> <span class="o">=</span> <span class="n">mlp_division</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">combine_feat_method</span> <span class="o">=</span> <span class="n">combine_feat_method</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mlp_dropout</span> <span class="o">=</span> <span class="n">mlp_dropout</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">numerical_bn</span> <span class="o">=</span> <span class="n">numerical_bn</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">use_simple_classifier</span> <span class="o">=</span> <span class="n">use_simple_classifier</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mlp_act</span> <span class="o">=</span> <span class="n">mlp_act</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">gating_beta</span> <span class="o">=</span> <span class="n">gating_beta</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">numerical_feat_dim</span> <span class="o">=</span> <span class="n">numerical_feat_dim</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cat_feat_dim</span> <span class="o">=</span> <span class="n">cat_feat_dim</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">num_labels</span> <span class="o">=</span> <span class="n">num_labels</span></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        
+        &copy; Copyright 2020, Ken
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

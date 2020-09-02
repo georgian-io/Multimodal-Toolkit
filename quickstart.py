@@ -1,6 +1,3 @@
-from os.path import dirname, abspath, join
-import sys
-
 import torch
 from transformers.configuration_auto import (
     BertConfig, RobertaConfig, DistilBertConfig,
@@ -14,11 +11,11 @@ from transformers import (
 )
 # make sure can import modules from the current directory
 
-from model.multimodal_config import TabularConfig
-from model.multimodal_transformers import (
+from multimodal.model.tabular_config import TabularConfig
+from multimodal.model.tabular_transformers import (
     BertWithTabular, RobertaWithTabular, DistilBertWithTabular
 )
-from model.multimodal_modeling_auto import AutoModelWithTabular
+from multimodal.model.tabular_modeling_auto import AutoModelWithTabular
 
 MODEL_CLASSES = {
     'bert_w_tabular': (BertConfig, BertWithTabular, BertTokenizer, 'bert-base-uncased'),
