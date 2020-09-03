@@ -232,13 +232,12 @@ input text</p></li>
 <p>Loads train, test and/or validation text and tabular data from specified
 folder path into TorchTextDataset class and does categorical and numerical
 data preprocessing if specified. Inside the folder, there is expected to be
-a train.csv, test.csv, and/or a val.csv containing the training, testing,
+a train.csv, and test.csv (and if given val.csv) containing the training, testing,
 and validation sets respectively</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>folder_path</strong> (<em>str</em>) – The path to the folder containing train.csv, test.csv
-and/or val.csv</p></li>
+<li><p><strong>folder_path</strong> (<em>str</em>) – The path to the folder containing <cite>train.csv</cite>, and <cite>test.csv`(and if given `val.csv</cite>)</p></li>
 <li><p><strong>text_cols</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">list</span></code> of <code class="xref py py-obj docutils literal notranslate"><span class="pre">str</span></code>) – The column names in the dataset that contain text
 from which we want to load</p></li>
 <li><p><strong>tokenizer</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">transformers.tokenization_utils.PreTrainedTokenizer</span></code>) – HuggingFace tokenizer used to tokenize the input texts as specifed by text_cols</p></li>

@@ -196,12 +196,11 @@
 <span class="sd">    Loads train, test and/or validation text and tabular data from specified</span>
 <span class="sd">    folder path into TorchTextDataset class and does categorical and numerical</span>
 <span class="sd">    data preprocessing if specified. Inside the folder, there is expected to be</span>
-<span class="sd">    a train.csv, test.csv, and/or a val.csv containing the training, testing,</span>
+<span class="sd">    a train.csv, and test.csv (and if given val.csv) containing the training, testing,</span>
 <span class="sd">    and validation sets respectively</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        folder_path (str): The path to the folder containing train.csv, test.csv</span>
-<span class="sd">            and/or val.csv</span>
+<span class="sd">        folder_path (str): The path to the folder containing `train.csv`, and `test.csv`(and if given `val.csv`)</span>
 <span class="sd">        text_cols (:obj:`list` of :obj:`str`): The column names in the dataset that contain text</span>
 <span class="sd">            from which we want to load</span>
 <span class="sd">        tokenizer (:obj:`transformers.tokenization_utils.PreTrainedTokenizer`):</span>

@@ -5,10 +5,12 @@
 
 Multimodal Toolkit Documentation
 ==============================================
-A toolkit for incorporating multimodal data on top of text data with Bert as the baseline model for text features.
-This toolkit is heavily based off of `HuggingFace Transformers <https://huggingface.co/transformers/>`_.
+A toolkit for incorporating multimodal data on top of text data for classification
+and regression tasks. This toolkit is heavily based off of `HuggingFace Transformers <https://huggingface.co/transformers/>`_.
 It adds a combining module that takes the outputs of the transformers in addition to
-categorical and numerical features.
+categorical and numerical features to produce rich multimodal features
+for downstream classification/regression layers.
+
 
 See its documentation for specific details regarding HuggingFace transformer models, configs, and tokenizers.
 

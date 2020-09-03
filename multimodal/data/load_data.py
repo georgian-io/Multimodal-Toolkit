@@ -41,12 +41,11 @@ def load_data_from_folder(folder_path,
     Loads train, test and/or validation text and tabular data from specified
     folder path into TorchTextDataset class and does categorical and numerical
     data preprocessing if specified. Inside the folder, there is expected to be
-    a train.csv, test.csv, and/or a val.csv containing the training, testing,
+    a train.csv, and test.csv (and if given val.csv) containing the training, testing,
     and validation sets respectively
 
     Args:
-        folder_path (str): The path to the folder containing train.csv, test.csv
-            and/or val.csv
+        folder_path (str): The path to the folder containing `train.csv`, and `test.csv`(and if given `val.csv`)
         text_cols (:obj:`list` of :obj:`str`): The column names in the dataset that contain text
             from which we want to load
         tokenizer (:obj:`transformers.tokenization_utils.PreTrainedTokenizer`):
