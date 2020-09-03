@@ -68,8 +68,8 @@ Model | Combine Feat Method |F1 | ROC AUC | PR AUC
 Bert Base Uncased | text_only | 0.959 | 0.969 | 0.993
 Bert Base Uncased | individual_mlps_on_cat_and_numerical_feats_then_concat | 0.958 | 0.968 | 0.993
 Bert Base Uncased | attention_on_cat_and_numerical_feats | 0.959 | 0.970 | 0.993
-Bert Base Uncased | gating_on_cat_and_num_feats_then_sum | 0.961 | 0.976 | 0.995
-Bert Base Uncased | weighted_feature_sum_on_bert_cat_and_numerical_feats | 0.963 | 0.976 | 0.994
+Bert Base Uncased | gating_on_cat_and_num_feats_then_sum | 0.961 | **0.976** | **0.995**
+Bert Base Uncased | weighted_feature_sum_on_bert_cat_and_numerical_feats | **0.963** | **0.976** | 0.994
 
 
 ### Pricing Prediction
@@ -78,7 +78,7 @@ Specific training parameters can be seen in `datasets/Melbourne_Airbnb_Open_Data
 Model | Combine Feat Method | MAE | RMSE | 
 --------|-------------|---------|------- | 
 Bert Base Multilingual Uncased | text_only | 78.77 | 175.93 |
-Bert Base Multilingual Uncased | individual_mlps_on_cat_and_numerical_feats_then_concat | 58.58 | 158.69 
+Bert Base Multilingual Uncased | individual_mlps_on_cat_and_numerical_feats_then_concat | 58.58 | **158.69** 
 Bert Base Multilingual Uncased | attention_on_cat_and_numerical_feats | 61.10 |160.51
-Bert Base Multilingual Uncased | gating_on_cat_and_num_feats_then_sum | 57.56 | 159.22 
+Bert Base Multilingual Uncased | gating_on_cat_and_num_feats_then_sum | **57.56** | 159.22 
 Bert Base Multilingual Uncased | weighted_feature_sum_on_bert_cat_and_numerical_feats | 60.11 | 159.12 
