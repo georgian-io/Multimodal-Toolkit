@@ -178,7 +178,7 @@
 <span class="sd">        hf_model_config (:class:`~transformers.BertConfig`):</span>
 <span class="sd">            Model configuration class with all the parameters of the model.</span>
 <span class="sd">            This object must also have a tabular_config member variable that is a</span>
-<span class="sd">            TabularConfig instance specifying the configs for TabularFeatCombiner</span>
+<span class="sd">            :obj:`TabularConfig` instance specifying the configs for :obj:`TabularFeatCombiner`</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">hf_model_config</span><span class="p">):</span>
@@ -225,16 +225,16 @@
         <span class="n">numerical_feats</span><span class="o">=</span><span class="kc">None</span>
     <span class="p">):</span>
         <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        class_weights (:obj:`torch.FloatTensor` of shape :obj:`(tabular_config.num_labels,)`,`optional`, defaults to :obj:`None`):</span>
+<span class="sd">        class_weights (:obj:`torch.FloatTensor` of shape :obj:`(tabular_config.num_labels,)`, `optional`, defaults to :obj:`None`):</span>
 <span class="sd">            Class weights to be used for cross entropy loss function for classification task</span>
 <span class="sd">        labels (:obj:`torch.LongTensor` of shape :obj:`(batch_size,)`, `optional`, defaults to :obj:`None`):</span>
 <span class="sd">            Labels for computing the sequence classification/regression loss.</span>
 <span class="sd">            Indices should be in :obj:`[0, ..., config.num_labels - 1]`.</span>
 <span class="sd">            If :obj:`tabular_config.num_labels == 1` a regression loss is computed (Mean-Square loss),</span>
 <span class="sd">            If :obj:`tabular_config.num_labels &gt; 1` a classification loss is computed (Cross-Entropy).</span>
-<span class="sd">        cat_feats (:obj:`torch.FloatTensor` of shape :obj:`(batch_size, tabular_config.cat_feat_dim)`,`optional`, defaults to :obj:`None`):</span>
+<span class="sd">        cat_feats (:obj:`torch.FloatTensor` of shape :obj:`(batch_size, tabular_config.cat_feat_dim)`, `optional`, defaults to :obj:`None`):</span>
 <span class="sd">            Categorical features to be passed in to the TabularFeatCombiner</span>
-<span class="sd">        numerical_feats (:obj:`torch.FloatTensor` of shape :obj:`(batch_size, tabular_config.numerical_feat_dim)`,`optional`, defaults to :obj:`None`):</span>
+<span class="sd">        numerical_feats (:obj:`torch.FloatTensor` of shape :obj:`(batch_size, tabular_config.numerical_feat_dim)`, `optional`, defaults to :obj:`None`):</span>
 <span class="sd">            Numerical features to be passed in to the TabularFeatCombiner</span>
 <span class="sd">    Returns:</span>
 <span class="sd">        :obj:`tuple` comprising various elements depending on configuration and inputs:</span>
@@ -279,7 +279,7 @@
 <span class="sd">        hf_model_config (:class:`~transformers.RobertaConfig`):</span>
 <span class="sd">            Model configuration class with all the parameters of the model.</span>
 <span class="sd">            This object must also have a tabular_config member variable that is a</span>
-<span class="sd">            TabularConfig instance specifying the configs for TabularFeatCombiner</span>
+<span class="sd">            :obj:`TabularConfig` instance specifying the configs for :obj:`TabularFeatCombiner`</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">hf_model_config</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">hf_model_config</span><span class="p">)</span>
@@ -326,16 +326,16 @@
         <span class="n">numerical_feats</span><span class="o">=</span><span class="kc">None</span>
     <span class="p">):</span>
         <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        class_weights (:obj:`torch.FloatTensor` of shape :obj:`(tabular_config.num_labels,)`,`optional`, defaults to :obj:`None`):</span>
+<span class="sd">        class_weights (:obj:`torch.FloatTensor` of shape :obj:`(tabular_config.num_labels,)`, `optional`, defaults to :obj:`None`):</span>
 <span class="sd">            Class weights to be used for cross entropy loss function for classification task</span>
 <span class="sd">        labels (:obj:`torch.LongTensor` of shape :obj:`(batch_size,)`, `optional`, defaults to :obj:`None`):</span>
 <span class="sd">            Labels for computing the sequence classification/regression loss.</span>
 <span class="sd">            Indices should be in :obj:`[0, ..., config.num_labels - 1]`.</span>
 <span class="sd">            If :obj:`tabular_config.num_labels == 1` a regression loss is computed (Mean-Square loss),</span>
 <span class="sd">            If :obj:`tabular_config.num_labels &gt; 1` a classification loss is computed (Cross-Entropy).</span>
-<span class="sd">        cat_feats (:obj:`torch.FloatTensor` of shape :obj:`(batch_size, tabular_config.cat_feat_dim)`,`optional`, defaults to :obj:`None`):</span>
+<span class="sd">        cat_feats (:obj:`torch.FloatTensor` of shape :obj:`(batch_size, tabular_config.cat_feat_dim)`, `optional`, defaults to :obj:`None`):</span>
 <span class="sd">            Categorical features to be passed in to the TabularFeatCombiner</span>
-<span class="sd">        numerical_feats (:obj:`torch.FloatTensor` of shape :obj:`(batch_size, tabular_config.numerical_feat_dim)`,`optional`, defaults to :obj:`None`):</span>
+<span class="sd">        numerical_feats (:obj:`torch.FloatTensor` of shape :obj:`(batch_size, tabular_config.numerical_feat_dim)`, `optional`, defaults to :obj:`None`):</span>
 <span class="sd">            Numerical features to be passed in to the TabularFeatCombiner</span>
 
 <span class="sd">    Returns:</span>
@@ -384,7 +384,7 @@
 <span class="sd">        hf_model_config (:class:`~transformers.DistilBertConfig`):</span>
 <span class="sd">            Model configuration class with all the parameters of the model.</span>
 <span class="sd">            This object must also have a tabular_config member variable that is a</span>
-<span class="sd">            TabularConfig instance specifying the configs for TabularFeatCombiner</span>
+<span class="sd">            :obj:`TabularConfig` instance specifying the configs for :obj:`TabularFeatCombiner`</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">hf_model_config</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">hf_model_config</span><span class="p">)</span>

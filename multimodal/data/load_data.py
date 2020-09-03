@@ -45,7 +45,7 @@ def load_data_from_folder(folder_path,
     and validation sets respectively
 
     Args:
-        folder_path (str): The path to the folder containing `train.csv`, and `test.csv`(and if given `val.csv`)
+        folder_path (str): The path to the folder containing `train.csv`, and `test.csv` (and if given `val.csv`)
         text_cols (:obj:`list` of :obj:`str`): The column names in the dataset that contain text
             from which we want to load
         tokenizer (:obj:`transformers.tokenization_utils.PreTrainedTokenizer`):
@@ -84,8 +84,8 @@ def load_data_from_folder(folder_path,
     Returns:
         :obj:`tuple` of `tabular_torch_dataset.TorchTextDataset`:
             This tuple contains the
-            training, validation and testing sets. The val dataset is None if
-            there is no val.csv in folder_path
+            training, validation and testing sets. The val dataset is :obj:`None` if
+            there is no `val.csv` in folder_path
     """
     train_df = pd.read_csv(join(folder_path, 'train.csv'), index_col=0)
     test_df = pd.read_csv(join(folder_path, 'test.csv'), index_col=0)
@@ -201,8 +201,8 @@ def load_data(data_df,
               ):
     """Function to load a single dataset given a pandas DataFrame
 
-    Given a DataFrame, this function loads the data to a torch_dataset.TorchTextDataset
-    object which can be used in a torch.utils.data.DataLoader.
+    Given a DataFrame, this function loads the data to a :obj:`torch_dataset.TorchTextDataset`
+    object which can be used in a :obj:`torch.utils.data.DataLoader`.
 
     Args:
         data_df (:obj:`pd.DataFrame`): The DataFrame to convert to a TorchTextDataset

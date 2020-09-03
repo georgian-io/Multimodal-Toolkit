@@ -5,7 +5,7 @@ from torch.utils.data import Dataset as TorchDataset
 
 class TorchTabularTextDataset(TorchDataset):
     """
-    TorchDataset Wrapper for text dataset with categorical features
+    :obj:`TorchDataset` wrapper for text dataset with categorical features
     and numerical features
 
     Parameters:

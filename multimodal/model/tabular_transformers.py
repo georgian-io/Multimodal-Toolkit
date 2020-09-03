@@ -23,7 +23,7 @@ class BertWithTabular(BertForSequenceClassification):
         hf_model_config (:class:`~transformers.BertConfig`):
             Model configuration class with all the parameters of the model.
             This object must also have a tabular_config member variable that is a
-            TabularConfig instance specifying the configs for TabularFeatCombiner
+            :obj:`TabularConfig` instance specifying the configs for :obj:`TabularFeatCombiner`
     """
 
     def __init__(self, hf_model_config):
@@ -70,16 +70,16 @@ class BertWithTabular(BertForSequenceClassification):
         numerical_feats=None
     ):
         r"""
-        class_weights (:obj:`torch.FloatTensor` of shape :obj:`(tabular_config.num_labels,)`,`optional`, defaults to :obj:`None`):
+        class_weights (:obj:`torch.FloatTensor` of shape :obj:`(tabular_config.num_labels,)`, `optional`, defaults to :obj:`None`):
             Class weights to be used for cross entropy loss function for classification task
         labels (:obj:`torch.LongTensor` of shape :obj:`(batch_size,)`, `optional`, defaults to :obj:`None`):
             Labels for computing the sequence classification/regression loss.
             Indices should be in :obj:`[0, ..., config.num_labels - 1]`.
             If :obj:`tabular_config.num_labels == 1` a regression loss is computed (Mean-Square loss),
             If :obj:`tabular_config.num_labels > 1` a classification loss is computed (Cross-Entropy).
-        cat_feats (:obj:`torch.FloatTensor` of shape :obj:`(batch_size, tabular_config.cat_feat_dim)`,`optional`, defaults to :obj:`None`):
+        cat_feats (:obj:`torch.FloatTensor` of shape :obj:`(batch_size, tabular_config.cat_feat_dim)`, `optional`, defaults to :obj:`None`):
             Categorical features to be passed in to the TabularFeatCombiner
-        numerical_feats (:obj:`torch.FloatTensor` of shape :obj:`(batch_size, tabular_config.numerical_feat_dim)`,`optional`, defaults to :obj:`None`):
+        numerical_feats (:obj:`torch.FloatTensor` of shape :obj:`(batch_size, tabular_config.numerical_feat_dim)`, `optional`, defaults to :obj:`None`):
             Numerical features to be passed in to the TabularFeatCombiner
     Returns:
         :obj:`tuple` comprising various elements depending on configuration and inputs:
@@ -124,7 +124,7 @@ class RobertaWithTabular(RobertaForSequenceClassification):
         hf_model_config (:class:`~transformers.RobertaConfig`):
             Model configuration class with all the parameters of the model.
             This object must also have a tabular_config member variable that is a
-            TabularConfig instance specifying the configs for TabularFeatCombiner
+            :obj:`TabularConfig` instance specifying the configs for :obj:`TabularFeatCombiner`
     """
     def __init__(self, hf_model_config):
         super().__init__(hf_model_config)
@@ -171,16 +171,16 @@ class RobertaWithTabular(RobertaForSequenceClassification):
         numerical_feats=None
     ):
         r"""
-        class_weights (:obj:`torch.FloatTensor` of shape :obj:`(tabular_config.num_labels,)`,`optional`, defaults to :obj:`None`):
+        class_weights (:obj:`torch.FloatTensor` of shape :obj:`(tabular_config.num_labels,)`, `optional`, defaults to :obj:`None`):
             Class weights to be used for cross entropy loss function for classification task
         labels (:obj:`torch.LongTensor` of shape :obj:`(batch_size,)`, `optional`, defaults to :obj:`None`):
             Labels for computing the sequence classification/regression loss.
             Indices should be in :obj:`[0, ..., config.num_labels - 1]`.
             If :obj:`tabular_config.num_labels == 1` a regression loss is computed (Mean-Square loss),
             If :obj:`tabular_config.num_labels > 1` a classification loss is computed (Cross-Entropy).
-        cat_feats (:obj:`torch.FloatTensor` of shape :obj:`(batch_size, tabular_config.cat_feat_dim)`,`optional`, defaults to :obj:`None`):
+        cat_feats (:obj:`torch.FloatTensor` of shape :obj:`(batch_size, tabular_config.cat_feat_dim)`, `optional`, defaults to :obj:`None`):
             Categorical features to be passed in to the TabularFeatCombiner
-        numerical_feats (:obj:`torch.FloatTensor` of shape :obj:`(batch_size, tabular_config.numerical_feat_dim)`,`optional`, defaults to :obj:`None`):
+        numerical_feats (:obj:`torch.FloatTensor` of shape :obj:`(batch_size, tabular_config.numerical_feat_dim)`, `optional`, defaults to :obj:`None`):
             Numerical features to be passed in to the TabularFeatCombiner
 
     Returns:
@@ -229,7 +229,7 @@ class DistilBertWithTabular(DistilBertForSequenceClassification):
         hf_model_config (:class:`~transformers.DistilBertConfig`):
             Model configuration class with all the parameters of the model.
             This object must also have a tabular_config member variable that is a
-            TabularConfig instance specifying the configs for TabularFeatCombiner
+            :obj:`TabularConfig` instance specifying the configs for :obj:`TabularFeatCombiner`
     """
     def __init__(self, hf_model_config):
         super().__init__(hf_model_config)

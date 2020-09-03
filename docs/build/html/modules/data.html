@@ -178,8 +178,8 @@ forward pass to a model in <a class="reference internal" href="model.html#module
 <dt id="multimodal.data.load_data.load_data">
 <code class="sig-name descname">load_data</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">data_df</span></em>, <em class="sig-param"><span class="n">text_cols</span></em>, <em class="sig-param"><span class="n">tokenizer</span></em>, <em class="sig-param"><span class="n">label_col</span></em>, <em class="sig-param"><span class="n">label_list</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">categorical_cols</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">numerical_cols</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">sep_text_token_str</span><span class="o">=</span><span class="default_value">' '</span></em>, <em class="sig-param"><span class="n">categorical_encode_type</span><span class="o">=</span><span class="default_value">'ohe'</span></em>, <em class="sig-param"><span class="n">numerical_transformer</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">empty_text_values</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">replace_empty_text</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">max_token_length</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">debug</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/multimodal/data/load_data.html#load_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#multimodal.data.load_data.load_data" title="Permalink to this definition">¶</a></dt>
 <dd><p>Function to load a single dataset given a pandas DataFrame</p>
-<p>Given a DataFrame, this function loads the data to a torch_dataset.TorchTextDataset
-object which can be used in a torch.utils.data.DataLoader.</p>
+<p>Given a DataFrame, this function loads the data to a <code class="xref py py-obj docutils literal notranslate"><span class="pre">torch_dataset.TorchTextDataset</span></code>
+object which can be used in a <code class="xref py py-obj docutils literal notranslate"><span class="pre">torch.utils.data.DataLoader</span></code>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -237,7 +237,7 @@ and validation sets respectively</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>folder_path</strong> (<em>str</em>) – The path to the folder containing <cite>train.csv</cite>, and <cite>test.csv`(and if given `val.csv</cite>)</p></li>
+<li><p><strong>folder_path</strong> (<em>str</em>) – The path to the folder containing <cite>train.csv</cite>, and <cite>test.csv</cite> (and if given <cite>val.csv</cite>)</p></li>
 <li><p><strong>text_cols</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">list</span></code> of <code class="xref py py-obj docutils literal notranslate"><span class="pre">str</span></code>) – The column names in the dataset that contain text
 from which we want to load</p></li>
 <li><p><strong>tokenizer</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">transformers.tokenization_utils.PreTrainedTokenizer</span></code>) – HuggingFace tokenizer used to tokenize the input texts as specifed by text_cols</p></li>
@@ -275,8 +275,8 @@ input text</p></li>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>This tuple contains the
-training, validation and testing sets. The val dataset is None if
-there is no val.csv in folder_path</p>
+training, validation and testing sets. The val dataset is <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code> if
+there is no <cite>val.csv</cite> in folder_path</p>
 </dd>
 <dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">tuple</span></code> of <cite>tabular_torch_dataset.TorchTextDataset</cite></p>
@@ -291,7 +291,7 @@ there is no val.csv in folder_path</p>
 <dt id="multimodal.data.tabular_torch_dataset.TorchTabularTextDataset">
 <em class="property">class </em><code class="sig-name descname">TorchTabularTextDataset</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">encodings</span></em>, <em class="sig-param"><span class="n">categorical_feats</span></em>, <em class="sig-param"><span class="n">numerical_feats</span></em>, <em class="sig-param"><span class="n">labels</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">df</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">label_list</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">class_weights</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/multimodal/data/tabular_torch_dataset.html#TorchTabularTextDataset"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#multimodal.data.tabular_torch_dataset.TorchTabularTextDataset" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">torch.utils.data.dataset.Dataset</span></code></p>
-<p>TorchDataset Wrapper for text dataset with categorical features
+<p><code class="xref py py-obj docutils literal notranslate"><span class="pre">TorchDataset</span></code> wrapper for text dataset with categorical features
 and numerical features</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
