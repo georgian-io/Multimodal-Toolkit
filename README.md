@@ -10,8 +10,15 @@ to produce rich multimodal features for downstream classification/regression lay
 
 ![](https://drive.google.com/uc?export=view&id=1aMNrv5kHDcaq8gS1EFtA6Ri4Tg_aff4E)
 
+
+
+## Installation
 The code was developed in Python 3.7 with PyTorch and Transformer 3.0.
 The multimodal specific code is in `multimodal` folder.
+```
+pip install multimodal-transformers
+```
+
 ## Included Datasets
 This repository also includes two kaggle datasets which contain text data and 
 rich tabular features

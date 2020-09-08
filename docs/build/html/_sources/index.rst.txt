@@ -21,6 +21,7 @@ See its documentation for specific details regarding HuggingFace transformer mod
    :maxdepth: 1
    :caption: Notes
 
+   notes/installation
    notes/introduction
    notes/combine_methods
    notes/colab_example
