@@ -12,9 +12,15 @@
 #
 import os
 import sys
-print(os.getcwd())
-sys.path.insert(0, os.path.abspath('../../multimodal/'))
-sys.path.insert(0, os.path.abspath('../../'))
+abs_path = os.getcwd()
+print(abs_path)
+while True:
+    basename = os.path.basename(abs_path)
+    if basename.lower() == 'multimodal-toolkit':
+        break
+    abs_path = os.path.dirname(abs_path)
+print(abs_path)
+sys.path.insert(0, abs_path)
 
 
 # -- Project information -----------------------------------------------------
