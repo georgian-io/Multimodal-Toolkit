@@ -3,7 +3,7 @@ from torch import nn
 import torch.nn.functional as F
 from transformers.modeling_bert import BertLayerNorm
 
-from multimodal.model.layer_utils import calc_mlp_dims, create_act, glorot, zeros, MLP
+from .layer_utils import calc_mlp_dims, create_act, glorot, zeros, MLP
 
 
 class TabularFeatCombiner(nn.Module):

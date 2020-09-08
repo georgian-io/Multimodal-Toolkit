@@ -3,11 +3,10 @@ import logging
 from os.path import join, exists
 
 import pandas as pd
-import transformers
 from sklearn.preprocessing import PowerTransformer, QuantileTransformer
-from multimodal.data.tabular_torch_dataset import TorchTabularTextDataset
 
-from multimodal.data.data_utils import (
+from .tabular_torch_dataset import TorchTabularTextDataset
+from .data_utils import (
     CategoricalFeatures,
     agg_text_columns_func,
     convert_to_func,

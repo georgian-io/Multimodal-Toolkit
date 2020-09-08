@@ -8,9 +8,10 @@ from transformers.modeling_bert import BERT_INPUTS_DOCSTRING
 from transformers.modeling_roberta import ROBERTA_INPUTS_DOCSTRING
 from transformers.modeling_distilbert import DISTILBERT_INPUTS_DOCSTRING
 from transformers.file_utils import add_start_docstrings_to_callable
-from multimodal.model.tabular_combiner import TabularFeatCombiner
-from multimodal.model.tabular_config import TabularConfig
-from multimodal.model.layer_utils import MLP, calc_mlp_dims, hf_loss_func
+
+from .tabular_combiner import TabularFeatCombiner
+from .tabular_config import TabularConfig
+from .layer_utils import MLP, calc_mlp_dims, hf_loss_func
 
 
 class BertWithTabular(BertForSequenceClassification):
