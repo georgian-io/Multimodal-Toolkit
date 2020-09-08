@@ -12,16 +12,20 @@
 #
 import os
 import sys
-abs_path = os.getcwd()
-print(abs_path)
-while True:
-    basename = os.path.basename(abs_path)
-    if basename.lower() == 'multimodal-toolkit':
-        break
-    abs_path = os.path.dirname(abs_path)
-print(abs_path)
-sys.path.insert(0, abs_path)
-
+# abs_path = os.getcwd()
+# print(abs_path)
+# while True:
+#     basename = os.path.basename(abs_path)
+#     if basename.lower() == 'multimodal-toolkit':
+#         break
+#     abs_path = os.path.dirname(abs_path)
+# print(abs_path)
+# for x in os.listdir(abs_path):
+#     print(x)
+# sys.path.insert(0, abs_path)
+# sys.path.insert(0, os.path.join(abs_path, 'mutlimodal'))
+sys.path.append(os.path.join(os.path.dirname(__name__), "../"))
+sys.path.append(os.path.join(os.path.dirname(__name__), "../../"))
 
 # -- Project information -----------------------------------------------------
 
