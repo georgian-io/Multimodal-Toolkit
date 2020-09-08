@@ -3,6 +3,7 @@
 # See https://docs.readthedocs.io/en/stable/config-file/v2.html for details
 
 sphinx:
+  builder: html
   configuration: docs/source/conf.py
 
 python:
