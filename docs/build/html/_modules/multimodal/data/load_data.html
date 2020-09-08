@@ -84,6 +84,7 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../notes/introduction.html">Introduction by Example</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../notes/combine_methods.html">Combine Methods</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../notes/colab_example.html">Colab Example</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Package Reference</span></p>
 <ul>
@@ -158,11 +159,10 @@
 <span class="kn">from</span> <span class="nn">os.path</span> <span class="kn">import</span> <span class="n">join</span><span class="p">,</span> <span class="n">exists</span>
 
 <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
-<span class="kn">import</span> <span class="nn">transformers</span>
 <span class="kn">from</span> <span class="nn">sklearn.preprocessing</span> <span class="kn">import</span> <span class="n">PowerTransformer</span><span class="p">,</span> <span class="n">QuantileTransformer</span>
-<span class="kn">from</span> <span class="nn">multimodal.data.tabular_torch_dataset</span> <span class="kn">import</span> <span class="n">TorchTabularTextDataset</span>
 
-<span class="kn">from</span> <span class="nn">multimodal.data.data_utils</span> <span class="kn">import</span> <span class="p">(</span>
+<span class="kn">from</span> <span class="nn">.tabular_torch_dataset</span> <span class="kn">import</span> <span class="n">TorchTabularTextDataset</span>
+<span class="kn">from</span> <span class="nn">.data_utils</span> <span class="kn">import</span> <span class="p">(</span>
     <span class="n">CategoricalFeatures</span><span class="p">,</span>
     <span class="n">agg_text_columns_func</span><span class="p">,</span>
     <span class="n">convert_to_func</span><span class="p">,</span>
@@ -438,7 +438,7 @@
   <div role="contentinfo">
     <p>
         
-        &copy; Copyright 2020, Ken
+        &copy; Copyright 2020, Ken Gu
 
     </p>
   </div>

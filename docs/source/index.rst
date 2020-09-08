@@ -23,6 +23,7 @@ See its documentation for specific details regarding HuggingFace transformer mod
 
    notes/introduction
    notes/combine_methods
+   notes/colab_example
 
 .. toctree::
    :glob:

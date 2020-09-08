@@ -1,4 +1,8 @@
 # Transformers with Tabular Data
+
+--------------------------------------------------------------------------------
+**[Documentation](https://multimodal-toolkit.readthedocs.io/en/latest/index.html)** | **[Colab Notebook](https://multimodal-toolkit.readthedocs.io/en/latest/notes/colab_example.html)**
+
 A toolkit for incorporating multimodal data on top of text data for classificaition
 and regression tasks. It uses HuggingFace transformers as the base model for text features.
 The toolkit adds a combining module that takes the outputs of the transformer in addition to categorical and numerical features
@@ -6,20 +10,17 @@ to produce rich multimodal features for downstream classification/regression lay
 
 ![](https://drive.google.com/uc?export=view&id=1aMNrv5kHDcaq8gS1EFtA6Ri4Tg_aff4E)
 
+The code was developed in Python 3.7 with PyTorch and Transformer 3.0.
+The multimodal specific code is in `multimodal` folder.
 ## Included Datasets
 This repository also includes two kaggle datasets which contain text data and 
 rich tabular features
 * [Women's Clothing E-Commerce Reviews](https://www.kaggle.com/nicapotato/womens-ecommerce-clothing-reviews) for Recommendation Prediction (Classification)
 * [Melbourne Airbnb Open Data](https://www.kaggle.com/tylerx/melbourne-airbnb-open-data) for Price Prediction (Regression)
 
-## Getting Started
-The code was developed in Python 3.7 with PyTorch and Transformer 3.0.
-The multimodal specific code is in `multimodal` folder. 
-To see the specific html documentation run 
-```
-$ open docs/build/html/index.html
-```
-### Working Examples
+ 
+
+## Working Examples
 To quickly see these models in action on say one of the above datasets with preset configurations 
 ```
 $ python main.py ./datasets/Melbourne_Airbnb_Open_Data/train_config.json

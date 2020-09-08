@@ -84,6 +84,7 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../notes/introduction.html">Introduction by Example</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../notes/combine_methods.html">Combine Methods</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../notes/colab_example.html">Colab Example</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Package Reference</span></p>
 <ul>
@@ -163,9 +164,10 @@
 <span class="kn">from</span> <span class="nn">transformers.modeling_roberta</span> <span class="kn">import</span> <span class="n">ROBERTA_INPUTS_DOCSTRING</span>
 <span class="kn">from</span> <span class="nn">transformers.modeling_distilbert</span> <span class="kn">import</span> <span class="n">DISTILBERT_INPUTS_DOCSTRING</span>
 <span class="kn">from</span> <span class="nn">transformers.file_utils</span> <span class="kn">import</span> <span class="n">add_start_docstrings_to_callable</span>
-<span class="kn">from</span> <span class="nn">multimodal.model.tabular_combiner</span> <span class="kn">import</span> <span class="n">TabularFeatCombiner</span>
-<span class="kn">from</span> <span class="nn">multimodal.model.tabular_config</span> <span class="kn">import</span> <span class="n">TabularConfig</span>
-<span class="kn">from</span> <span class="nn">multimodal.model.layer_utils</span> <span class="kn">import</span> <span class="n">MLP</span><span class="p">,</span> <span class="n">calc_mlp_dims</span><span class="p">,</span> <span class="n">hf_loss_func</span>
+
+<span class="kn">from</span> <span class="nn">.tabular_combiner</span> <span class="kn">import</span> <span class="n">TabularFeatCombiner</span>
+<span class="kn">from</span> <span class="nn">.tabular_config</span> <span class="kn">import</span> <span class="n">TabularConfig</span>
+<span class="kn">from</span> <span class="nn">.layer_utils</span> <span class="kn">import</span> <span class="n">MLP</span><span class="p">,</span> <span class="n">calc_mlp_dims</span><span class="p">,</span> <span class="n">hf_loss_func</span>
 
 
 <div class="viewcode-block" id="BertWithTabular"><a class="viewcode-back" href="../../../modules/model.html#multimodal.model.tabular_transformers.BertWithTabular">[docs]</a><span class="k">class</span> <span class="nc">BertWithTabular</span><span class="p">(</span><span class="n">BertForSequenceClassification</span><span class="p">):</span>
@@ -485,7 +487,7 @@
   <div role="contentinfo">
     <p>
         
-        &copy; Copyright 2020, Ken
+        &copy; Copyright 2020, Ken Gu
 
     </p>
   </div>
