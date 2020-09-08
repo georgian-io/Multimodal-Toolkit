@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>multimodal.data &mdash; multimodal toolkit  documentation</title>
+  <title>multimodal_transformers.data &mdash; Multimodal Transformers  documentation</title>
   
 
   
@@ -36,7 +36,7 @@
     
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="prev" title="multimodal.model" href="model.html" /> 
+    <link rel="prev" title="multimodal_transformers.model" href="model.html" /> 
 </head>
 
 <body class="wy-body-for-nav">
@@ -50,7 +50,7 @@
           
 
           
-            <a href="../index.html" class="icon icon-home" alt="Documentation Home"> multimodal toolkit
+            <a href="../index.html" class="icon icon-home" alt="Documentation Home"> Multimodal Transformers
           
 
           
@@ -89,11 +89,11 @@
 </ul>
 <p class="caption"><span class="caption-text">Package Reference</span></p>
 <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="model.html">multimodal.model</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">multimodal.data</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#module-multimodal.data.load_data">multimodal.data.load_data</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#module-multimodal.data.tabular_torch_dataset">multimodal.data.tabular_torch_dataset</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#module-multimodal.data">Module contents</a></li>
+<li class="toctree-l1"><a class="reference internal" href="model.html">multimodal_transformers.model</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">multimodal_transformers.data</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#module-multimodal_transformers.data.load_data">multimodal_transformers.data.load_data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-multimodal_transformers.data.tabular_torch_dataset">multimodal_transformers.data.tabular_torch_dataset</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-multimodal_transformers.data">Module contents</a></li>
 </ul>
 </li>
 </ul>
@@ -111,7 +111,7 @@
       <nav class="wy-nav-top" aria-label="top navigation">
         
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-          <a href="../index.html">multimodal toolkit</a>
+          <a href="../index.html">Multimodal Transformers</a>
         
       </nav>
 
@@ -142,7 +142,7 @@
     
       <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
         
-      <li>multimodal.data</li>
+      <li>multimodal_transformers.data</li>
     
     
       <li class="wy-breadcrumbs-aside">
@@ -161,23 +161,23 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="multimodal-data">
-<h1>multimodal.data<a class="headerlink" href="#multimodal-data" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="multimodal-transformers-data">
+<h1>multimodal_transformers.data<a class="headerlink" href="#multimodal-transformers-data" title="Permalink to this headline">¶</a></h1>
 <p>The data module includes two functions to help load your own datasets
-into <a class="reference internal" href="#multimodal.data.tabular_torch_dataset.TorchTabularTextDataset" title="multimodal.data.tabular_torch_dataset.TorchTabularTextDataset"><code class="xref py py-class docutils literal notranslate"><span class="pre">multimodal.data.tabular_torch_dataset.TorchTabularTextDataset</span></code></a>
+into <a class="reference internal" href="#multimodal_transformers.data.tabular_torch_dataset.TorchTabularTextDataset" title="multimodal_transformers.data.tabular_torch_dataset.TorchTabularTextDataset"><code class="xref py py-class docutils literal notranslate"><span class="pre">multimodal_transformers.data.tabular_torch_dataset.TorchTabularTextDataset</span></code></a>
 which can be fed into a <code class="xref py py-class docutils literal notranslate"><span class="pre">torch.utils.data.DataLoader</span></code>. The
-<a class="reference internal" href="#multimodal.data.tabular_torch_dataset.TorchTabularTextDataset" title="multimodal.data.tabular_torch_dataset.TorchTabularTextDataset"><code class="xref py py-obj docutils literal notranslate"><span class="pre">multimodal.data.tabular_torch_dataset.TorchTabularTextDataset</span></code></a>’s
+<a class="reference internal" href="#multimodal_transformers.data.tabular_torch_dataset.TorchTabularTextDataset" title="multimodal_transformers.data.tabular_torch_dataset.TorchTabularTextDataset"><code class="xref py py-obj docutils literal notranslate"><span class="pre">multimodal_transformers.data.tabular_torch_dataset.TorchTabularTextDataset</span></code></a>’s
 <code class="xref py py-obj docutils literal notranslate"><span class="pre">__getitem__</span></code> method’s outputs can be directly fed to the
-forward pass to a model in <a class="reference internal" href="model.html#module-multimodal.model.tabular_transformers" title="multimodal.model.tabular_transformers"><code class="xref py py-obj docutils literal notranslate"><span class="pre">multimodal.model.tabular_transformers</span></code></a>.</p>
+forward pass to a model in <a class="reference internal" href="model.html#module-multimodal_transformers.model.tabular_transformers" title="multimodal_transformers.model.tabular_transformers"><code class="xref py py-obj docutils literal notranslate"><span class="pre">multimodal_transformers.model.tabular_transformers</span></code></a>.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>You may still need to move the <code class="xref py py-obj docutils literal notranslate"><span class="pre">__getitem__</span></code> method outputs to the right gpu device.</p>
 </div>
-<div class="section" id="module-multimodal.data.load_data">
-<span id="multimodal-data-load-data"></span><h2>multimodal.data.load_data<a class="headerlink" href="#module-multimodal.data.load_data" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="module-multimodal_transformers.data.load_data">
+<span id="multimodal-transformers-data-load-data"></span><h2>multimodal_transformers.data.load_data<a class="headerlink" href="#module-multimodal_transformers.data.load_data" title="Permalink to this headline">¶</a></h2>
 <dl class="py function">
-<dt id="multimodal.data.load_data.load_data">
-<code class="sig-name descname">load_data</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">data_df</span></em>, <em class="sig-param"><span class="n">text_cols</span></em>, <em class="sig-param"><span class="n">tokenizer</span></em>, <em class="sig-param"><span class="n">label_col</span></em>, <em class="sig-param"><span class="n">label_list</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">categorical_cols</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">numerical_cols</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">sep_text_token_str</span><span class="o">=</span><span class="default_value">' '</span></em>, <em class="sig-param"><span class="n">categorical_encode_type</span><span class="o">=</span><span class="default_value">'ohe'</span></em>, <em class="sig-param"><span class="n">numerical_transformer</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">empty_text_values</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">replace_empty_text</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">max_token_length</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">debug</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/multimodal/data/load_data.html#load_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#multimodal.data.load_data.load_data" title="Permalink to this definition">¶</a></dt>
+<dt id="multimodal_transformers.data.load_data.load_data">
+<code class="sig-name descname">load_data</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">data_df</span></em>, <em class="sig-param"><span class="n">text_cols</span></em>, <em class="sig-param"><span class="n">tokenizer</span></em>, <em class="sig-param"><span class="n">label_col</span></em>, <em class="sig-param"><span class="n">label_list</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">categorical_cols</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">numerical_cols</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">sep_text_token_str</span><span class="o">=</span><span class="default_value">' '</span></em>, <em class="sig-param"><span class="n">categorical_encode_type</span><span class="o">=</span><span class="default_value">'ohe'</span></em>, <em class="sig-param"><span class="n">numerical_transformer</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">empty_text_values</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">replace_empty_text</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">max_token_length</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">debug</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/multimodal_transformers/data/load_data.html#load_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#multimodal_transformers.data.load_data.load_data" title="Permalink to this definition">¶</a></dt>
 <dd><p>Function to load a single dataset given a pandas DataFrame</p>
 <p>Given a DataFrame, this function loads the data to a <code class="xref py py-obj docutils literal notranslate"><span class="pre">torch_dataset.TorchTextDataset</span></code>
 object which can be used in a <code class="xref py py-obj docutils literal notranslate"><span class="pre">torch.utils.data.DataLoader</span></code>.</p>
@@ -227,8 +227,8 @@ input text</p></li>
 </dd></dl>
 
 <dl class="py function">
-<dt id="multimodal.data.load_data.load_data_from_folder">
-<code class="sig-name descname">load_data_from_folder</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">folder_path</span></em>, <em class="sig-param"><span class="n">text_cols</span></em>, <em class="sig-param"><span class="n">tokenizer</span></em>, <em class="sig-param"><span class="n">label_col</span></em>, <em class="sig-param"><span class="n">label_list</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">categorical_cols</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">numerical_cols</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">sep_text_token_str</span><span class="o">=</span><span class="default_value">' '</span></em>, <em class="sig-param"><span class="n">categorical_encode_type</span><span class="o">=</span><span class="default_value">'ohe'</span></em>, <em class="sig-param"><span class="n">numerical_transformer_method</span><span class="o">=</span><span class="default_value">'quantile_normal'</span></em>, <em class="sig-param"><span class="n">empty_text_values</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">replace_empty_text</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">max_token_length</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">debug</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/multimodal/data/load_data.html#load_data_from_folder"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#multimodal.data.load_data.load_data_from_folder" title="Permalink to this definition">¶</a></dt>
+<dt id="multimodal_transformers.data.load_data.load_data_from_folder">
+<code class="sig-name descname">load_data_from_folder</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">folder_path</span></em>, <em class="sig-param"><span class="n">text_cols</span></em>, <em class="sig-param"><span class="n">tokenizer</span></em>, <em class="sig-param"><span class="n">label_col</span></em>, <em class="sig-param"><span class="n">label_list</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">categorical_cols</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">numerical_cols</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">sep_text_token_str</span><span class="o">=</span><span class="default_value">' '</span></em>, <em class="sig-param"><span class="n">categorical_encode_type</span><span class="o">=</span><span class="default_value">'ohe'</span></em>, <em class="sig-param"><span class="n">numerical_transformer_method</span><span class="o">=</span><span class="default_value">'quantile_normal'</span></em>, <em class="sig-param"><span class="n">empty_text_values</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">replace_empty_text</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">max_token_length</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">debug</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/multimodal_transformers/data/load_data.html#load_data_from_folder"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#multimodal_transformers.data.load_data.load_data_from_folder" title="Permalink to this definition">¶</a></dt>
 <dd><p>Function to load tabular and text data from a specified folder</p>
 <p>Loads train, test and/or validation text and tabular data from specified
 folder path into TorchTextDataset class and does categorical and numerical
@@ -286,11 +286,11 @@ there is no <cite>val.csv</cite> in folder_path</p>
 </dd></dl>
 
 </div>
-<div class="section" id="module-multimodal.data.tabular_torch_dataset">
-<span id="multimodal-data-tabular-torch-dataset"></span><h2>multimodal.data.tabular_torch_dataset<a class="headerlink" href="#module-multimodal.data.tabular_torch_dataset" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="module-multimodal_transformers.data.tabular_torch_dataset">
+<span id="multimodal-transformers-data-tabular-torch-dataset"></span><h2>multimodal_transformers.data.tabular_torch_dataset<a class="headerlink" href="#module-multimodal_transformers.data.tabular_torch_dataset" title="Permalink to this headline">¶</a></h2>
 <dl class="py class">
-<dt id="multimodal.data.tabular_torch_dataset.TorchTabularTextDataset">
-<em class="property">class </em><code class="sig-name descname">TorchTabularTextDataset</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">encodings</span></em>, <em class="sig-param"><span class="n">categorical_feats</span></em>, <em class="sig-param"><span class="n">numerical_feats</span></em>, <em class="sig-param"><span class="n">labels</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">df</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">label_list</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">class_weights</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/multimodal/data/tabular_torch_dataset.html#TorchTabularTextDataset"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#multimodal.data.tabular_torch_dataset.TorchTabularTextDataset" title="Permalink to this definition">¶</a></dt>
+<dt id="multimodal_transformers.data.tabular_torch_dataset.TorchTabularTextDataset">
+<em class="property">class </em><code class="sig-name descname">TorchTabularTextDataset</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">encodings</span></em>, <em class="sig-param"><span class="n">categorical_feats</span></em>, <em class="sig-param"><span class="n">numerical_feats</span></em>, <em class="sig-param"><span class="n">labels</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">df</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">label_list</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">class_weights</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/multimodal_transformers/data/tabular_torch_dataset.html#TorchTabularTextDataset"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#multimodal_transformers.data.tabular_torch_dataset.TorchTabularTextDataset" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">torch.utils.data.dataset.Dataset</span></code></p>
 <p><code class="xref py py-obj docutils literal notranslate"><span class="pre">TorchDataset</span></code> wrapper for text dataset with categorical features
 and numerical features</p>
@@ -311,16 +311,156 @@ TabularConfig instance specifying the configs for TabularFeatCombiner</p></li>
 </dd>
 </dl>
 <dl class="py method">
-<dt id="multimodal.data.tabular_torch_dataset.TorchTabularTextDataset.get_labels">
-<code class="sig-name descname">get_labels</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/multimodal/data/tabular_torch_dataset.html#TorchTabularTextDataset.get_labels"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#multimodal.data.tabular_torch_dataset.TorchTabularTextDataset.get_labels" title="Permalink to this definition">¶</a></dt>
+<dt id="multimodal_transformers.data.tabular_torch_dataset.TorchTabularTextDataset.get_labels">
+<code class="sig-name descname">get_labels</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/multimodal_transformers/data/tabular_torch_dataset.html#TorchTabularTextDataset.get_labels"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#multimodal_transformers.data.tabular_torch_dataset.TorchTabularTextDataset.get_labels" title="Permalink to this definition">¶</a></dt>
 <dd><p>returns the label names for classification</p>
 </dd></dl>
 
 </dd></dl>
 
 </div>
-<div class="section" id="module-multimodal.data">
-<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-multimodal.data" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="module-multimodal_transformers.data">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-multimodal_transformers.data" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="multimodal_transformers.data.TorchTabularTextDataset">
+<em class="property">class </em><code class="sig-name descname">TorchTabularTextDataset</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">encodings</span></em>, <em class="sig-param"><span class="n">categorical_feats</span></em>, <em class="sig-param"><span class="n">numerical_feats</span></em>, <em class="sig-param"><span class="n">labels</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">df</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">label_list</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">class_weights</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/multimodal_transformers/data/tabular_torch_dataset.html#TorchTabularTextDataset"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#multimodal_transformers.data.TorchTabularTextDataset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">torch.utils.data.dataset.Dataset</span></code></p>
+<p><code class="xref py py-obj docutils literal notranslate"><span class="pre">TorchDataset</span></code> wrapper for text dataset with categorical features
+and numerical features</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>encodings</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">transformers.BatchEncoding</span></code>) – The output from encode_plus() and batch_encode() methods (tokens, attention_masks, etc) of
+a transformers.PreTrainedTokenizer</p></li>
+<li><p><strong>categorical_feats</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">numpy.ndarray</span></code>, of shape <code class="xref py py-obj docutils literal notranslate"><span class="pre">(n_examples,</span> <span class="pre">categorical</span> <span class="pre">feat</span> <span class="pre">dim)</span></code>, <cite>optional</cite>, defaults to <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code>) – An array containing the preprocessed categorical features</p></li>
+<li><p><strong>numerical_feats</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">numpy.ndarray</span></code>, of shape <code class="xref py py-obj docutils literal notranslate"><span class="pre">(n_examples,</span> <span class="pre">numerical</span> <span class="pre">feat</span> <span class="pre">dim)</span></code>, <cite>optional</cite>, defaults to <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code>) – An array containing the preprocessed numerical features</p></li>
+<li><p><strong>(</strong> (<em>labels</em>) – class: list` or <cite>numpy.ndarray</cite>, <cite>optional</cite>, defaults to <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code>):
+The labels of the training examples</p></li>
+<li><p><strong>class_weights</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">numpy.ndarray</span></code>, of shape (n_classes),  <cite>optional</cite>, defaults to <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code>) – Class weights used for cross entropy loss for classification</p></li>
+<li><p><strong>df</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">pandas.DataFrame</span></code>, <cite>optional</cite>, defaults to <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code>) – Model configuration class with all the parameters of the model.
+This object must also have a tabular_config member variable that is a
+TabularConfig instance specifying the configs for TabularFeatCombiner</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt id="multimodal_transformers.data.TorchTabularTextDataset.get_labels">
+<code class="sig-name descname">get_labels</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/multimodal_transformers/data/tabular_torch_dataset.html#TorchTabularTextDataset.get_labels"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#multimodal_transformers.data.TorchTabularTextDataset.get_labels" title="Permalink to this definition">¶</a></dt>
+<dd><p>returns the label names for classification</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt id="multimodal_transformers.data.load_data">
+<code class="sig-name descname">load_data</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">data_df</span></em>, <em class="sig-param"><span class="n">text_cols</span></em>, <em class="sig-param"><span class="n">tokenizer</span></em>, <em class="sig-param"><span class="n">label_col</span></em>, <em class="sig-param"><span class="n">label_list</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">categorical_cols</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">numerical_cols</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">sep_text_token_str</span><span class="o">=</span><span class="default_value">' '</span></em>, <em class="sig-param"><span class="n">categorical_encode_type</span><span class="o">=</span><span class="default_value">'ohe'</span></em>, <em class="sig-param"><span class="n">numerical_transformer</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">empty_text_values</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">replace_empty_text</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">max_token_length</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">debug</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/multimodal_transformers/data/load_data.html#load_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#multimodal_transformers.data.load_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function to load a single dataset given a pandas DataFrame</p>
+<p>Given a DataFrame, this function loads the data to a <code class="xref py py-obj docutils literal notranslate"><span class="pre">torch_dataset.TorchTextDataset</span></code>
+object which can be used in a <code class="xref py py-obj docutils literal notranslate"><span class="pre">torch.utils.data.DataLoader</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data_df</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">pd.DataFrame</span></code>) – The DataFrame to convert to a TorchTextDataset</p></li>
+<li><p><strong>text_cols</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">list</span></code> of <code class="xref py py-obj docutils literal notranslate"><span class="pre">str</span></code>) – the column names in the dataset that contain text
+from which we want to load</p></li>
+<li><p><strong>tokenizer</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">transformers.tokenization_utils.PreTrainedTokenizer</span></code>) – HuggingFace tokenizer used to tokenize the input texts as specifed by text_cols</p></li>
+<li><p><strong>label_col</strong> (<em>str</em>) – The column name of the label, for classification the column should have
+int values from 0 to n_classes-1 as the label for each class.
+For regression the column can have any numerical value</p></li>
+<li><p><strong>label_list</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">list</span></code> of <code class="xref py py-obj docutils literal notranslate"><span class="pre">str</span></code>, optional) – Used for classification;
+the names of the classes indexed by the values in label_col.</p></li>
+<li><p><strong>categorical_cols</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">list</span></code> of <code class="xref py py-obj docutils literal notranslate"><span class="pre">str</span></code>, optional) – The column names in the dataset that
+contain categorical features. The features can be already prepared numerically, or
+could be preprocessed by the method specified by categorical_encode_type</p></li>
+<li><p><strong>numerical_cols</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">list</span></code> of <code class="xref py py-obj docutils literal notranslate"><span class="pre">str</span></code>, optional) – The column names in the dataset that contain numerical features.
+These columns should contain only numeric values.</p></li>
+<li><p><strong>sep_text_token_str</strong> (<em>str</em><em>, </em><em>optional</em>) – The string token that is used to separate between the
+different text columns for a given data example. For Bert for example,
+this could be the [SEP] token.</p></li>
+<li><p><strong>categorical_encode_type</strong> (<em>str</em><em>, </em><em>optional</em>) – Given categorical_cols, this specifies
+what method we want to preprocess our categorical features.
+choices: [ ‘ohe’, ‘binary’, None]
+see encode_features.CategoricalFeatures for more details</p></li>
+<li><p><strong>numerical_transformer</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">sklearn.base.TransformerMixin</span></code>) – The sklearn numeric
+transformer instance to transform our numerical features</p></li>
+<li><p><strong>empty_text_values</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">list</span></code> of <code class="xref py py-obj docutils literal notranslate"><span class="pre">str</span></code>, optional) – Specifies what texts should be considered as
+missing which would be replaced by replace_empty_text</p></li>
+<li><p><strong>replace_empty_text</strong> (<em>str</em><em>, </em><em>optional</em>) – The value of the string that will replace the texts
+that match with those in empty_text_values. If this argument is None then
+the text that match with empty_text_values will be skipped</p></li>
+<li><p><strong>max_token_length</strong> (<em>int</em><em>, </em><em>optional</em>) – The token length to pad or truncate to on the
+input text</p></li>
+<li><p><strong>debug</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether or not to load a smaller debug version of the dataset</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The converted dataset</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">tabular_torch_dataset.TorchTextDataset</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="multimodal_transformers.data.load_data_from_folder">
+<code class="sig-name descname">load_data_from_folder</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">folder_path</span></em>, <em class="sig-param"><span class="n">text_cols</span></em>, <em class="sig-param"><span class="n">tokenizer</span></em>, <em class="sig-param"><span class="n">label_col</span></em>, <em class="sig-param"><span class="n">label_list</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">categorical_cols</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">numerical_cols</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">sep_text_token_str</span><span class="o">=</span><span class="default_value">' '</span></em>, <em class="sig-param"><span class="n">categorical_encode_type</span><span class="o">=</span><span class="default_value">'ohe'</span></em>, <em class="sig-param"><span class="n">numerical_transformer_method</span><span class="o">=</span><span class="default_value">'quantile_normal'</span></em>, <em class="sig-param"><span class="n">empty_text_values</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">replace_empty_text</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">max_token_length</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">debug</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/multimodal_transformers/data/load_data.html#load_data_from_folder"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#multimodal_transformers.data.load_data_from_folder" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function to load tabular and text data from a specified folder</p>
+<p>Loads train, test and/or validation text and tabular data from specified
+folder path into TorchTextDataset class and does categorical and numerical
+data preprocessing if specified. Inside the folder, there is expected to be
+a train.csv, and test.csv (and if given val.csv) containing the training, testing,
+and validation sets respectively</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>folder_path</strong> (<em>str</em>) – The path to the folder containing <cite>train.csv</cite>, and <cite>test.csv</cite> (and if given <cite>val.csv</cite>)</p></li>
+<li><p><strong>text_cols</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">list</span></code> of <code class="xref py py-obj docutils literal notranslate"><span class="pre">str</span></code>) – The column names in the dataset that contain text
+from which we want to load</p></li>
+<li><p><strong>tokenizer</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">transformers.tokenization_utils.PreTrainedTokenizer</span></code>) – HuggingFace tokenizer used to tokenize the input texts as specifed by text_cols</p></li>
+<li><p><strong>label_col</strong> (<em>str</em>) – The column name of the label, for classification the column should have
+int values from 0 to n_classes-1 as the label for each class.
+For regression the column can have any numerical value</p></li>
+<li><p><strong>label_list</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">list</span></code> of <code class="xref py py-obj docutils literal notranslate"><span class="pre">str</span></code>, optional) – Used for classification;
+the names of the classes indexed by the values in label_col.</p></li>
+<li><p><strong>categorical_cols</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">list</span></code> of <code class="xref py py-obj docutils literal notranslate"><span class="pre">str</span></code>, optional) – The column names in the dataset that
+contain categorical features. The features can be already prepared numerically, or
+could be preprocessed by the method specified by categorical_encode_type</p></li>
+<li><p><strong>numerical_cols</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">list</span></code> of <code class="xref py py-obj docutils literal notranslate"><span class="pre">str</span></code>, optional) – The column names in the dataset that contain numerical features.
+These columns should contain only numeric values.</p></li>
+<li><p><strong>sep_text_token_str</strong> (<em>str</em><em>, </em><em>optional</em>) – The string token that is used to separate between the
+different text columns for a given data example. For Bert for example,
+this could be the [SEP] token.</p></li>
+<li><p><strong>categorical_encode_type</strong> (<em>str</em><em>, </em><em>optional</em>) – Given categorical_cols, this specifies
+what method we want to preprocess our categorical features.
+choices: [ ‘ohe’, ‘binary’, None]
+see encode_features.CategoricalFeatures for more details</p></li>
+<li><p><strong>numerical_transformer_method</strong> (<em>str</em><em>, </em><em>optional</em>) – Given numerical_cols, this specifies
+what method we want to use for normalizing our numerical data.
+choices: [‘yeo_johnson’, ‘box_cox’, ‘quantile_normal’, None]
+see <a class="reference external" href="https://scikit-learn.org/stable/auto_examples/preprocessing/plot_all_scaling.html">https://scikit-learn.org/stable/auto_examples/preprocessing/plot_all_scaling.html</a>
+for more details</p></li>
+<li><p><strong>empty_text_values</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">list</span></code> of <code class="xref py py-obj docutils literal notranslate"><span class="pre">str</span></code>, optional) – specifies what texts should be considered as
+missing which would be replaced by replace_empty_text</p></li>
+<li><p><strong>replace_empty_text</strong> (<em>str</em><em>, </em><em>optional</em>) – The value of the string that will replace the texts
+that match with those in empty_text_values. If this argument is None then
+the text that match with empty_text_values will be skipped</p></li>
+<li><p><strong>max_token_length</strong> (<em>int</em><em>, </em><em>optional</em>) – The token length to pad or truncate to on the
+input text</p></li>
+<li><p><strong>debug</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether or not to load a smaller debug version of the dataset</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>This tuple contains the
+training, validation and testing sets. The val dataset is <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code> if
+there is no <cite>val.csv</cite> in folder_path</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">tuple</span></code> of <cite>tabular_torch_dataset.TorchTextDataset</cite></p>
+</dd>
+</dl>
+</dd></dl>
+
 </div>
 </div>
 
@@ -333,7 +473,7 @@ TabularConfig instance specifying the configs for TabularFeatCombiner</p></li>
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
       
-        <a href="model.html" class="btn btn-neutral float-left" title="multimodal.model" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="model.html" class="btn btn-neutral float-left" title="multimodal_transformers.model" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   

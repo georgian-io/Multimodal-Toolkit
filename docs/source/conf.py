@@ -17,7 +17,7 @@ sys.path.append(os.path.join(os.path.dirname(__name__), "../../"))
 
 # -- Project information -----------------------------------------------------
 
-project = 'multimodal toolkit'
+project = 'Multimodal Transformers'
 copyright = '2020, Ken Gu'
 author = 'Ken Gu'
 

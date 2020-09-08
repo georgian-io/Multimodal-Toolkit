@@ -17,9 +17,9 @@ from transformers import (
 
 from multimodal_exp_args import MultimodalDataTrainingArguments, ModelArguments, OurTrainingArguments
 from evaluation import calc_classification_metrics, calc_regression_metrics
-from multimodal.data.load_data import load_data_from_folder
-from multimodal.model.tabular_config import TabularConfig
-from multimodal.model.tabular_modeling_auto import AutoModelWithTabular
+from multimodal_transformers.data.load_data import load_data_from_folder
+from multimodal_transformers.model.tabular_config import TabularConfig
+from multimodal_transformers.model.tabular_modeling_auto import AutoModelWithTabular
 from util import create_dir_if_not_exists, get_args_info_as_str
 
 logger = logging.getLogger(__name__)

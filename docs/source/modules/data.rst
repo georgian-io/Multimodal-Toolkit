@@ -1,36 +1,36 @@
-multimodal.data
-=======================
+multimodal_transformers.data
+===============================
 
 The data module includes two functions to help load your own datasets
-into :class:`multimodal.data.tabular_torch_dataset.TorchTabularTextDataset`
+into :class:`multimodal_transformers.data.tabular_torch_dataset.TorchTabularTextDataset`
 which can be fed into a :class:`torch.utils.data.DataLoader`. The
-:obj:`multimodal.data.tabular_torch_dataset.TorchTabularTextDataset`'s
+:obj:`multimodal_transformers.data.tabular_torch_dataset.TorchTabularTextDataset`'s
 :obj:`__getitem__` method's outputs can be directly fed to the
-forward pass to a model in :obj:`multimodal.model.tabular_transformers`.
+forward pass to a model in :obj:`multimodal_transformers.model.tabular_transformers`.
 
 .. Note::
     You may still need to move the :obj:`__getitem__` method outputs to the right gpu device.
 
-multimodal.data.load\_data
----------------------------------
+multimodal_transformers.data.load\_data
+-----------------------------------------
 
-.. automodule:: multimodal.data.load_data
+.. automodule:: multimodal_transformers.data.load_data
    :members:
    :undoc-members:
    :show-inheritance:
 
-multimodal.data.tabular\_torch\_dataset
-----------------------------------------------
+multimodal_transformers.data.tabular\_torch\_dataset
+------------------------------------------------------
 
-.. automodule:: multimodal.data.tabular_torch_dataset
+.. automodule:: multimodal_transformers.data.tabular_torch_dataset
    :members:
    :undoc-members:
    :show-inheritance:
 
 Module contents
----------------
+----------------
 
-.. automodule:: multimodal.data
+.. automodule:: multimodal_transformers.data
    :members:
    :undoc-members:
    :show-inheritance:

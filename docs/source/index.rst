@@ -3,7 +3,7 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Multimodal Toolkit Documentation
+Multimodal Transformers Documentation
 ==============================================
 A toolkit for incorporating multimodal data on top of text data for classification
 and regression tasks. This toolkit is heavily based off of `HuggingFace Transformers <https://huggingface.co/transformers/>`_.

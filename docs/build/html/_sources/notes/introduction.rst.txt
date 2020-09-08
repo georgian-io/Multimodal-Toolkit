@@ -9,9 +9,9 @@ This guide covers how to use the PyTorch module bert_w_tabular in your own proje
 
 How to Initialize Transformer With Tabular Modules
 ---------------------------------------------------
-The models which support tabular features are located in :obj:`multimodal.tabular_transformers`.
+The models which support tabular features are located in :obj:`multimodal_transformers.tabular_transformers`.
 These adapted transformer modules expect the same transformer config instances as
-the ones from HuggingFace. However, expect a :class:`multimodal.tabular_config.TabularConfig` instance specifying
+the ones from HuggingFace. However, expect a :class:`multimodal_transformers.tabular_config.TabularConfig` instance specifying
 the configs.
 
 Say for example we had categorical features of dim 9 and numerical features of dim 5.
@@ -20,8 +20,8 @@ Say for example we had categorical features of dim 9 and numerical features of d
 
     from transformers import BertConfig
 
-    from multimodal.model.tabular_transformers import BertWithTabular
-    from multimodal.model.tabular_config import TabularConfig
+    from multimodal_transformers.model.tabular_transformers import BertWithTabular
+    from multimodal_transformers.model.tabular_config import TabularConfig
 
     bert_config = BertConfig.from_pretrained('bert-base-uncased')
 
@@ -38,16 +38,16 @@ Say for example we had categorical features of dim 9 and numerical features of d
     model = BertWithTabular.from_pretrained('bert-base-uncased', config=bert_config)
 
 
-In fact for any HuggingFace transformer model supported in :obj:`multimodal.tabular_transformers` we
-can initialize it using :obj:`multimodal.tabular_modelling_auto.AutoModelWithTabular` to
+In fact for any HuggingFace transformer model supported in :obj:`multimodal_transformers.model.tabular_transformers` we
+can initialize it using :obj:`multimodal_transformers.model.tabular_modelling_auto.AutoModelWithTabular` to
 leverage any community trained transformer models
 
 .. code-block:: python
 
     from transformers import AutoConfig
 
-    from multimodal.model.tabular_modelling_auto import AutoModelWithTabular
-    from multimodal.model.tabular_config import TabularConfig
+    from multimodal_transformers.model.tabular_modelling_auto import AutoModelWithTabular
+    from multimodal_transformers.model.tabular_config import TabularConfig
 
     hf_config = AutoConfig.from_pretrained('ipuneetrathore/bert-base-cased-finetuned-finBERT')
     tabular_config = TabularConfig(
@@ -117,7 +117,7 @@ Modifications: Only One Type of Tabular Feature or No Tabular Features
 -------------------------------------------------------------------------
 If there are no tabular features, the models basically default to the ForSequenceClassification
 models from HuggingFace. We must specify :obj:`combine_feat_method='text_only'` in
-:class:`multimodal.tabular_config.TabularConfig`. During the forward pass
+:class:`multimodal_transformers.model.tabular_config.TabularConfig`. During the forward pass
 we can simply pass the text related inputs
 
 .. code-block:: python

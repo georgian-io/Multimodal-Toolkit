@@ -1,6 +1,6 @@
 # Combine Methods
 
-This page explains the methods that are supported by `multimodal.tabular_combiner.TabularFeatCombiner`.
+This page explains the methods that are supported by `multimodal_transformers.tabular_combiner.TabularFeatCombiner`.
 See the table below and [here](https://docs.google.com/document/d/1rmsUeg1QnWed-M8VwD9Vwt6FvlAsarnS7eWWnD8nH4Y/edit) for details
 
 If you have rich categorical and numerical features any of the attention, gating, weighted sum methods are worth trying. 

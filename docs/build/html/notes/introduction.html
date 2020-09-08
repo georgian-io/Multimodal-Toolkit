@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Introduction by Example &mdash; multimodal toolkit  documentation</title>
+  <title>Introduction by Example &mdash; Multimodal Transformers  documentation</title>
   
 
   
@@ -37,7 +37,7 @@
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="Combine Methods" href="combine_methods.html" />
-    <link rel="prev" title="Multimodal Toolkit Documentation" href="../index.html" /> 
+    <link rel="prev" title="Multimodal Transformers Documentation" href="../index.html" /> 
 </head>
 
 <body class="wy-body-for-nav">
@@ -51,7 +51,7 @@
           
 
           
-            <a href="../index.html" class="icon icon-home" alt="Documentation Home"> multimodal toolkit
+            <a href="../index.html" class="icon icon-home" alt="Documentation Home"> Multimodal Transformers
           
 
           
@@ -96,8 +96,8 @@
 </ul>
 <p class="caption"><span class="caption-text">Package Reference</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../modules/model.html">multimodal.model</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../modules/data.html">multimodal.data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../modules/model.html">numerical_feat_dim.model</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../modules/data.html">numerical_feat_dim.data</a></li>
 </ul>
 
             
@@ -113,7 +113,7 @@
       <nav class="wy-nav-top" aria-label="top navigation">
         
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-          <a href="../index.html">multimodal toolkit</a>
+          <a href="../index.html">Multimodal Transformers</a>
         
       </nav>
 
@@ -176,15 +176,15 @@
 </div>
 <div class="section" id="how-to-initialize-transformer-with-tabular-modules">
 <h2><a class="toc-backref" href="#id1">How to Initialize Transformer With Tabular Modules</a><a class="headerlink" href="#how-to-initialize-transformer-with-tabular-modules" title="Permalink to this headline">¶</a></h2>
-<p>The models which support tabular features are located in <code class="xref py py-obj docutils literal notranslate"><span class="pre">multimodal.tabular_transformers</span></code>.
+<p>The models which support tabular features are located in <code class="xref py py-obj docutils literal notranslate"><span class="pre">multimodal_transformers.tabular_transformers</span></code>.
 These adapted transformer modules expect the same transformer config instances as
-the ones from HuggingFace. However, expect a <code class="xref py py-class docutils literal notranslate"><span class="pre">multimodal.tabular_config.TabularConfig</span></code> instance specifying
+the ones from HuggingFace. However, expect a <code class="xref py py-class docutils literal notranslate"><span class="pre">multimodal_transformers.tabular_config.TabularConfig</span></code> instance specifying
 the configs.</p>
 <p>Say for example we had categorical features of dim 9 and numerical features of dim 5.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">transformers</span> <span class="kn">import</span> <span class="n">BertConfig</span>
 
-<span class="kn">from</span> <span class="nn">multimodal.model.tabular_transformers</span> <span class="kn">import</span> <span class="n">BertWithTabular</span>
-<span class="kn">from</span> <span class="nn">multimodal.model.tabular_config</span> <span class="kn">import</span> <span class="n">TabularConfig</span>
+<span class="kn">from</span> <span class="nn">multimodal_transformers.model.tabular_transformers</span> <span class="kn">import</span> <span class="n">BertWithTabular</span>
+<span class="kn">from</span> <span class="nn">multimodal_transformers.model.tabular_config</span> <span class="kn">import</span> <span class="n">TabularConfig</span>
 
 <span class="n">bert_config</span> <span class="o">=</span> <span class="n">BertConfig</span><span class="o">.</span><span class="n">from_pretrained</span><span class="p">(</span><span class="s1">&#39;bert-base-uncased&#39;</span><span class="p">)</span>
 
@@ -201,13 +201,13 @@ the configs.</p>
 <span class="n">model</span> <span class="o">=</span> <span class="n">BertWithTabular</span><span class="o">.</span><span class="n">from_pretrained</span><span class="p">(</span><span class="s1">&#39;bert-base-uncased&#39;</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">bert_config</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>In fact for any HuggingFace transformer model supported in <code class="xref py py-obj docutils literal notranslate"><span class="pre">multimodal.tabular_transformers</span></code> we
-can initialize it using <code class="xref py py-obj docutils literal notranslate"><span class="pre">multimodal.tabular_modelling_auto.AutoModelWithTabular</span></code> to
+<p>In fact for any HuggingFace transformer model supported in <a class="reference internal" href="../modules/model.html#module-multimodal_transformers.model.tabular_transformers" title="multimodal_transformers.model.tabular_transformers"><code class="xref py py-obj docutils literal notranslate"><span class="pre">multimodal_transformers.model.tabular_transformers</span></code></a> we
+can initialize it using <code class="xref py py-obj docutils literal notranslate"><span class="pre">multimodal_transformers.model.tabular_modelling_auto.AutoModelWithTabular</span></code> to
 leverage any community trained transformer models</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">transformers</span> <span class="kn">import</span> <span class="n">AutoConfig</span>
 
-<span class="kn">from</span> <span class="nn">multimodal.model.tabular_modelling_auto</span> <span class="kn">import</span> <span class="n">AutoModelWithTabular</span>
-<span class="kn">from</span> <span class="nn">multimodal.model.tabular_config</span> <span class="kn">import</span> <span class="n">TabularConfig</span>
+<span class="kn">from</span> <span class="nn">multimodal_transformers.model.tabular_modelling_auto</span> <span class="kn">import</span> <span class="n">AutoModelWithTabular</span>
+<span class="kn">from</span> <span class="nn">multimodal_transformers.model.tabular_config</span> <span class="kn">import</span> <span class="n">TabularConfig</span>
 
 <span class="n">hf_config</span> <span class="o">=</span> <span class="n">AutoConfig</span><span class="o">.</span><span class="n">from_pretrained</span><span class="p">(</span><span class="s1">&#39;ipuneetrathore/bert-base-cased-finetuned-finBERT&#39;</span><span class="p">)</span>
 <span class="n">tabular_config</span> <span class="o">=</span> <span class="n">TabularConfig</span><span class="p">(</span>
@@ -270,7 +270,7 @@ combining module’s output</p></li>
 <h2><a class="toc-backref" href="#id3">Modifications: Only One Type of Tabular Feature or No Tabular Features</a><a class="headerlink" href="#modifications-only-one-type-of-tabular-feature-or-no-tabular-features" title="Permalink to this headline">¶</a></h2>
 <p>If there are no tabular features, the models basically default to the ForSequenceClassification
 models from HuggingFace. We must specify <code class="xref py py-obj docutils literal notranslate"><span class="pre">combine_feat_method='text_only'</span></code> in
-<code class="xref py py-class docutils literal notranslate"><span class="pre">multimodal.tabular_config.TabularConfig</span></code>. During the forward pass
+<a class="reference internal" href="../modules/model.html#multimodal_transformers.model.tabular_config.TabularConfig" title="multimodal_transformers.model.tabular_config.TabularConfig"><code class="xref py py-class docutils literal notranslate"><span class="pre">multimodal_transformers.model.tabular_config.TabularConfig</span></code></a>. During the forward pass
 we can simply pass the text related inputs</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">loss</span><span class="p">,</span> <span class="n">logits</span><span class="p">,</span> <span class="n">layer_outs</span> <span class="o">=</span> <span class="n">model</span><span class="p">(</span>
     <span class="n">model_inputs</span><span class="p">[</span><span class="s1">&#39;input_ids&#39;</span><span class="p">],</span>
@@ -327,7 +327,7 @@ For example if we only have categorical features</p>
         <a href="combine_methods.html" class="btn btn-neutral float-right" title="Combine Methods" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="../index.html" class="btn btn-neutral float-left" title="Multimodal Toolkit Documentation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="../index.html" class="btn btn-neutral float-left" title="Multimodal Transformers Documentation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   

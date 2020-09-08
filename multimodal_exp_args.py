@@ -1,13 +1,11 @@
 from dataclasses import dataclass, field
 import json
 import logging
-from os.path import join
 from typing import Optional, Tuple
 
 import torch
 from transformers.training_args import TrainingArguments, torch_required, cached_property
 
-from util import get_log_path
 
 logger = logging.getLogger(__name__)
 
@@ -151,9 +149,6 @@ class OurTrainingArguments(TrainingArguments):
     learning_rate: float = field(default=5e-5, metadata={"help": "The initial learning rate for Adam."})
 
     def __post_init__(self):
-        if self.output_dir is "":
-            self.output_dir = join(get_log_path(),
-                                   '_'.join(self.experiment_name.split(' ')))
         if self.debug:
             self.max_token_length = 16
             self.logging_steps = 5
