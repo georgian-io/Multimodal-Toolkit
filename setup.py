@@ -1,6 +1,6 @@
-from distutils.core import setup
+from setuptools import setup, find_packages
 
-__version__ = '0.1-alpha'
+__version__ = '0.11-alpha'
 url = 'https://github.com/georgianpartners/Multimodal-Toolkit'
 
 install_requires = [
@@ -16,7 +16,8 @@ install_requires = [
 
 setup(
     name='multimodal_transformers',
-    packages=['multimodal_transformers'],
+    packages=find_packages(),
+    include_package_data=True,
     version=__version__,
     license='MIT',
     description='Multimodal Extension Library for PyTorch HuggingFace Transformers',
