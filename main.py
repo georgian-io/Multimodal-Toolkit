@@ -22,6 +22,7 @@ from multimodal_transformers.model.tabular_config import TabularConfig
 from multimodal_transformers.model.tabular_modeling_auto import AutoModelWithTabular
 from util import create_dir_if_not_exists, get_args_info_as_str
 
+os.environ['COMET_MODE'] = 'DISABLED'
 logger = logging.getLogger(__name__)
 
 
@@ -77,7 +78,7 @@ def main():
         numerical_transformer_method=data_args.numerical_transformer_method,
         sep_text_token_str=tokenizer.sep_token,
         max_token_length=training_args.max_token_length,
-        debug=training_args.debug,
+        debug=training_args.debug_dataset,
     )
 
     set_seed(training_args.seed)

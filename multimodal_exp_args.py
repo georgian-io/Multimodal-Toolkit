@@ -124,7 +124,7 @@ class OurTrainingArguments(TrainingArguments):
         metadata={'help': 'The gpu number to train on'}
     )
 
-    debug: bool = field(
+    debug_dataset: bool = field(
         default=False,
         metadata={'help': 'Whether we are training in debug mode (smaller model)'}
     )
@@ -149,7 +149,7 @@ class OurTrainingArguments(TrainingArguments):
     learning_rate: float = field(default=5e-5, metadata={"help": "The initial learning rate for Adam."})
 
     def __post_init__(self):
-        if self.debug:
+        if self.debug_dataset:
             self.max_token_length = 16
             self.logging_steps = 5
             self.overwrite_output_dir = True

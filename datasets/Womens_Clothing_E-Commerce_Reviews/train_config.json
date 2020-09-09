@@ -1,6 +1,6 @@
 {
   "output_dir": "./logs/gating_on_cat_and_num_feats_then_sum/",
-  "debug": false,
+  "debug_dataset": false,
   "task": "classification",
   "combine_feat_method": "gating_on_cat_and_num_feats_then_sum",
   "experiment_name": "Bert Base Uncased",

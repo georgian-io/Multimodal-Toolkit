@@ -1,9 +1,9 @@
-# Transformers with Tabular Data
+# Multimodal Transformers | Transformers with Tabular Data
 
 --------------------------------------------------------------------------------
 **[Documentation](https://multimodal-toolkit.readthedocs.io/en/latest/index.html)** | **[Colab Notebook](https://multimodal-toolkit.readthedocs.io/en/latest/notes/colab_example.html)**
 
-A toolkit for incorporating multimodal data on top of text data for classificaition
+A toolkit for incorporating multimodal data on top of text data for classification
 and regression tasks. It uses HuggingFace transformers as the base model for text features.
 The toolkit adds a combining module that takes the outputs of the transformer in addition to categorical and numerical features
 to produce rich multimodal features for downstream classification/regression layers.
@@ -14,7 +14,7 @@ to produce rich multimodal features for downstream classification/regression lay
 
 ## Installation
 The code was developed in Python 3.7 with PyTorch and Transformer 3.0.
-The multimodal specific code is in `multimodal` folder.
+The multimodal specific code is in `multimodal_transformers` folder.
 ```
 pip install multimodal-transformers
 ```
