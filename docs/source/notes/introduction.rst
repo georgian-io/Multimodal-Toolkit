@@ -64,7 +64,7 @@ leverage any community trained transformer models
 
 
 Forward Pass of Transformer With Tabular Models
-----------------------------------------------
+-------------------------------------------------
 
 During the forward pass we pass HuggingFace's normal `transformer inputs <https://huggingface.co/transformers/glossary.html>`_
 as well as our categorical and numerical features.

@@ -87,7 +87,7 @@
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Introduction by Example</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#how-to-initialize-transformer-with-tabular-models">How to Initialize Transformer With Tabular Models</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#forward-pass-of-transformer-with-tabular-models">Forward Pass of Transformer with Tabular Models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#forward-pass-of-transformer-with-tabular-models">Forward Pass of Transformer With Tabular Models</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#modifications-only-one-type-of-tabular-feature-or-no-tabular-features">Modifications: Only One Type of Tabular Feature or No Tabular Features</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#inference">Inference</a></li>
 </ul>
@@ -171,7 +171,7 @@
 <div class="contents local topic" id="contents">
 <ul class="simple">
 <li><p><a class="reference internal" href="#how-to-initialize-transformer-with-tabular-models" id="id1">How to Initialize Transformer With Tabular Models</a></p></li>
-<li><p><a class="reference internal" href="#forward-pass-of-transformer-with-tabular-models" id="id2">Forward Pass of Transformer with Tabular Models</a></p></li>
+<li><p><a class="reference internal" href="#forward-pass-of-transformer-with-tabular-models" id="id2">Forward Pass of Transformer With Tabular Models</a></p></li>
 <li><p><a class="reference internal" href="#modifications-only-one-type-of-tabular-feature-or-no-tabular-features" id="id3">Modifications: Only One Type of Tabular Feature or No Tabular Features</a></p></li>
 <li><p><a class="reference internal" href="#inference" id="id4">Inference</a></p></li>
 </ul>
@@ -179,7 +179,7 @@
 <p>For a working script see the <a class="reference external" href="https://github.com/georgianpartners/Multimodal-Toolkit">github repository.</a></p>
 <div class="section" id="how-to-initialize-transformer-with-tabular-models">
 <h2><a class="toc-backref" href="#id1">How to Initialize Transformer With Tabular Models</a><a class="headerlink" href="#how-to-initialize-transformer-with-tabular-models" title="Permalink to this headline">¶</a></h2>
-<p>The models which support tabular features are located in <a class="reference internal" href="../modules/model.html#module-multimodal_transformers.model.tabular_transformers" title="multimodal_transformers.model.tabular_transformers"><code class="xref py py-obj docutils literal notranslate"><span class="pre">multimodal_transformers.model.tabular_transformers</span></code></a>.
+<p>The models which support tabular features are located in <a class="reference internal" href="../multimodal_transformers.model.html#module-multimodal_transformers.model.tabular_transformers" title="multimodal_transformers.model.tabular_transformers"><code class="xref py py-obj docutils literal notranslate"><span class="pre">multimodal_transformers.model.tabular_transformers</span></code></a>.
 These adapted transformer modules expect the same transformer config instances as
 the ones from HuggingFace. However, expect a <a class="reference internal" href="../multimodal_transformers.model.html#multimodal_transformers.model.TabularConfig" title="multimodal_transformers.model.TabularConfig"><code class="xref py py-class docutils literal notranslate"><span class="pre">multimodal_transformers.model.TabularConfig</span></code></a> instance specifying
 the configs.</p>
@@ -204,7 +204,7 @@ the configs.</p>
 <span class="n">model</span> <span class="o">=</span> <span class="n">BertWithTabular</span><span class="o">.</span><span class="n">from_pretrained</span><span class="p">(</span><span class="s1">&#39;bert-base-uncased&#39;</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">bert_config</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>In fact for any HuggingFace transformer model supported in <a class="reference internal" href="../modules/model.html#module-multimodal_transformers.model.tabular_transformers" title="multimodal_transformers.model.tabular_transformers"><code class="xref py py-obj docutils literal notranslate"><span class="pre">multimodal_transformers.model.tabular_transformers</span></code></a> we
+<p>In fact for any HuggingFace transformer model supported in <a class="reference internal" href="../multimodal_transformers.model.html#module-multimodal_transformers.model.tabular_transformers" title="multimodal_transformers.model.tabular_transformers"><code class="xref py py-obj docutils literal notranslate"><span class="pre">multimodal_transformers.model.tabular_transformers</span></code></a> we
 can initialize it using <a class="reference internal" href="../multimodal_transformers.model.html#multimodal_transformers.model.AutoModelWithTabular" title="multimodal_transformers.model.AutoModelWithTabular"><code class="xref py py-obj docutils literal notranslate"><span class="pre">multimodal_transformers.model.AutoModelWithTabular</span></code></a> to
 leverage any community trained transformer models</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">transformers</span> <span class="kn">import</span> <span class="n">AutoConfig</span>
@@ -226,7 +226,7 @@ leverage any community trained transformer models</p>
 </div>
 </div>
 <div class="section" id="forward-pass-of-transformer-with-tabular-models">
-<h2><a class="toc-backref" href="#id2">Forward Pass of Transformer with Tabular Models</a><a class="headerlink" href="#forward-pass-of-transformer-with-tabular-models" title="Permalink to this headline">¶</a></h2>
+<h2><a class="toc-backref" href="#id2">Forward Pass of Transformer With Tabular Models</a><a class="headerlink" href="#forward-pass-of-transformer-with-tabular-models" title="Permalink to this headline">¶</a></h2>
 <p>During the forward pass we pass HuggingFace’s normal <a class="reference external" href="https://huggingface.co/transformers/glossary.html">transformer inputs</a>
 as well as our categorical and numerical features.</p>
 <p>The forward pass returns</p>

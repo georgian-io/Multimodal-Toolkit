@@ -55,14 +55,14 @@ To see the modules come together in a notebook: \
 ## Included Methods
 | combine feat method |description | requires both cat and num features | 
 |:--------------|:-------------------|:-------|
-| text_only | Uses just the text columns as processed by Bert before final classifier layer(s). Essentially equivalent to HuggingFace's `BertForSequenceClassification` |  False | 
-| concat | Concatenate Bert output, numerical feats, and categorical feats all at once before final classifier layer(s) | False |
-| mlp_on_categorical_then_concat | MLP on categorical feats then concat bert output, numerical feats, and processed categorical feats before final classifier layer(s) | False (Requires cat feats)
-| individual_mlps_on_cat_and_numerical_feats_then_concat | Separate MLPs on categorical feats and numerical feats then concatenation of Bert output, with processed numerical feats, and processed categorical feats before final classifier layer(s). | False
-| mlp_on_concatenated_cat_and_numerical_feats_then_concat | MLP on concatenated categorical and numerical feat then concatenated with Bert output before final classifier layer(s) | True
-| attention_on_cat_and_numerical_feats | Attention based summation of Bert outputs, numerical feats, and categorical feats queried by bert outputs before final classifier layer(s). | False
-| gating_on_cat_and_num_feats_then_sum | Gated summation of bert outputs, numerical feats, and categorical feats before final classifier layer(s). Inspired by [Integrating Multimodal Information in Large Pretrained Transformers](https://www.aclweb.org/anthology/2020.acl-main.214.pdf) which performs the mechanism for each token. | False
-| weighted_feature_sum_on_bert_cat_and_numerical_feats | Learnable weighted feature-wise sum of Bert outputs, numerical feats and categorical feats for each feature dimension before final classifier layer(s) | False
+| text_only | Uses just the text columns as processed by a HuggingFace transformer before final classifier layer(s). Essentially equivalent to HuggingFace's `ForSequenceClassification` models |  False | 
+| concat | Concatenate transformer output, numerical feats, and categorical feats all at once before final classifier layer(s) | False |
+| mlp_on_categorical_then_concat | MLP on categorical feats then concat transformer output, numerical feats, and processed categorical feats before final classifier layer(s) | False (Requires cat feats)
+| individual_mlps_on_cat_and_numerical_feats_then_concat | Separate MLPs on categorical feats and numerical feats then concatenation of transformer output, with processed numerical feats, and processed categorical feats before final classifier layer(s). | False
+| mlp_on_concatenated_cat_and_numerical_feats_then_concat | MLP on concatenated categorical and numerical feat then concatenated with transformer output before final classifier layer(s) | True
+| attention_on_cat_and_numerical_feats | Attention based summation of transformer outputs, numerical feats, and categorical feats queried by transformer outputs before final classifier layer(s). | False
+| gating_on_cat_and_num_feats_then_sum | Gated summation of transformer outputs, numerical feats, and categorical feats before final classifier layer(s). Inspired by [Integrating Multimodal Information in Large Pretrained Transformers](https://www.aclweb.org/anthology/2020.acl-main.214.pdf) which performs the mechanism for each token. | False
+| weighted_feature_sum_on_transformer_cat_and_numerical_feats | Learnable weighted feature-wise sum of transformer outputs, numerical feats and categorical feats for each feature dimension before final classifier layer(s) | False
 
 ## Results
 The following tables shows the results on the two included datasets's respective test sets, by running main.py 
@@ -77,7 +77,7 @@ Bert Base Uncased | text_only | 0.959 | 0.969 | 0.993
 Bert Base Uncased | individual_mlps_on_cat_and_numerical_feats_then_concat | 0.958 | 0.968 | 0.993
 Bert Base Uncased | attention_on_cat_and_numerical_feats | 0.959 | 0.970 | 0.993
 Bert Base Uncased | gating_on_cat_and_num_feats_then_sum | 0.961 | **0.976** | **0.995**
-Bert Base Uncased | weighted_feature_sum_on_bert_cat_and_numerical_feats | **0.963** | **0.976** | 0.994
+Bert Base Uncased | weighted_feature_sum_on_transformer_cat_and_numerical_feats | **0.963** | **0.976** | 0.994
 
 
 ### Pricing Prediction
@@ -89,4 +89,4 @@ Bert Base Multilingual Uncased | text_only | 78.77 | 175.93 |
 Bert Base Multilingual Uncased | individual_mlps_on_cat_and_numerical_feats_then_concat | 58.58 | **158.69** 
 Bert Base Multilingual Uncased | attention_on_cat_and_numerical_feats | 61.10 |160.51
 Bert Base Multilingual Uncased | gating_on_cat_and_num_feats_then_sum | **57.56** | 159.22 
-Bert Base Multilingual Uncased | weighted_feature_sum_on_bert_cat_and_numerical_feats | 60.11 | 159.12 
+Bert Base Multilingual Uncased | weighted_feature_sum_on_transformer_cat_and_numerical_feats | 60.11 | 159.12 

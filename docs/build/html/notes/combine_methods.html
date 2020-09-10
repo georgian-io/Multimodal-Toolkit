@@ -174,42 +174,42 @@ See the table for details.</p>
 <tbody>
 <tr>
 <td align="left">text_only</td>
-<td align="left">Uses just the text columns as processed by Bert before final classifier layer(s). Essentially equivalent to HuggingFace's <code>BertForSequenceClassification</code></td>
+<td align="left">Uses just the text columns as processed by transformer before final classifier layer(s). Essentially equivalent to HuggingFace's <code>ForSequenceClassification</code> models</td>
 <td align="left">False</td>
 </tr>
 <tr>
 <td align="left">concat</td>
-<td align="left">Concatenate Bert output, numerical feats, and categorical feats all at once before final classifier layer(s)</td>
+<td align="left">Concatenate transformer output, numerical feats, and categorical feats all at once before final classifier layer(s)</td>
 <td align="left">False</td>
 </tr>
 <tr>
 <td align="left">mlp_on_categorical_then_concat</td>
-<td align="left">MLP on categorical feats then concat bert output, numerical feats, and processed categorical feats before final classifier layer(s)</td>
+<td align="left">MLP on categorical feats then concat transformer output, numerical feats, and processed categorical feats before final classifier layer(s)</td>
 <td align="left">False (Requires cat feats)</td>
 </tr>
 <tr>
 <td align="left">individual_mlps_on_cat_and_numerical_feats_then_concat</td>
-<td align="left">Separate MLPs on categorical feats and numerical feats then concatenation of Bert output, with processed numerical feats, and processed categorical feats before final classifier layer(s).</td>
+<td align="left">Separate MLPs on categorical feats and numerical feats then concatenation of transformer output, with processed numerical feats, and processed categorical feats before final classifier layer(s).</td>
 <td align="left">False</td>
 </tr>
 <tr>
 <td align="left">mlp_on_concatenated_cat_and_numerical_feats_then_concat</td>
-<td align="left">MLP on concatenated categorical and numerical feat then concatenated with Bert output before final classifier layer(s)</td>
+<td align="left">MLP on concatenated categorical and numerical feat then concatenated with transformer output before final classifier layer(s)</td>
 <td align="left">True</td>
 </tr>
 <tr>
 <td align="left">attention_on_cat_and_numerical_feats</td>
-<td align="left">Attention based summation of Bert outputs, numerical feats, and categorical feats queried by bert outputs before final classifier layer(s).</td>
+<td align="left">Attention based summation of transformer outputs, numerical feats, and categorical feats queried by transformer outputs before final classifier layer(s).</td>
 <td align="left">False</td>
 </tr>
 <tr>
 <td align="left">gating_on_cat_and_num_feats_then_sum</td>
-<td align="left">Gated summation of bert outputs, numerical feats, and categorical feats before final classifier layer(s). Inspired by <a href="https://www.aclweb.org/anthology/2020.acl-main.214.pdf">Integrating Multimodal Information in Large Pretrained Transformers</a> which performs the mechanism for each token.</td>
+<td align="left">Gated summation of transformer outputs, numerical feats, and categorical feats before final classifier layer(s). Inspired by <a href="https://www.aclweb.org/anthology/2020.acl-main.214.pdf">Integrating Multimodal Information in Large Pretrained Transformers</a> which performs the mechanism for each token.</td>
 <td align="left">False</td>
 </tr>
 <tr>
-<td align="left">weighted_feature_sum_on_bert_cat_and_numerical_feats</td>
-<td align="left">Learnable weighted feature-wise sum of Bert outputs, numerical feats and categorical feats for each feature dimension before final classifier layer(s)</td>
+<td align="left">weighted_feature_sum_on_transformer_cat_and_numerical_feats</td>
+<td align="left">Learnable weighted feature-wise sum of transformer outputs, numerical feats and categorical feats for each feature dimension before final classifier layer(s)</td>
 <td align="left">False</td>
 </tr>
 </tbody>

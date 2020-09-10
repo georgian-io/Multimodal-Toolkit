@@ -63,8 +63,8 @@ leverage any community trained transformer models
     model = AutoModelWithTabular.from_pretrained('ipuneetrathore/bert-base-cased-finetuned-finBERT', config=hf_config)
 
 
-Forward Pass of Transformer with Tabular Models
-----------------------------------------------
+Forward Pass of Transformer With Tabular Models
+-------------------------------------------------
 
 During the forward pass we pass HuggingFace's normal `transformer inputs <https://huggingface.co/transformers/glossary.html>`_
 as well as our categorical and numerical features.

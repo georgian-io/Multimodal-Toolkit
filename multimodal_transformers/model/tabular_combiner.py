@@ -111,7 +111,7 @@ class TabularFeatCombiner(nn.Module):
                     return_layer_outs=False,
                     bn=True)
             self.final_out_dim = self.text_out_dim + output_dim_num + output_dim_cat
-        elif self.combine_feat_method == 'weighted_feature_sum_on_bert_cat_and_numerical_feats':
+        elif self.combine_feat_method == 'weighted_feature_sum_on_transformer_cat_and_numerical_feats':
             assert self.cat_feat_dim + self.numerical_feat_dim != 0, 'should have some non text features'
             if self.cat_feat_dim > 0:
                 output_dim_cat = self.text_out_dim
@@ -207,10 +207,10 @@ class TabularFeatCombiner(nn.Module):
                                                             output_dim)))
                 self.bias_num = nn.Parameter(torch.zeros(output_dim))
 
-            self.weight_bert = nn.Parameter(torch.rand(self.text_out_dim,
+            self.weight_transformer = nn.Parameter(torch.rand(self.text_out_dim,
                                                        output_dim))
             self.weight_a = nn.Parameter(torch.rand((1, output_dim + output_dim)))
-            self.bias_bert = nn.Parameter(torch.rand(output_dim))
+            self.bias_transformer = nn.Parameter(torch.rand(output_dim))
             self.bias = nn.Parameter(torch.zeros(output_dim))
             self.negative_slope = 0.2
             self.final_out_dim = output_dim
@@ -303,7 +303,7 @@ class TabularFeatCombiner(nn.Module):
             if numerical_feats.shape[1] != 0:
                 numerical_feats = self.num_mlp(numerical_feats)
             combined_feats = torch.cat((text_feats, cat_feats, numerical_feats), dim=1)
-        elif self.combine_feat_method == 'weighted_feature_sum_on_bert_cat_and_numerical_feats':
+        elif self.combine_feat_method == 'weighted_feature_sum_on_transformer_cat_and_numerical_feats':
             if cat_feats.shape[1] != 0:
                 cat_feats = self.dropout_cat(self.cat_layer(cat_feats))
                 cat_feats = self.weight_cat.expand_as(cat_feats) * cat_feats
@@ -317,8 +317,8 @@ class TabularFeatCombiner(nn.Module):
                 numerical_feats = 0
             combined_feats = text_feats + cat_feats + numerical_feats
         elif self.combine_feat_method == 'attention_on_cat_and_numerical_feats':
-            # attention keyed by bert text features
-            w_text = torch.mm(text_feats, self.weight_bert)
+            # attention keyed by transformer text features
+            w_text = torch.mm(text_feats, self.weight_transformer)
             g_text = (torch.cat([w_text, w_text], dim=-1) * self.weight_a).sum(dim=1).unsqueeze(0).T
 
             if cat_feats.shape[1] != 0:
@@ -380,5 +380,5 @@ class TabularFeatCombiner(nn.Module):
         if hasattr(self, 'weight_num'):
             glorot(self.weight_num)
             zeros(self.bias_num)
-        glorot(self.weight_bert)
-        zeros(self.bias_bert)
+        glorot(self.weight_transformer)
+        zeros(self.bias_transformer)
