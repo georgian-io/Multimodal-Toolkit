@@ -5,7 +5,7 @@ multimodal_transformers.model
     :local:
 
 
-Tabular Feature Combiner (multimodal\_transformers.model.tabular\_combiner)
+Tabular Feature Combiner
 -----------------------------------------
 
 .. automodule:: multimodal_transformers.model.tabular_combiner
@@ -13,7 +13,7 @@ Tabular Feature Combiner (multimodal\_transformers.model.tabular\_combiner)
    :undoc-members:
    :show-inheritance:
 
-Tabular Config (multimodal\_transformers.model.tabular\_config)
+Tabular Config
 ---------------------------------------
 
 .. automodule:: multimodal_transformers.model.tabular_config
@@ -21,7 +21,7 @@ Tabular Config (multimodal\_transformers.model.tabular\_config)
    :undoc-members:
    :show-inheritance:
 
-AutoModel with Tabular (multimodal\_transformers.model.tabular\_modeling_auto)
+AutoModel with Tabular
 -----------------------------------------------
 
 .. automodule:: multimodal_transformers.model.tabular_modeling_auto
@@ -29,17 +29,10 @@ AutoModel with Tabular (multimodal\_transformers.model.tabular\_modeling_auto)
    :undoc-members:
    :show-inheritance:
 
-Transformers with Tabular (multimodal\_transformers.model.tabular\_transformers)
+Transformers with Tabular
 ---------------------------------------------
 
 .. automodule:: multimodal_transformers.model.tabular_transformers
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-Module contents
----------------
-.. automodule:: multimodal_transformers.model
    :members:
    :undoc-members:
    :show-inheritance:

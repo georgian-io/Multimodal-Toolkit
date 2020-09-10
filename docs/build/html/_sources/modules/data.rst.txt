@@ -11,21 +11,6 @@ forward pass to a model in :obj:`multimodal_transformers.model.tabular_transform
 .. Note::
     You may still need to move the :obj:`__getitem__` method outputs to the right gpu device.
 
-multimodal_transformers.data.load\_data
------------------------------------------
-
-.. automodule:: multimodal_transformers.data.load_data
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-multimodal_transformers.data.tabular\_torch\_dataset
-------------------------------------------------------
-
-.. automodule:: multimodal_transformers.data.tabular_torch_dataset
-   :members:
-   :undoc-members:
-   :show-inheritance:
 
 Module contents
 ----------------
