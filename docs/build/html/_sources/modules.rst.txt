@@ -1,7 +1,0 @@
-multimodal_transformers
-=======================
-
-.. toctree::
-   :maxdepth: 4
-
-   multimodal_transformers

@@ -1,15 +1,18 @@
 class TabularConfig:
-    """ Config used for tabular combiner
+    r""" Config used for tabular combiner
+
+
 
     Args:
         mlp_division (int): how much to decrease each MLP dim for each additional layer
-        combine_feat_method (str): method to combine categorical and numerical features
+        combine_feat_method (str): The method to combine categorical and numerical features.
+            See :obj:`TabularFeatCombiner` for details on the supported methods.
         mlp_dropout (float): dropout ratio used for MLP layers
         numerical_bn (bool): whether to use batchnorm on numerical features
         use_simple_classifier (bool): whether to use single layer or MLP as final classifier
         mlp_act (str): the activation function to use for finetuning layers
         gating_beta (float): the beta hyperparameters used for gating tabular data
-            see `https://www.aclweb.org/anthology/2020.acl-main.214.pdf`,
+            see the paper `Integrating Multimodal Information in Large Pretrained Transformers <https://www.aclweb.org/anthology/2020.acl-main.214.pdf>`_ for details
         numerical_feat_dim (int): the number of numerical features
         cat_feat_dim (int): the number of categorical features
 

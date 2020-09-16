@@ -7,8 +7,81 @@ from .layer_utils import calc_mlp_dims, create_act, glorot, zeros, MLP
 
 
 class TabularFeatCombiner(nn.Module):
-    """
-       Combiner module for combining text features with categorical and numerical features
+    r"""
+        Combiner module for combining text features with categorical and numerical features
+        The methods of combining, specified by :obj:`tabular_config.combine_feat_method` are shown below.
+        :math:`\mathbf{m}` denotes the combined multimodal features,
+        :math:`\mathbf{x}` denotes the output text features from the transformer,
+        :math:`\mathbf{c}` denotes the tabular features, :math:`\mathbf{t}` denotes the categorical features,
+        :math:`h_{\mathbf{\Theta}}` denotes a MLP parameterized by :math:`\Theta`, :math:`W` denotes a weight matrix,
+        and :math:`b` denotes a scalar bias
+
+        - **text_only**
+
+            .. math::
+                \mathbf{m} = \mathbf{x}
+
+        - **concat**
+
+            .. math::
+                \mathbf{m} = \mathbf{x} \, \Vert \, \mathbf{c} \, \Vert \, \mathbf{t}
+
+        - **mlp_on_categorical_then_concat**
+
+            .. math::
+                \mathbf{m} = \mathbf{x} \, \Vert \, h_{\mathbf{\Theta}}( \mathbf{c}) \, \Vert \, \mathbf{t}
+
+        - **individual_mlps_on_cat_and_numerical_feats_then_concat**
+
+            .. math::
+                \mathbf{m} = \mathbf{x} \, \Vert \, h_{\mathbf{\Theta_c}}( \mathbf{c}) \, \Vert \, h_{\mathbf{\Theta_t}}(\mathbf{t})
+
+        - **mlp_on_concatenated_cat_and_numerical_feats_then_concat**
+
+            .. math::
+                \mathbf{m} = \mathbf{x} \, \Vert \, h_{\mathbf{\Theta}}( \mathbf{c} \, \Vert \, \mathbf{t})
+
+        - **attention_on_cat_and_numerical_feats** self attention on the text features
+
+            .. math::
+                \mathbf{m} = \alpha_{x,x}\mathbf{W}_x\mathbf{x} + \alpha_{x,c}\mathbf{W}_c\mathbf{c} + \alpha_{x,t}\mathbf{W}_t\mathbf{t}
+
+          where :math:`\mathbf{W}_x` is of shape :obj:`(out_dim, text_feat_dim)`,
+          :math:`\mathbf{W}_c` is of shape :obj:`(out_dim, cat_feat_dim)`,
+          :math:`\mathbf{W}_t` is of shape :obj:`(out_dim, num_feat_dim)`, and the attention coefficients :math:`\alpha_{i,j}` are computed as
+
+            .. math::
+                \alpha_{i,j} =
+                \frac{
+                \exp\left(\mathrm{LeakyReLU}\left(\mathbf{a}^{\top}
+                [\mathbf{W}_i\mathbf{x}_i \, \Vert \, \mathbf{W}_j\mathbf{x}_j]
+                \right)\right)}
+                {\sum_{k \in \{ x, c, t \}}
+                \exp\left(\mathrm{LeakyReLU}\left(\mathbf{a}^{\top}
+                [\mathbf{W}_i\mathbf{x}_i \, \Vert \, \mathbf{W}_k\mathbf{x}_k]
+                \right)\right)}.
+
+        - **gating_on_cat_and_num_feats_then_sum** sum of features gated by text features. Inspired by the gating mechanism introduced in `Integrating Multimodal Information in Large Pretrained Transformers <https://www.aclweb.org/anthology/2020.acl-main.214.pdf>`_
+
+            .. math::
+                \mathbf{m}= \mathbf{x} + \alpha\mathbf{h}
+            .. math::
+                \mathbf{h} = \mathbf{g_c} \odot (\mathbf{W}_c\mathbf{c}) + \mathbf{g_t} \odot (\mathbf{W}_t\mathbf{t}) + b_h
+            .. math::
+                \alpha = \mathrm{min}( \frac{\| \mathbf{x} \|_2}{\| \mathbf{h} \|_2}*\beta, 1)
+
+          where :math:`\beta` is a hyperparamter, :math:`\mathbf{W}_c` is of shape :obj:`(out_dim, cat_feat_dim)`,
+          :math:`\mathbf{W}_t` is of shape :obj:`(out_dim, num_feat_dim)`. and the gating vector :math:`\mathbf{g}_i` with activation function :math:`R` is defined as
+
+            .. math::
+                \mathbf{g}_i = R(\mathbf{W}_{gi}[\mathbf{i} \, \Vert \, \mathbf{x}]+ b_i)
+
+          where :math:`\mathbf{W}_{gi}` is of shape :obj:`(out_dim, i_feat_dim + text_feat_dim)`
+
+        - **weighted_feature_sum_on_transformer_cat_and_numerical_feats**
+
+            .. math::
+                \mathbf{m} = \mathbf{x} + \mathbf{W}_{c'} \odot \mathbf{W}_c \mathbf{c} + \mathbf{W}_{t'} \odot \mathbf{W}_t \mathbf{t}
 
        Parameters:
            tabular_config (:class:`~multimodal_config.TabularConfig`):
