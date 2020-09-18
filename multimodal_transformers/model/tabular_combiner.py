@@ -12,7 +12,7 @@ class TabularFeatCombiner(nn.Module):
         The methods of combining, specified by :obj:`tabular_config.combine_feat_method` are shown below.
         :math:`\mathbf{m}` denotes the combined multimodal features,
         :math:`\mathbf{x}` denotes the output text features from the transformer,
-        :math:`\mathbf{c}` denotes the tabular features, :math:`\mathbf{t}` denotes the categorical features,
+        :math:`\mathbf{c}` denotes the categorical features, :math:`\mathbf{t}` denotes the numerical features,
         :math:`h_{\mathbf{\Theta}}` denotes a MLP parameterized by :math:`\Theta`, :math:`W` denotes a weight matrix,
         and :math:`b` denotes a scalar bias
 
@@ -24,31 +24,31 @@ class TabularFeatCombiner(nn.Module):
         - **concat**
 
             .. math::
-                \mathbf{m} = \mathbf{x} \, \Vert \, \mathbf{c} \, \Vert \, \mathbf{t}
+                \mathbf{m} = \mathbf{x} \, \Vert \, \mathbf{c} \, \Vert \, \mathbf{n}
 
         - **mlp_on_categorical_then_concat**
 
             .. math::
-                \mathbf{m} = \mathbf{x} \, \Vert \, h_{\mathbf{\Theta}}( \mathbf{c}) \, \Vert \, \mathbf{t}
+                \mathbf{m} = \mathbf{x} \, \Vert \, h_{\mathbf{\Theta}}( \mathbf{c}) \, \Vert \, \mathbf{n}
 
         - **individual_mlps_on_cat_and_numerical_feats_then_concat**
 
             .. math::
-                \mathbf{m} = \mathbf{x} \, \Vert \, h_{\mathbf{\Theta_c}}( \mathbf{c}) \, \Vert \, h_{\mathbf{\Theta_t}}(\mathbf{t})
+                \mathbf{m} = \mathbf{x} \, \Vert \, h_{\mathbf{\Theta_c}}( \mathbf{c}) \, \Vert \, h_{\mathbf{\Theta_n}}(\mathbf{n})
 
         - **mlp_on_concatenated_cat_and_numerical_feats_then_concat**
 
             .. math::
-                \mathbf{m} = \mathbf{x} \, \Vert \, h_{\mathbf{\Theta}}( \mathbf{c} \, \Vert \, \mathbf{t})
+                \mathbf{m} = \mathbf{x} \, \Vert \, h_{\mathbf{\Theta}}( \mathbf{c} \, \Vert \, \mathbf{n})
 
         - **attention_on_cat_and_numerical_feats** self attention on the text features
 
             .. math::
-                \mathbf{m} = \alpha_{x,x}\mathbf{W}_x\mathbf{x} + \alpha_{x,c}\mathbf{W}_c\mathbf{c} + \alpha_{x,t}\mathbf{W}_t\mathbf{t}
+                \mathbf{m} = \alpha_{x,x}\mathbf{W}_x\mathbf{x} + \alpha_{x,c}\mathbf{W}_c\mathbf{c} + \alpha_{x,n}\mathbf{W}_n\mathbf{n}
 
           where :math:`\mathbf{W}_x` is of shape :obj:`(out_dim, text_feat_dim)`,
           :math:`\mathbf{W}_c` is of shape :obj:`(out_dim, cat_feat_dim)`,
-          :math:`\mathbf{W}_t` is of shape :obj:`(out_dim, num_feat_dim)`, and the attention coefficients :math:`\alpha_{i,j}` are computed as
+          :math:`\mathbf{W}_n` is of shape :obj:`(out_dim, num_feat_dim)`, and the attention coefficients :math:`\alpha_{i,j}` are computed as
 
             .. math::
                 \alpha_{i,j} =
@@ -56,7 +56,7 @@ class TabularFeatCombiner(nn.Module):
                 \exp\left(\mathrm{LeakyReLU}\left(\mathbf{a}^{\top}
                 [\mathbf{W}_i\mathbf{x}_i \, \Vert \, \mathbf{W}_j\mathbf{x}_j]
                 \right)\right)}
-                {\sum_{k \in \{ x, c, t \}}
+                {\sum_{k \in \{ x, c, n \}}
                 \exp\left(\mathrm{LeakyReLU}\left(\mathbf{a}^{\top}
                 [\mathbf{W}_i\mathbf{x}_i \, \Vert \, \mathbf{W}_k\mathbf{x}_k]
                 \right)\right)}.
@@ -66,12 +66,12 @@ class TabularFeatCombiner(nn.Module):
             .. math::
                 \mathbf{m}= \mathbf{x} + \alpha\mathbf{h}
             .. math::
-                \mathbf{h} = \mathbf{g_c} \odot (\mathbf{W}_c\mathbf{c}) + \mathbf{g_t} \odot (\mathbf{W}_t\mathbf{t}) + b_h
+                \mathbf{h} = \mathbf{g_c} \odot (\mathbf{W}_c\mathbf{c}) + \mathbf{g_n} \odot (\mathbf{W}_n\mathbf{n}) + b_h
             .. math::
                 \alpha = \mathrm{min}( \frac{\| \mathbf{x} \|_2}{\| \mathbf{h} \|_2}*\beta, 1)
 
           where :math:`\beta` is a hyperparamter, :math:`\mathbf{W}_c` is of shape :obj:`(out_dim, cat_feat_dim)`,
-          :math:`\mathbf{W}_t` is of shape :obj:`(out_dim, num_feat_dim)`. and the gating vector :math:`\mathbf{g}_i` with activation function :math:`R` is defined as
+          :math:`\mathbf{W}_n` is of shape :obj:`(out_dim, num_feat_dim)`. and the gating vector :math:`\mathbf{g}_i` with activation function :math:`R` is defined as
 
             .. math::
                 \mathbf{g}_i = R(\mathbf{W}_{gi}[\mathbf{i} \, \Vert \, \mathbf{x}]+ b_i)
@@ -81,7 +81,7 @@ class TabularFeatCombiner(nn.Module):
         - **weighted_feature_sum_on_transformer_cat_and_numerical_feats**
 
             .. math::
-                \mathbf{m} = \mathbf{x} + \mathbf{W}_{c'} \odot \mathbf{W}_c \mathbf{c} + \mathbf{W}_{t'} \odot \mathbf{W}_t \mathbf{t}
+                \mathbf{m} = \mathbf{x} + \mathbf{W}_{c'} \odot \mathbf{W}_c \mathbf{c} + \mathbf{W}_{n'} \odot \mathbf{W}_n \mathbf{t}
 
        Parameters:
            tabular_config (:class:`~multimodal_config.TabularConfig`):

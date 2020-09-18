@@ -9,7 +9,8 @@ A toolkit for incorporating multimodal data on top of text data for classificati
 and regression tasks. This toolkit is heavily based off of `HuggingFace Transformers <https://huggingface.co/transformers/>`_.
 It adds a combining module that takes the outputs of the transformers in addition to
 categorical and numerical features to produce rich multimodal features
-for downstream classification/regression layers.
+for downstream classification/regression layers. Given a pretrained transformer, the parameters of the combining module and transformer are trained based
+on the supervised task.
 
 
 See its documentation for specific details regarding HuggingFace transformer models, configs, and tokenizers.
