@@ -1,11 +1,11 @@
 from setuptools import setup, find_packages
 
-__version__ = '0.1.2-alpha'
+__version__ = '0.1.3-alpha'
 url = 'https://github.com/georgianpartners/Multimodal-Toolkit'
 
 install_requires = [
     'torch',
-    'transformers>=3.0',
+    'transformers==3.1',
     'numpy',
     'tqdm',
     'scipy',
@@ -25,7 +25,7 @@ setup(
     author_email='kgu@georgianpartners.com',
     url=url,
     download_url='{}/archive/v_{}.tar.gz'.format(url, __version__),
-    keywords=['pytorch', 'multimodal', 'transformers', 'hugging-face'],   # Keywords that define your package best
+    keywords=['pytorch', 'multimodal', 'transformers', 'huggingface'],   # Keywords that define your package best
     install_requires=install_requires,
     python_requires='>=3.6',
     classifiers=[

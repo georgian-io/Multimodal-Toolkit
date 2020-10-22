@@ -1,7 +1,6 @@
 import torch
 from torch import nn
 import torch.nn.functional as F
-from transformers.modeling_bert import BertLayerNorm
 
 from .layer_utils import calc_mlp_dims, create_act, glorot, zeros, MLP
 
@@ -229,7 +228,7 @@ class TabularFeatCombiner(nn.Module):
                 self.weight_num = nn.Parameter(torch.rand(output_dim_num))
 
             self.act_func = create_act(self.mlp_act)
-            self.layer_norm = BertLayerNorm(self.text_out_dim)
+            self.layer_norm = nn.LayerNorm(self.text_out_dim)
             self.final_dropout = nn.Dropout(tabular_config.hidden_dropout_prob)
             self.final_out_dim = self.text_out_dim
 
@@ -330,7 +329,7 @@ class TabularFeatCombiner(nn.Module):
                 self.h_num_layer = nn.Linear(min(self.text_out_dim, self.numerical_feat_dim),
                                              self.text_out_dim, bias=False)
             self.h_bias = nn.Parameter(torch.zeros(self.text_out_dim))
-            self.layer_norm = BertLayerNorm(self.text_out_dim)
+            self.layer_norm = nn.LayerNorm(self.text_out_dim)
             self.final_out_dim = self.text_out_dim
         else:
             raise ValueError(f'combine_feat_method {self.combine_feat_method} '
