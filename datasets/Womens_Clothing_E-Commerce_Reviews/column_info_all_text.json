@@ -1,18 +1,15 @@
 {
   "text_cols": [
     "Title",
-    "Review Text"
-  ],
-  "cat_cols": [
+    "Review Text",
     "Division Name",
     "Department Name",
-    "Class Name"
-  ],
-  "num_cols": [
+    "Class Name",
     "Rating",
     "Age",
     "Positive Feedback Count"
   ],
+  "text_col_sep_token": " ",
   "label_col": "Recommended IND",
   "label_list": ["Not Recommended", "Recommended"]
 }
