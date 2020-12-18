@@ -21,6 +21,23 @@ The multimodal specific code is in `multimodal_transformers` folder.
 pip install multimodal-transformers
 ```
 
+## Supported Transformers
+The following Hugging Face Transformers are supported to handle tabular data. See the documentation [here](https://multimodal-toolkit.readthedocs.io/en/latest/modules/model.html#module-multimodal_transformers.model.tabular_transformers).
+* [BERT](https://huggingface.co/transformers/v3.1.0/model_doc/bert.html) from Devlin et al.:
+[BERT: Pre-training of Deep Bidirectional Transformers for Language Understanding](https://arxiv.org/abs/1810.04805) (ACL 2019)
+* [ALBERT](https://huggingface.co/transformers/v3.1.0/model_doc/albert.html) from Lan et al.: [ALBERT: A Lite BERT for Self-supervised Learning of Language Representations
+](https://arxiv.org/abs/1909.11942) (ICLR 2020)
+* [DistilBERT](https://huggingface.co/transformers/v3.1.0/model_doc/distilbert.html) from Sanh et al.: 
+[DistilBERT, a distilled version of BERT: smaller, faster, cheaper and lighter](https://arxiv.org/abs/1910.01108) (NeurIPS 2019)
+* [RoBERTa](https://huggingface.co/transformers/v3.1.0/model_doc/roberta.html) 
+from Liu et al.: [RoBERTa: A Robustly Optimized BERT Pretraining Approach](https://arxiv.org/abs/1907.11692)
+* [XLM](https://huggingface.co/transformers/v3.1.0/model_doc/xlm.html) from Lample et al.: [Cross-lingual Language Model Pretraining
+](https://arxiv.org/abs/1901.07291) (NeurIPS 2019)
+* [XLNET](https://huggingface.co/transformers/v3.1.0/model_doc/xlnet.html) from Yang et al.:
+[XLNet: Generalized Autoregressive Pretraining for Language Understanding](https://arxiv.org/abs/1906.08237) (NeurIPS 2019)
+* [XLM-RoBERTa](https://huggingface.co/transformers/v3.1.0/model_doc/xlmroberta.html) from Conneau et al.:
+[Unsupervised Cross-lingual Representation Learning at Scale](https://arxiv.org/abs/1911.02116) (ACL 2020)
+
 ## Included Datasets
 This repository also includes two kaggle datasets which contain text data and 
 rich tabular features
@@ -65,29 +82,42 @@ To see the modules come together in a notebook: \
 | attention_on_cat_and_numerical_feats | Attention based summation of transformer outputs, numerical feats, and categorical feats queried by transformer outputs before final classifier layer(s). | False
 | gating_on_cat_and_num_feats_then_sum | Gated summation of transformer outputs, numerical feats, and categorical feats before final classifier layer(s). Inspired by [Integrating Multimodal Information in Large Pretrained Transformers](https://www.aclweb.org/anthology/2020.acl-main.214.pdf) which performs the mechanism for each token. | False
 | weighted_feature_sum_on_transformer_cat_and_numerical_feats | Learnable weighted feature-wise sum of transformer outputs, numerical feats and categorical feats for each feature dimension before final classifier layer(s) | False
+### Simple baseline model
+In practice, taking the categorical and numerical features as they are and just tokenizing them and just concatenating them to 
+the text columns as extra text sentences is a strong baseline. To do that here, just specify all the categorical and numerical
+columns as text columns and set `combine_feat_method` to `text_only`. For example for each of the included sample datasets in `./datasets`, 
+in `train_config.json` change `combine_feat_method` to `text_only` and `column_info_path` to  `./datasets/{dataset}/column_info_all_text.json`.
+
+In the experiments below this baseline corresponds to Combine Feat Method being `text_only (all columns)`.
 
 ## Results
 The following tables shows the results on the two included datasets's respective test sets, by running main.py 
+Non specified parameters are the default. 
 
 ### Review Prediction
 Specific training parameters can be seen in `datasets/Womens_Clothing_E-Commerce_Reviews/train_config.json`.
-Non specified parameters are the default. 
+
+There are **2** text columns, **3** categorical columns, and **3** numerical columns.
 
 Model | Combine Feat Method |F1 | ROC AUC | PR AUC
 --------|-------------|---------|------- | -------
 Bert Base Uncased | text_only | 0.959 | 0.969 | 0.993
+Bert Base Uncased | text_only (all columns) | **0.966** | **0.981** | **0.995**
 Bert Base Uncased | individual_mlps_on_cat_and_numerical_feats_then_concat | 0.958 | 0.968 | 0.993
 Bert Base Uncased | attention_on_cat_and_numerical_feats | 0.959 | 0.970 | 0.993
-Bert Base Uncased | gating_on_cat_and_num_feats_then_sum | 0.961 | **0.976** | **0.995**
-Bert Base Uncased | weighted_feature_sum_on_transformer_cat_and_numerical_feats | **0.963** | **0.976** | 0.994
+Bert Base Uncased | gating_on_cat_and_num_feats_then_sum | 0.961 | 0.976 | **0.995**
+Bert Base Uncased | weighted_feature_sum_on_transformer_cat_and_numerical_feats | 0.963 | 0.977 | 0.994
 
 
 ### Pricing Prediction
 Specific training parameters can be seen in `datasets/Melbourne_Airbnb_Open_Data/train_config.json`.
 
+There are **3** text columns, **74** categorical columns, and **15** numerical columns.
+
 Model | Combine Feat Method | MAE | RMSE | 
 --------|-------------|---------|------- | 
 Bert Base Multilingual Uncased | text_only | 78.77 | 175.93 |
+Bert Base Multilingual Uncased | text_only (all columns) | 78.89 | 175.88 |
 Bert Base Multilingual Uncased | individual_mlps_on_cat_and_numerical_feats_then_concat | 58.58 | **158.69** 
 Bert Base Multilingual Uncased | attention_on_cat_and_numerical_feats | 61.10 |160.51
 Bert Base Multilingual Uncased | gating_on_cat_and_num_feats_then_sum | **57.56** | 159.22 
