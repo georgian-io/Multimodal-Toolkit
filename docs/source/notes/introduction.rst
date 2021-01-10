@@ -85,7 +85,7 @@ The following example shows a forward pass on two data examples
 
     text_1 = "HuggingFace is based in NYC"
     text_2 = "Where is HuggingFace based?"
-    model_inputs = tokenizer([text1, text2]
+    model_inputs = tokenizer([text_1, text_2])
 
     # 5 numerical features
     numerical_feat = torch.rand(2, 5).float()
