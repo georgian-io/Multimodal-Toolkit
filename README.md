@@ -43,7 +43,7 @@ This repository also includes two kaggle datasets which contain text data and
 rich tabular features
 * [Women's Clothing E-Commerce Reviews](https://www.kaggle.com/nicapotato/womens-ecommerce-clothing-reviews) for Recommendation Prediction (Classification)
 * [Melbourne Airbnb Open Data](https://www.kaggle.com/tylerx/melbourne-airbnb-open-data) for Price Prediction (Regression)
-
+* [PetFindermy Adoption Prediction](https://www.kaggle.com/c/petfinder-adoption-prediction) for Pet Adoption Speed Prediction (Multiclass Classification)
  
 
 ## Working Examples
@@ -88,7 +88,7 @@ the text columns as extra text sentences is a strong baseline. To do that here, 
 columns as text columns and set `combine_feat_method` to `text_only`. For example for each of the included sample datasets in `./datasets`, 
 in `train_config.json` change `combine_feat_method` to `text_only` and `column_info_path` to  `./datasets/{dataset}/column_info_all_text.json`.
 
-In the experiments below this baseline corresponds to Combine Feat Method being `text_only (all columns)`.
+In the experiments below this baseline corresponds to Combine Feat Method being `unimodal`.
 
 ## Results
 The following tables shows the results on the two included datasets's respective test sets, by running main.py 
@@ -99,14 +99,15 @@ Specific training parameters can be seen in `datasets/Womens_Clothing_E-Commerce
 
 There are **2** text columns, **3** categorical columns, and **3** numerical columns.
 
-Model | Combine Feat Method |F1 | ROC AUC | PR AUC
---------|-------------|---------|------- | -------
-Bert Base Uncased | text_only | 0.959 | 0.969 | 0.993
-Bert Base Uncased | text_only (all columns) | **0.966** | **0.981** | **0.995**
-Bert Base Uncased | individual_mlps_on_cat_and_numerical_feats_then_concat | 0.958 | 0.968 | 0.993
-Bert Base Uncased | attention_on_cat_and_numerical_feats | 0.959 | 0.970 | 0.993
-Bert Base Uncased | gating_on_cat_and_num_feats_then_sum | 0.961 | 0.976 | **0.995**
-Bert Base Uncased | weighted_feature_sum_on_transformer_cat_and_numerical_feats | 0.963 | 0.977 | 0.994
+Model | Combine Feat Method |F1 | PR AUC
+--------|-------------|---------|------- 
+Bert Base Uncased | text_only | 0.957 | 0.992
+Bert Base Uncased | unimodal | **0.968** | **0.995**
+Bert Base Uncased | concat | 0.958 | 0.992
+Bert Base Uncased | individual_mlps_on_cat_and_numerical_feats_then_concat | 0.959 | 0.992
+Bert Base Uncased | attention_on_cat_and_numerical_feats | 0.959 | 0.992
+Bert Base Uncased | gating_on_cat_and_num_feats_then_sum | 0.961 | 0.994
+Bert Base Uncased | weighted_feature_sum_on_transformer_cat_and_numerical_feats | 0.962 | 0.994
 
 
 ### Pricing Prediction
@@ -116,9 +117,25 @@ There are **3** text columns, **74** categorical columns, and **15** numerical c
 
 Model | Combine Feat Method | MAE | RMSE | 
 --------|-------------|---------|------- | 
-Bert Base Multilingual Uncased | text_only | 78.77 | 175.93 |
-Bert Base Multilingual Uncased | text_only (all columns) | 78.89 | 175.88 |
-Bert Base Multilingual Uncased | individual_mlps_on_cat_and_numerical_feats_then_concat | 58.58 | **158.69** 
-Bert Base Multilingual Uncased | attention_on_cat_and_numerical_feats | 61.10 |160.51
-Bert Base Multilingual Uncased | gating_on_cat_and_num_feats_then_sum | **57.56** | 159.22 
-Bert Base Multilingual Uncased | weighted_feature_sum_on_transformer_cat_and_numerical_feats | 60.11 | 159.12 
+Bert Base Multilingual Uncased | text_only | 82.74 | 254.0 |
+Bert Base Multilingual Uncased | unimodal | 79.34 | 245.2 |
+Bert Base Uncased | concat | **65.68** | 239.3 
+Bert Base Multilingual Uncased | individual_mlps_on_cat_and_numerical_feats_then_concat | 66.73 | **237.3**  
+Bert Base Multilingual Uncased | attention_on_cat_and_numerical_feats | 74.72 |246.3
+Bert Base Multilingual Uncased | gating_on_cat_and_num_feats_then_sum | 66.64 | 237.8 
+Bert Base Multilingual Uncased | weighted_feature_sum_on_transformer_cat_and_numerical_feats | 71.19 | 245.2 
+
+
+### Pet Adoption Prediction
+Specific training parameters can be seen in `datasets/PetFindermy_Adoption_Prediction`
+There are **2** text columns, **14** categorical columns, and **5** numerical columns.
+
+Model | Combine Feat Method | F1_macro | F1_micro | 
+--------|-------------|---------|------- | 
+Bert Base Multilingual Uncased | text_only | 0.088 | 0.281 |
+Bert Base Multilingual Uncased | unimodal | 0.089 | 0.283 |
+Bert Base Uncased | concat | 0.199 | 0.362 
+Bert Base Multilingual Uncased | individual_mlps_on_cat_and_numerical_feats_then_concat | 0.244 | 0.352
+Bert Base Multilingual Uncased | attention_on_cat_and_numerical_feats | 0.254 | 0.375
+Bert Base Multilingual Uncased | gating_on_cat_and_num_feats_then_sum | **0.275** | 0.375 
+Bert Base Multilingual Uncased | weighted_feature_sum_on_transformer_cat_and_numerical_feats | 0.266 | 0.380

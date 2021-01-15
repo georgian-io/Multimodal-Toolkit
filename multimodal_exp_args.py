@@ -41,8 +41,29 @@ class MultimodalDataTrainingArguments:
     """
 
     data_path: str = field(metadata={
-                              'help': 'the path to the csv file containing the dataset'
+                              'help': 'the path to the csv files containing the dataset. If create_folds is set to True'
+                                      'then it is expected that data_path points to one csv containing the entire dataset'
+                                      'to split into folds. Otherwise, data_path should be the folder containing'
+                                      'train.csv, test.csv, (and val.csv if available)'
                           })
+    create_folds: bool = field(default=False,
+                               metadata={'help': 'Whether or not we want to create folds for '
+                                                 'K fold evaluation of the model'})
+
+    num_folds: int = field(default=5,
+                           metadata={'help': 'The number of folds for K fold '
+                                             'evaluation of the model. Will not be used if create_folds is False'})
+    validation_ratio: float = field(default=0.2,
+                                    metadata={'help': 'The ratio of dataset examples to be used for validation across'
+                                                      'all folds for K fold evaluation. If num_folds is 5 and '
+                                                      'validation_ratio is 0.2. Then a consistent 20% of the examples will'
+                                                      'be used for validation for all folds. Then the remaining 80% is used'
+                                                      'for K fold split for test and train sets so 0.2*0.8=16%  of '
+                                                      'all examples is used for testing and 0.8*0.8=64% of all examples'
+                                                      'is used for training for each fold'}
+                                    )
+    num_classes: int = field(default=-1,
+                             metadata={'help': 'Number of labels for classification if any'})
     column_info_path: str = field(
         default=None,
         metadata={
@@ -106,7 +127,8 @@ class MultimodalDataTrainingArguments:
                                })
 
     def __post_init__(self):
-        assert self.column_info != self.column_info_path
+        assert self.column_info != self.column_info_path, 'provide either a path to column_info or a dictionary'
+        assert 0 <= self.validation_ratio <= 1, 'validation_ratio must be between 0 and 1'
         if self.column_info is None and self.column_info_path:
             with open(self.column_info_path, 'r') as f:
                 self.column_info = json.load(f)

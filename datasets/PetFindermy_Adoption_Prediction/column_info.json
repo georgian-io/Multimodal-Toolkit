@@ -1,0 +1,31 @@
+{
+  "text_cols": [
+    "Name",
+    "Description"
+  ],
+  "cat_cols": [
+    "Type",
+    "Breed1",
+    "Breed2",
+    "Gender",
+    "Color1",
+    "Color2",
+    "Color3",
+    "MaturitySize",
+    "FurLength",
+    "Vaccinated",
+    "Dewormed",
+    "Sterilized",
+    "Health",
+    "State"
+  ],
+  "num_cols": [
+    "Age",
+    "Quantity",
+    "Fee",
+    "VideoAmt",
+    "PhotoAmt"
+  ],
+  "label_col": "AdoptionSpeed",
+  "label_list": ["same day", "1-7 days", "8-30 days", "31-90 days", "more than 100 days"]
+}

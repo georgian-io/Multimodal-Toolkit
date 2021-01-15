@@ -156,7 +156,9 @@ def load_cat_feats(df, cat_bool_func, encode_type=None):
 def load_num_feats(df, num_bool_func):
     num_cols = get_matching_cols(df, num_bool_func)
     logger.info(f'{len(num_cols)} numerical columns')
-    df[num_cols] = df[num_cols].fillna(df[num_cols].median())
+    df = df.copy()
+    df[num_cols] = df[num_cols].astype(float)
+    df[num_cols] = df[num_cols].fillna(dict(df[num_cols].median()), inplace=False)
     if len(num_cols) == 0:
         return None
     return df[num_cols].values
