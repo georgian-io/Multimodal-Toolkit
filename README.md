@@ -10,7 +10,7 @@ to produce rich multimodal features for downstream classification/regression lay
 Given a pretrained transformer, the parameters of the combining module and transformer are trained based
 on the supervised task. For a brief literature review, check out the accompanying [blog post](https://medium.com/georgian-impact-blog/how-to-incorporate-tabular-data-with-huggingface-transformers-b70ac45fcfb4) on Georgian's Impact Blog. 
 
-![](https://drive.google.com/uc?export=view&id=1aMNrv5kHDcaq8gS1EFtA6Ri4Tg_aff4E)
+![](https://drive.google.com/uc?export=view&id=1kyExPDQNkg49NRYgcw2wk8xg4QtQ6Ppt)
 
 
 
@@ -138,4 +138,4 @@ Bert Base Uncased | concat | 0.199 | 0.362
 Bert Base Multilingual Uncased | individual_mlps_on_cat_and_numerical_feats_then_concat | 0.244 | 0.352
 Bert Base Multilingual Uncased | attention_on_cat_and_numerical_feats | 0.254 | 0.375
 Bert Base Multilingual Uncased | gating_on_cat_and_num_feats_then_sum | **0.275** | 0.375 
-Bert Base Multilingual Uncased | weighted_feature_sum_on_transformer_cat_and_numerical_feats | 0.266 | 0.380
+Bert Base Multilingual Uncased | weighted_feature_sum_on_transformer_cat_and_numerical_feats | 0.266 | **0.380**
