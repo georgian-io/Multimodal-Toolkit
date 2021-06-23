@@ -139,3 +139,21 @@ Bert Base Multilingual Uncased | individual_mlps_on_cat_and_numerical_feats_then
 Bert Base Multilingual Uncased | attention_on_cat_and_numerical_feats | 0.254 | 0.375
 Bert Base Multilingual Uncased | gating_on_cat_and_num_feats_then_sum | **0.275** | 0.375 
 Bert Base Multilingual Uncased | weighted_feature_sum_on_transformer_cat_and_numerical_feats | 0.266 | **0.380**
+
+## Citation
+We now have a [paper](https://www.aclweb.org/anthology/2021.maiworkshop-1.10/) you can cite for the Multimodal-Toolkit.
+```bibtex
+@inproceedings{gu-budhkar-2021-package,
+    title = "A Package for Learning on Tabular and Text Data with Transformers",
+    author = "Gu, Ken  and
+      Budhkar, Akshay",
+    booktitle = "Proceedings of the Third Workshop on Multimodal Artificial Intelligence",
+    month = jun,
+    year = "2021",
+    address = "Mexico City, Mexico",
+    publisher = "Association for Computational Linguistics",
+    url = "https://www.aclweb.org/anthology/2021.maiworkshop-1.10",
+    doi = "10.18653/v1/2021.maiworkshop-1.10",
+    pages = "69--73",
+}
+```
