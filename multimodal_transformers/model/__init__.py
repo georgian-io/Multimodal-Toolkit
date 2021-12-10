@@ -4,7 +4,8 @@ from .tabular_modeling_auto import AutoModelWithTabular
 from .tabular_transformers import (
     BertWithTabular,
     RobertaWithTabular,
-    DistilBertWithTabular
+    DistilBertWithTabular,
+    LongformerWithTabular
 )
 
 
@@ -14,5 +15,6 @@ __all__ = [
     'AutoModelWithTabular',
     'BertWithTabular',
     'RobertaWithTabular',
-    'DistilBertWithTabular'
+    'DistilBertWithTabular',
+    'LongformerWithTabular'
 ]
