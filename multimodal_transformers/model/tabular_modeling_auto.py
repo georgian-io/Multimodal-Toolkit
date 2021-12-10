@@ -148,7 +148,11 @@ class AutoModelWithTabular:
             config = AutoConfig.from_pretrained(pretrained_model_name_or_path, **kwargs)
 
         for config_class, model_class in MODEL_FOR_SEQUENCE_W_TABULAR_CLASSIFICATION_MAPPING.items():
-            if isinstance(config, config_class):
+            # We have to do this because the longformer model is a subset of roberta
+            # Directly checking the name of the config object will identify the correct model
+            if config_class.model_type == config.model_type:
+                return model_class.from_pretrained(pretrained_model_name_or_path, *model_args, config=config, **kwargs)
+            elif isinstance(config, config_class):
                 return model_class.from_pretrained(pretrained_model_name_or_path, *model_args, config=config, **kwargs)
         raise ValueError(
             "Unrecognized configuration class {} for this kind of AutoModel: {}.\n"
