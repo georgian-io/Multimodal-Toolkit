@@ -27,6 +27,7 @@ from .tabular_transformers import (
 
 MODEL_FOR_SEQUENCE_W_TABULAR_CLASSIFICATION_MAPPING = OrderedDict(
     [
+        (LongformerConfig, LongformerWithTabular),
         (RobertaConfig, RobertaWithTabular),
         (BertConfig, BertWithTabular),
         (DistilBertConfig, DistilBertWithTabular),
@@ -34,7 +35,6 @@ MODEL_FOR_SEQUENCE_W_TABULAR_CLASSIFICATION_MAPPING = OrderedDict(
         (XLNetConfig, XLNetWithTabular),
         (XLMConfig, XLMWithTabular),
         (XLMRobertaConfig, XLMRobertaWithTabular),
-        (LongformerConfig, LongformerWithTabular),
     ]
 )
 
