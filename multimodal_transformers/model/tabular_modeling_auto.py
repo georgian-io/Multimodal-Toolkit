@@ -1,7 +1,7 @@
 from collections import OrderedDict
 
 from transformers.configuration_utils import PretrainedConfig
-from transformers.configuration_auto import (
+from transformers import (
     AutoConfig,
     AlbertConfig,
     BertConfig,
