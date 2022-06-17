@@ -28,8 +28,8 @@ class TorchTabularTextDataset(TorchDataset):
     """
     def __init__(self,
                  encodings,
-                 categorical_feats=None,
-                 numerical_feats=None,
+                 categorical_feats,
+                 numerical_feats,
                  labels=None,
                  df=None,
                  label_list=None,

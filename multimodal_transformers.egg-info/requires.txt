@@ -1,0 +1,8 @@
+torch
+transformers==3.1
+numpy
+tqdm
+scipy
+networkx
+scikit-learn
+pandas
