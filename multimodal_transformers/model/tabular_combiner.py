@@ -289,25 +289,26 @@ class TabularFeatCombiner(nn.Module):
             self.__reset_parameters()
         elif self.combine_feat_method == 'gating_on_cat_and_num_feats_then_sum':
             self.act_func = create_act(self.mlp_act)
-            if self.cat_feat_dim > 0:
-                if self.cat_feat_dim > self.text_out_dim:
-                    dims = calc_mlp_dims(
-                        self.numerical_feat_dim,
-                        division=self.mlp_division,
-                        output_dim=self.text_out_dim)
-                    self.cat_layer = MLP(
-                        self.cat_feat_dim,
-                        self.text_out_dim,
-                        act=self.mlp_act,
-                        num_hidden_lyr=len(dims),
-                        dropout_prob=self.mlp_dropout,
-                        hidden_channels=dims,
-                        return_layer_outs=False,
-                        bn=True)
-                self.g_cat_layer = nn.Linear(self.text_out_dim + min(self.text_out_dim, self.cat_feat_dim),
-                                             self.text_out_dim)
-                self.dropout_cat = nn.Dropout(self.mlp_dropout)
-                self.h_cat_layer = nn.Linear(min(self.text_out_dim, self.cat_feat_dim), self.text_out_dim, bias=False)
+            if self.cat_feat_dim!=0:
+                if self.cat_feat_dim > 0:
+                    if self.cat_feat_dim > self.text_out_dim:
+                        dims = calc_mlp_dims(
+                            self.numerical_feat_dim,
+                            division=self.mlp_division,
+                            output_dim=self.text_out_dim)
+                        self.cat_layer = MLP(
+                            self.cat_feat_dim,
+                            self.text_out_dim,
+                            act=self.mlp_act,
+                            num_hidden_lyr=len(dims),
+                            dropout_prob=self.mlp_dropout,
+                            hidden_channels=dims,
+                            return_layer_outs=False,
+                            bn=True)
+                    self.g_cat_layer = nn.Linear(self.text_out_dim + min(self.text_out_dim, self.cat_feat_dim),
+                                                 self.text_out_dim)
+                    self.dropout_cat = nn.Dropout(self.mlp_dropout)
+                    self.h_cat_layer = nn.Linear(min(self.text_out_dim, self.cat_feat_dim), self.text_out_dim, bias=False)
             if self.numerical_feat_dim > 0:
                 if self.numerical_feat_dim > self.text_out_dim:
                     dims = calc_mlp_dims(
