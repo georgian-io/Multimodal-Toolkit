@@ -224,40 +224,42 @@ def load_train_val_test_helper(train_df,
                                replace_empty_text=None,
                                max_token_length=None,
                                debug=False):
-    if categorical_encode_type == 'ohe' or categorical_encode_type == 'binary':
-        dfs = [df for df in [train_df, val_df, test_df] if df is not None]
-        data_df = pd.concat(dfs, axis=0)
-        cat_feat_processor = CategoricalFeatures(data_df, categorical_cols, categorical_encode_type)
-        vals = cat_feat_processor.fit_transform()
-        cat_df = pd.DataFrame(vals, columns=cat_feat_processor.feat_names)
-        data_df = pd.concat([data_df, cat_df], axis=1)
-        categorical_cols = cat_feat_processor.feat_names
+    if categorical_cols!= None:
+        if categorical_encode_type == 'ohe' or categorical_encode_type == 'binary':
+            dfs = [df for df in [train_df, val_df, test_df] if df is not None]
+            data_df = pd.concat(dfs, axis=0)
+            cat_feat_processor = CategoricalFeatures(data_df, categorical_cols, categorical_encode_type)
+            vals = cat_feat_processor.fit_transform()
+            cat_df = pd.DataFrame(vals, columns=cat_feat_processor.feat_names)
+            data_df = pd.concat([data_df, cat_df], axis=1)
+            categorical_cols = cat_feat_processor.feat_names
 
-        len_train = len(train_df)
-        len_val = len(val_df) if val_df is not None else 0
+            len_train = len(train_df)
+            len_val = len(val_df) if val_df is not None else 0
 
-        train_df = data_df.iloc[:len_train]
-        if val_df is not None:
-            val_df = data_df.iloc[len_train: len_train + len_val]
-            len_train = len_train + len_val
-        test_df = data_df.iloc[len_train:]
+            train_df = data_df.iloc[:len_train]
+            if val_df is not None:
+                val_df = data_df.iloc[len_train: len_train + len_val]
+                len_train = len_train + len_val
+            test_df = data_df.iloc[len_train:]
 
-        categorical_encode_type = None
+            categorical_encode_type = None
 
-    if numerical_transformer_method != 'none':
-        if numerical_transformer_method == 'yeo_johnson':
-            numerical_transformer = PowerTransformer(method='yeo-johnson')
-        elif numerical_transformer_method == 'box_cox':
-            numerical_transformer = PowerTransformer(method='box-cox')
-        elif numerical_transformer_method == 'quantile_normal':
-            numerical_transformer = QuantileTransformer(output_distribution='normal')
+    if numerical_cols!=None:
+        if numerical_transformer_method != 'none':
+            if numerical_transformer_method == 'yeo_johnson':
+                numerical_transformer = PowerTransformer(method='yeo-johnson')
+            elif numerical_transformer_method == 'box_cox':
+                numerical_transformer = PowerTransformer(method='box-cox')
+            elif numerical_transformer_method == 'quantile_normal':
+                numerical_transformer = QuantileTransformer(output_distribution='normal')
+            else:
+                raise ValueError(f'preprocessing transformer method '
+                                 f'{numerical_transformer_method} not implemented')
+            num_feats = load_num_feats(train_df, convert_to_func(numerical_cols))
+            numerical_transformer.fit(num_feats)
         else:
-            raise ValueError(f'preprocessing transformer method '
-                             f'{numerical_transformer_method} not implemented')
-        num_feats = load_num_feats(train_df, convert_to_func(numerical_cols))
-        numerical_transformer.fit(num_feats)
-    else:
-        numerical_transformer = None
+            numerical_transformer = None
 
     train_dataset = load_data(train_df,
                               text_cols,
@@ -375,13 +377,20 @@ def load_data(data_df,
         empty_text_values = ['nan', 'None']
 
     text_cols_func = convert_to_func(text_cols)
-    categorical_cols_func = convert_to_func(categorical_cols)
-    numerical_cols_func = convert_to_func(numerical_cols)
+    if categorical_cols!=None:
+        categorical_cols_func = convert_to_func(categorical_cols)
+    if numerical_cols!=None:
+        numerical_cols_func = convert_to_func(numerical_cols)
 
-    categorical_feats, numerical_feats = load_cat_and_num_feats(data_df,
+    if (categorical_cols!=None) and (numerical_cols!=None):
+        categorical_feats, numerical_feats = load_cat_and_num_feats(data_df,
                                                                 categorical_cols_func,
                                                                 numerical_cols_func,
                                                                 categorical_encode_type)
+    else:
+        if (categorical_cols==None) and (numerical_cols!=None):
+            numerical_feats = load_num_feats(data_df, numerical_cols_func)
+
     numerical_feats = normalize_numerical_feats(numerical_feats, numerical_transformer)
     agg_func = partial(agg_text_columns_func, empty_text_values, replace_empty_text)
     texts_cols = get_matching_cols(data_df, text_cols_func)
@@ -396,5 +405,9 @@ def load_data(data_df,
     logger.debug(f'Tokenized text example: {tokenized_text_ex}')
     labels = data_df[label_col].values
 
-    return TorchTabularTextDataset(hf_model_text_input, categorical_feats,
+    if (categorical_cols!=None) and (numerical_cols!=None):
+        return TorchTabularTextDataset(hf_model_text_input, categorical_feats,
                                    numerical_feats, labels, data_df, label_list)
+    else:
+        if (categorical_cols==None) and (numerical_cols!=None):
+            return TorchTabularTextDataset(hf_model_text_input, numerical_feats, labels, data_df, label_list)
