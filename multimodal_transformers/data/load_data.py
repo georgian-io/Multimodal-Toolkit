@@ -410,4 +410,5 @@ def load_data(data_df,
                                    numerical_feats, labels, data_df, label_list)
     else:
         if (categorical_cols==None) and (numerical_cols!=None):
-            return TorchTabularTextDataset(hf_model_text_input, numerical_feats, labels, data_df, label_list)
+            categorical_feats = None
+            return TorchTabularTextDataset(hf_model_text_input, categorical_feats, numerical_feats, labels, data_df, label_list)
