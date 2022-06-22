@@ -390,8 +390,7 @@ def load_data(data_df,
     else:
         if (categorical_cols==None) and (numerical_cols!=None):
             numerical_feats = load_num_feats(data_df, numerical_cols_func)
-
-    numerical_feats = normalize_numerical_feats(numerical_feats, numerical_transformer)
+            numerical_feats = normalize_numerical_feats(numerical_feats, numerical_transformer)
     agg_func = partial(agg_text_columns_func, empty_text_values, replace_empty_text)
     texts_cols = get_matching_cols(data_df, text_cols_func)
     logger.info(f'Text columns: {texts_cols}')
@@ -411,4 +410,8 @@ def load_data(data_df,
     else:
         if (categorical_cols==None) and (numerical_cols!=None):
             categorical_feats = None
+            return TorchTabularTextDataset(hf_model_text_input, categorical_feats, numerical_feats, labels, data_df, label_list)
+        elif (categorical_cols==None) and (numerical_cols==None):
+            categorical_feats = None
+            numerical_feats = None
             return TorchTabularTextDataset(hf_model_text_input, categorical_feats, numerical_feats, labels, data_df, label_list)
