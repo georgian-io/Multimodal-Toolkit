@@ -260,6 +260,8 @@ def load_train_val_test_helper(train_df,
             numerical_transformer.fit(num_feats)
         else:
             numerical_transformer = None
+    else:
+        numerical_transformer=None
 
     train_dataset = load_data(train_df,
                               text_cols,
