@@ -8,6 +8,18 @@ from transformers import (
     XLMForSequenceClassification
 )
 
+from transformers.models.bert.modeling_bert import BERT_INPUTS_DOCSTRING
+from transformers.models.roberta.modeling_roberta import ROBERTA_INPUTS_DOCSTRING
+from transformers.models.distilbert.modeling_distilbert import DISTILBERT_INPUTS_DOCSTRING
+from transformers.models.albert.modeling_albert import ALBERT_INPUTS_DOCSTRING
+from transformers.models.xlnet.modeling_xlnet import XLNET_INPUTS_DOCSTRING
+from transformers.models.xlm.modeling_xlm import XLM_INPUTS_DOCSTRING
+from transformers import XLMRobertaConfig
+from transformers.file_utils import add_start_docstrings
+
+
+
+
 from transformers import XLMRobertaConfig
 
 from .tabular_combiner import TabularFeatCombiner
@@ -55,6 +67,7 @@ class BertWithTabular(BertForSequenceClassification):
                                           hidden_channels=dims,
                                           bn=True)
 
+    @add_start_docstrings(BERT_INPUTS_DOCSTRING.format("(batch_size, sequence_length)"))
     def forward(
         self,
         input_ids=None,
@@ -155,6 +168,7 @@ class RobertaWithTabular(RobertaForSequenceClassification):
                                           hidden_channels=dims,
                                           bn=True)
 
+    @add_start_docstrings(ROBERTA_INPUTS_DOCSTRING.format("(batch_size, sequence_length)"))
     def forward(
         self,
         input_ids=None,
@@ -266,6 +280,7 @@ class DistilBertWithTabular(DistilBertForSequenceClassification):
                                           hidden_channels=dims,
                                           bn=True)
 
+    @add_start_docstrings(DISTILBERT_INPUTS_DOCSTRING.format("(batch_size, sequence_length)"))
     def forward(
         self,
         input_ids=None,
@@ -366,7 +381,7 @@ class AlbertWithTabular(AlbertForSequenceClassification):
                                           hidden_channels=dims,
                                           bn=True)
 
-
+    @add_start_docstrings(ALBERT_INPUTS_DOCSTRING.format("(batch_size, sequence_length)"))
     def forward(
         self,
         input_ids=None,
@@ -456,7 +471,7 @@ class XLNetWithTabular(XLNetForSequenceClassification):
                                           hidden_channels=dims,
                                           bn=True)
 
-
+    @add_start_docstrings(XLNET_INPUTS_DOCSTRING.format("(batch_size, sequence_length)"))
     def forward(
         self,
         input_ids=None,
@@ -554,7 +569,7 @@ class XLMWithTabular(XLMForSequenceClassification):
                                           hidden_channels=dims,
                                           bn=True)
 
-
+    @add_start_docstrings(XLM_INPUTS_DOCSTRING.format("(batch_size, sequence_length)"))
     def forward(
             self,
             input_ids=None,
