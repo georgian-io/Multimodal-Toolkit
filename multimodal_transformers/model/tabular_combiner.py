@@ -265,7 +265,7 @@ class TabularFeatCombiner(nn.Module):
                         self.numerical_feat_dim,
                         division=self.mlp_division,
                         output_dim=output_dim_num)
-                    self.cat_mlp = MLP(
+                    self.num_mlp = MLP(
                         self.numerical_feat_dim,
                         output_dim_num,
                         num_hidden_lyr=len(dims),
