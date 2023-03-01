@@ -406,7 +406,7 @@ class TabularFeatCombiner(nn.Module):
                 if self.numerical_feat_dim > self.text_out_dim:
                     numerical_feats = self.num_mlp(numerical_feats)
                 w_num = torch.mm(numerical_feats, self.weight_num)
-                g_num = (torch.cat([w_text, w_cat], dim=-1) * self.weight_a).sum(dim=1).unsqueeze(0).T
+                g_num = (torch.cat([w_text, w_num], dim=-1) * self.weight_a).sum(dim=1).unsqueeze(0).T
             else:
                 w_num = None
                 g_num = torch.zeros(0, device=g_text.device)
