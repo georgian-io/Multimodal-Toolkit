@@ -116,6 +116,8 @@ def main():
 
     def build_compute_metrics_fn(task_name: str) -> Callable[[EvalPrediction], Dict]:
         def compute_metrics_fn(p: EvalPrediction):
+            # p.predictions is now a list of objects
+            # The first entry is the actual predictions
             predictions = p.predictions[0]
             if task_name == "classification":
                 preds_labels = np.argmax(predictions, axis=1)
