@@ -370,7 +370,7 @@ def load_data(data_df,
         :obj:`tabular_torch_dataset.TorchTextDataset`: The converted dataset
     """
     if debug:
-        data_df = data_df[:500]
+        data_df = data_df[:100]
     if empty_text_values is None:
         empty_text_values = ['nan', 'None']
 
