@@ -66,7 +66,7 @@ class CategoricalFeatures:
     def _one_hot(self):
         ohe = preprocessing.OneHotEncoder(sparse=False)
         ohe.fit(self.df[self.cat_feats].values)
-        self.feat_names = list(ohe.get_feature_names(self.cat_feats))
+        self.feat_names = list(ohe.get_feature_names_out(self.cat_feats))
         return ohe.transform(self.df[self.cat_feats].values)
 
     def fit_transform(self):
