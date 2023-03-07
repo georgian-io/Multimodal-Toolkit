@@ -494,7 +494,7 @@ class XLNetWithTabular(XLNetForSequenceClassification):
             If ``config.num_labels > 1`` a classification loss is computed (Cross-Entropy).
         """
         return_dict = return_dict if return_dict is not None else self.config.use_return_dict
-        use_cache = self.training or (use_cache if use_cache is not None else self.config.use_cache)
+        use_cache = self.training or (use_cache if use_cache is not None else False)
 
         transformer_outputs = self.transformer(
             input_ids,
