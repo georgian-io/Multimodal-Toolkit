@@ -12,6 +12,8 @@ install_requires = [
     'networkx',
     'scikit-learn',
     'pandas',
+    'sacremoses',
+    'pytest'
 ]
 
 setup(
