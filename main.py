@@ -83,6 +83,7 @@ def main():
             sep_text_token_str=tokenizer.sep_token if not data_args.column_info['text_col_sep_token'] else data_args.column_info['text_col_sep_token'],
             max_token_length=training_args.max_token_length,
             debug=training_args.debug_dataset,
+            debug_dataset_size=training_args.debug_dataset_size
         )
         train_datasets = [train_dataset]
         val_datasets = [val_dataset]
@@ -104,6 +105,7 @@ def main():
             data_args.column_info['text_col_sep_token'],
             max_token_length=training_args.max_token_length,
             debug=training_args.debug_dataset,
+            debug_dataset_size=training_args.debug_dataset_size
         )
     train_dataset = train_datasets[0]
 
