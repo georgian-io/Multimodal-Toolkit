@@ -1,5 +1,5 @@
 {
-  "output_dir": "./logs_clothing_review/gating_on_cat_and_num_feats_then_sum/",
+  "output_dir": "./logs_clothing_review/bertbase_gating_on_cat_and_num_feats_then_sum_full_model_lr_3e-3/",
   "debug_dataset": false,
   "task": "classification",
   "combine_feat_method": "text_only",
