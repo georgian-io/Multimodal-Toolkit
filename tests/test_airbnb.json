@@ -1,0 +1,20 @@
+{
+    "output_dir": "./tests/test_airbnb/",
+    "task": "regression",
+    "combine_feat_method": "gating_on_cat_and_num_feats_then_sum",
+    "experiment_name": "bert-base-multilingual-uncased",
+    "model_name_or_path": "bert-base-multilingual-uncased",
+    "categorical_encode_type": "binary",
+    "numerical_transformer_method": "quantile_normal",
+    "tokenizer_name": "bert-base-multilingual-uncased",
+    "use_simple_classifier": false,
+    "num_train_epochs": 5,
+    "overwrite_output_dir": true,
+    "learning_rate": 1e-4,
+    "per_device_train_batch_size": 2,
+    "per_device_eval_batch_size": 2,
+    "eval_steps": 500,
+    "data_path": "./datasets/Melbourne_Airbnb_Open_Data",
+    "column_info_path":  "./datasets/Melbourne_Airbnb_Open_Data/column_info.json"
+  }
+  

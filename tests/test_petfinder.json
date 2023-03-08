@@ -1,0 +1,22 @@
+{
+    "output_dir": "./tests/test_petfinder/",
+    "task": "classification",
+    "combine_feat_method": "text_only",
+    "experiment_name": "bert-base-multilingual-uncased",
+    "model_name_or_path": "bert-base-multilingual-uncased",
+    "categorical_encode_type": "ohe",
+    "numerical_transformer_method": "quantile_normal",
+    "tokenizer_name": "bert-base-multilingual-uncased",
+    "use_simple_classifier": false,
+    "num_train_epochs": 5,
+    "overwrite_output_dir": true,
+    "learning_rate": 1e-4,
+    "per_device_train_batch_size": 2,
+    "per_device_eval_batch_size": 2,
+    "eval_steps": 500,
+    "data_path": "./datasets/PetFindermy_Adoption_Prediction",
+    "column_info_path":  "./datasets/PetFindermy_Adoption_Prediction/column_info_all_text.json"
+  }
+  
+  
+  
