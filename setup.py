@@ -1,6 +1,6 @@
 from setuptools import setup, find_packages
 
-__version__ = '0.1.4-alpha'
+__version__ = '0.2-alpha'
 url = 'https://github.com/georgianpartners/Multimodal-Toolkit'
 
 install_requires = [
