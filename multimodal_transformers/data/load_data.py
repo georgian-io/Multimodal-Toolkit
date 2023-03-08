@@ -35,7 +35,8 @@ def load_data_into_folds(data_csv_path,
                          empty_text_values=None,
                          replace_empty_text=None,
                          max_token_length=None,
-                         debug=False
+                         debug=False,
+                         debug_dataset_size=100
                          ):
     """
         Function to load tabular and text data from a specified folder into folds
@@ -114,7 +115,8 @@ def load_data_into_folds(data_csv_path,
                                                       empty_text_values,
                                                       replace_empty_text,
                                                       max_token_length,
-                                                      debug)
+                                                      debug,
+                                                      debug_dataset_size)
         train_splits.append(train)
         val_splits.append(val)
         test_splits.append(test)
@@ -136,6 +138,7 @@ def load_data_from_folder(folder_path,
                           replace_empty_text=None,
                           max_token_length=None,
                           debug=False,
+                          debug_dataset_size=100
                           ):
     """
     Function to load tabular and text data from a specified folder
@@ -205,7 +208,8 @@ def load_data_from_folder(folder_path,
                                       empty_text_values,
                                       replace_empty_text,
                                       max_token_length,
-                                      debug)
+                                      debug,
+                                      debug_dataset_size)
 
 
 def load_train_val_test_helper(train_df,
@@ -223,7 +227,8 @@ def load_train_val_test_helper(train_df,
                                empty_text_values=None,
                                replace_empty_text=None,
                                max_token_length=None,
-                               debug=False):
+                               debug=False,
+                               debug_dataset_size=100):
     if categorical_encode_type == 'ohe' or categorical_encode_type == 'binary':
         dfs = [df for df in [train_df, val_df, test_df] if df is not None]
         data_df = pd.concat(dfs, axis=0)
@@ -272,7 +277,8 @@ def load_train_val_test_helper(train_df,
                               empty_text_values,
                               replace_empty_text,
                               max_token_length,
-                              debug
+                              debug,
+                              debug_dataset_size
                               )
     test_dataset = load_data(test_df,
                              text_cols,
@@ -287,7 +293,8 @@ def load_train_val_test_helper(train_df,
                              empty_text_values,
                              replace_empty_text,
                              max_token_length,
-                             debug
+                             debug,
+                             debug_dataset_size
                              )
 
     if val_df is not None:
@@ -304,7 +311,8 @@ def load_train_val_test_helper(train_df,
                                 empty_text_values,
                                 replace_empty_text,
                                 max_token_length,
-                                debug
+                                debug,
+                                debug_dataset_size
                                 )
     else:
         val_dataset = None
@@ -326,6 +334,7 @@ def load_data(data_df,
               replace_empty_text=None,
               max_token_length=None,
               debug=False,
+              debug_dataset_size=100
               ):
     """Function to load a single dataset given a pandas DataFrame
 
@@ -370,7 +379,7 @@ def load_data(data_df,
         :obj:`tabular_torch_dataset.TorchTextDataset`: The converted dataset
     """
     if debug:
-        data_df = data_df[:100]
+        data_df = data_df[:debug_dataset_size]
     if empty_text_values is None:
         empty_text_values = ['nan', 'None']
 

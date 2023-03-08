@@ -23,6 +23,7 @@ import pytest
 
 os.environ['COMET_MODE'] = 'DISABLED'
 
+DEBUG_DATASET_SIZE = 50
 
 CONFIGS = [
     "./tests/test_airbnb.json", 
@@ -96,6 +97,7 @@ def test_model(json_file: str, model_string: str):
         sep_text_token_str=tokenizer.sep_token if not data_args.column_info['text_col_sep_token'] else data_args.column_info['text_col_sep_token'],
         max_token_length=training_args.max_token_length,
         debug=True,
+        debug_dataset_size=DEBUG_DATASET_SIZE
     )
 
     set_seed(training_args.seed)
@@ -142,4 +144,4 @@ def test_model(json_file: str, model_string: str):
 
     # Get predictions
     test_results = trainer.predict(test_dataset=test_dataset)
-    assert test_results.predictions[0].shape == (100, num_labels)
+    assert test_results.predictions[0].shape == (DEBUG_DATASET_SIZE, num_labels)

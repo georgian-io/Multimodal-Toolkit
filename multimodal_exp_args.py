@@ -159,6 +159,11 @@ class OurTrainingArguments(TrainingArguments):
         metadata={'help': 'Whether we are training in debug mode (smaller model)'}
     )
 
+    debug_dataset_size: int = field(
+        default=100,
+        metadata={'help': 'Size of the dataset in debug mode. Only used when debug_dataset = True.'}
+    )
+
     do_eval: bool = field(default=True, metadata={"help": "Whether to run eval on the dev set."})
     do_predict: bool = field(default=True, metadata={"help": "Whether to run predictions on the test set."})
 
