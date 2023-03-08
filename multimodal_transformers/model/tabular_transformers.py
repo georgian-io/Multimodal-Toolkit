@@ -440,6 +440,9 @@ class XLNetWithTabular(XLNetForSequenceClassification):
             :obj:`TabularConfig` instance specifying the configs for :obj:`TabularFeatCombiner`
     """
     def __init__(self, hf_model_config):
+        # When set to true, sequency summary layer is hidden_size -> num_labels
+        # We expect the output to be hidden_size -> hidden_size
+        hf_model_config.summary_proj_to_labels = False
         super().__init__(hf_model_config)
         tabular_config = hf_model_config.tabular_config
         if type(tabular_config) is dict:  # when loading from saved model
@@ -538,6 +541,9 @@ class XLMWithTabular(XLMForSequenceClassification):
             :obj:`TabularConfig` instance specifying the configs for :obj:`TabularFeatCombiner`
     """
     def __init__(self, hf_model_config):
+        # When set to true, sequency summary layer is hidden_size -> num_labels
+        # We expect the output to be hidden_size -> hidden_size
+        hf_model_config.summary_proj_to_labels = False
         super().__init__(hf_model_config)
         tabular_config = hf_model_config.tabular_config
         if type(tabular_config) is dict:  # when loading from saved model
