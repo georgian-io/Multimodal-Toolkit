@@ -83,7 +83,7 @@ def test_model(json_file: str, model_string: str):
     )
 
     # Load and preprocess datasets
-    # We force debug=True so we load only 100 entries
+    # We force debug=True so we load only DEBUG_DATASET_SIZE entries
     train_dataset, val_dataset, test_dataset = load_data_from_folder(
         data_args.data_path,
         data_args.column_info['text_cols'],
