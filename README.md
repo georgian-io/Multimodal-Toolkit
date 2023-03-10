@@ -15,7 +15,7 @@ on the supervised task. For a brief literature review, check out the accompanyin
 
 
 ## Installation
-The code was developed in Python 3.7 with PyTorch and transformers 3.1.
+The code was developed in Python 3.7 with PyTorch and Transformers 4.26.1.
 The multimodal specific code is in `multimodal_transformers` folder.
 ```
 pip install multimodal-transformers

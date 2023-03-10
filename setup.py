@@ -48,7 +48,7 @@ setup(
     download_url='{}/archive/v_{}.tar.gz'.format(url, __version__),
     keywords=['pytorch', 'multimodal', 'transformers', 'huggingface'],   # Keywords that define your package best
     install_requires=install_requires,
-    python_requires='>=3.6',
+    python_requires='>=3.7',
     classifiers=[
         'Development Status :: 3 - Alpha',      # Chose either "3 - Alpha", "4 - Beta" or "5 - Production/Stable" as the current state of your package
         'Intended Audience :: Developers',      # Define that your audience are developers
