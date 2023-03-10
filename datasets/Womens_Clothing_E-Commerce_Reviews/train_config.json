@@ -1,19 +1,25 @@
 {
-  "output_dir": "./logs_clothing_review/gating_on_cat_and_num_feats_then_sum/",
+  "output_dir": "./logs_clothing_review/bertbase_gating_on_cat_and_num_feats_then_sum_full_model_lr_3e-3/",
   "debug_dataset": false,
   "task": "classification",
   "combine_feat_method": "text_only",
   "experiment_name": "Unimodal Bert Base Uncased",
   "model_name_or_path": "bert-base-uncased",
-  "gpu_num": 0,
   "do_train": true,
+  "categorical_encode_type": "binary",
+  "numerical_transformer_method": "quantile_normal",
   "tokenizer_name": "bert-base-uncased",
-  "per_device_train_batch_size": 12,
+  "use_simple_classifier": false,
+  "logging_dir": "./logs_clothing_review/bertbase_gating_on_cat_and_num_feats_then_sum_full_model_lr_3e-3/",
+  "num_train_epochs": 5,
+  "overwrite_output_dir": true,
+  "learning_rate": 3e-3,
+  "per_device_train_batch_size": 16,
+  "per_device_eval_batch_size": 16,
   "logging_steps": 50,
   "eval_steps": 750,
   "save_steps": 3000,
   "data_path": "./datasets/Womens_Clothing_E-Commerce_Reviews",
-  "column_info_path":  "./datasets/Womens_Clothing_E-Commerce_Reviews/column_info_all_text.json",
-  "overwrite_output_dir": true
+  "column_info_path":  "./datasets/Womens_Clothing_E-Commerce_Reviews/column_info_all_text.json"
 }
 

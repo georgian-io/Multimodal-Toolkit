@@ -7,14 +7,14 @@ from transformers import (
     XLNetForSequenceClassification,
     XLMForSequenceClassification
 )
-from transformers.modeling_bert import BERT_INPUTS_DOCSTRING
-from transformers.modeling_roberta import ROBERTA_INPUTS_DOCSTRING
-from transformers.modeling_distilbert import DISTILBERT_INPUTS_DOCSTRING
-from transformers.modeling_albert import ALBERT_INPUTS_DOCSTRING
-from transformers.modeling_xlnet import XLNET_INPUTS_DOCSTRING
-from transformers.modeling_xlm import XLM_INPUTS_DOCSTRING
-from transformers.configuration_xlm_roberta import XLMRobertaConfig
-from transformers.file_utils import add_start_docstrings_to_callable
+from transformers.models.bert.modeling_bert import BERT_INPUTS_DOCSTRING
+from transformers.models.roberta.modeling_roberta import ROBERTA_INPUTS_DOCSTRING
+from transformers.models.distilbert.modeling_distilbert import DISTILBERT_INPUTS_DOCSTRING
+from transformers.models.albert.modeling_albert import ALBERT_INPUTS_DOCSTRING
+from transformers.models.xlnet.modeling_xlnet import XLNET_INPUTS_DOCSTRING
+from transformers.models.xlm.modeling_xlm import XLM_INPUTS_DOCSTRING
+from transformers.models.xlm_roberta.configuration_xlm_roberta import XLMRobertaConfig
+from transformers.file_utils import add_start_docstrings_to_model_forward
 
 from .tabular_combiner import TabularFeatCombiner
 from .tabular_config import TabularConfig
@@ -61,7 +61,7 @@ class BertWithTabular(BertForSequenceClassification):
                                           hidden_channels=dims,
                                           bn=True)
 
-    @add_start_docstrings_to_callable(BERT_INPUTS_DOCSTRING.format("(batch_size, sequence_length)"))
+    @add_start_docstrings_to_model_forward(BERT_INPUTS_DOCSTRING.format("(batch_size, sequence_length)"))
     def forward(
         self,
         input_ids=None,
@@ -162,7 +162,7 @@ class RobertaWithTabular(RobertaForSequenceClassification):
                                           hidden_channels=dims,
                                           bn=True)
 
-    @add_start_docstrings_to_callable(ROBERTA_INPUTS_DOCSTRING.format("(batch_size, sequence_length)"))
+    @add_start_docstrings_to_model_forward(ROBERTA_INPUTS_DOCSTRING.format("(batch_size, sequence_length)"))
     def forward(
         self,
         input_ids=None,
@@ -274,7 +274,7 @@ class DistilBertWithTabular(DistilBertForSequenceClassification):
                                           hidden_channels=dims,
                                           bn=True)
 
-    @add_start_docstrings_to_callable(DISTILBERT_INPUTS_DOCSTRING.format("(batch_size, sequence_length)"))
+    @add_start_docstrings_to_model_forward(DISTILBERT_INPUTS_DOCSTRING.format("(batch_size, sequence_length)"))
     def forward(
         self,
         input_ids=None,
@@ -375,7 +375,7 @@ class AlbertWithTabular(AlbertForSequenceClassification):
                                           hidden_channels=dims,
                                           bn=True)
 
-    @add_start_docstrings_to_callable(ALBERT_INPUTS_DOCSTRING)
+    @add_start_docstrings_to_model_forward(ALBERT_INPUTS_DOCSTRING)
     def forward(
         self,
         input_ids=None,
@@ -440,6 +440,9 @@ class XLNetWithTabular(XLNetForSequenceClassification):
             :obj:`TabularConfig` instance specifying the configs for :obj:`TabularFeatCombiner`
     """
     def __init__(self, hf_model_config):
+        # When set to true, sequency summary layer is hidden_size -> num_labels
+        # We expect the output to be hidden_size -> hidden_size
+        hf_model_config.summary_proj_to_labels = False
         super().__init__(hf_model_config)
         tabular_config = hf_model_config.tabular_config
         if type(tabular_config) is dict:  # when loading from saved model
@@ -465,7 +468,7 @@ class XLNetWithTabular(XLNetForSequenceClassification):
                                           hidden_channels=dims,
                                           bn=True)
 
-    @add_start_docstrings_to_callable(XLNET_INPUTS_DOCSTRING.format("(batch_size, sequence_length)"))
+    @add_start_docstrings_to_model_forward(XLNET_INPUTS_DOCSTRING.format("(batch_size, sequence_length)"))
     def forward(
         self,
         input_ids=None,
@@ -494,7 +497,7 @@ class XLNetWithTabular(XLNetForSequenceClassification):
             If ``config.num_labels > 1`` a classification loss is computed (Cross-Entropy).
         """
         return_dict = return_dict if return_dict is not None else self.config.use_return_dict
-        use_cache = self.training or (use_cache if use_cache is not None else self.config.use_cache)
+        use_cache = self.training or (use_cache if use_cache is not None else False)
 
         transformer_outputs = self.transformer(
             input_ids,
@@ -506,7 +509,7 @@ class XLNetWithTabular(XLNetForSequenceClassification):
             input_mask=input_mask,
             head_mask=head_mask,
             inputs_embeds=inputs_embeds,
-            use_cache=use_cache,
+            use_mems=use_cache,
             output_attentions=output_attentions,
             output_hidden_states=output_hidden_states,
             return_dict=return_dict,
@@ -538,6 +541,9 @@ class XLMWithTabular(XLMForSequenceClassification):
             :obj:`TabularConfig` instance specifying the configs for :obj:`TabularFeatCombiner`
     """
     def __init__(self, hf_model_config):
+        # When set to true, sequency summary layer is hidden_size -> num_labels
+        # We expect the output to be hidden_size -> hidden_size
+        hf_model_config.summary_proj_to_labels = False
         super().__init__(hf_model_config)
         tabular_config = hf_model_config.tabular_config
         if type(tabular_config) is dict:  # when loading from saved model
@@ -563,7 +569,7 @@ class XLMWithTabular(XLMForSequenceClassification):
                                           hidden_channels=dims,
                                           bn=True)
 
-    @ add_start_docstrings_to_callable(XLM_INPUTS_DOCSTRING)
+    @ add_start_docstrings_to_model_forward(XLM_INPUTS_DOCSTRING)
     def forward(
             self,
             input_ids=None,

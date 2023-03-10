@@ -95,7 +95,7 @@ The following example shows a forward pass on two data examples
     labels = torch.tensor([1, 0])
 
     model_inputs['cat_feats'] = categorical_feat
-    model_inputs['num_feats'] = numerical_feat
+    model_inputs['numerical_feats'] = numerical_feat
     model_inputs['labels'] = labels
 
     loss, logits, layer_outs = model(**model_inputs)

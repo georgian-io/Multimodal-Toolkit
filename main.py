@@ -83,6 +83,7 @@ def main():
             sep_text_token_str=tokenizer.sep_token if not data_args.column_info['text_col_sep_token'] else data_args.column_info['text_col_sep_token'],
             max_token_length=training_args.max_token_length,
             debug=training_args.debug_dataset,
+            debug_dataset_size=training_args.debug_dataset_size
         )
         train_datasets = [train_dataset]
         val_datasets = [val_dataset]
@@ -104,6 +105,7 @@ def main():
             data_args.column_info['text_col_sep_token'],
             max_token_length=training_args.max_token_length,
             debug=training_args.debug_dataset,
+            debug_dataset_size=training_args.debug_dataset_size
         )
     train_dataset = train_datasets[0]
 
@@ -116,16 +118,19 @@ def main():
 
     def build_compute_metrics_fn(task_name: str) -> Callable[[EvalPrediction], Dict]:
         def compute_metrics_fn(p: EvalPrediction):
+            # p.predictions is now a list of objects
+            # The first entry is the actual predictions
+            predictions = p.predictions[0]
             if task_name == "classification":
-                preds_labels = np.argmax(p.predictions, axis=1)
-                if p.predictions.shape[-1] == 2:
-                    pred_scores = softmax(p.predictions, axis=1)[:, 1]
+                preds_labels = np.argmax(predictions, axis=1)
+                if predictions.shape[-1] == 2:
+                    pred_scores = softmax(predictions, axis=1)[:, 1]
                 else:
-                    pred_scores = softmax(p.predictions, axis=1)
+                    pred_scores = softmax(predictions, axis=1)
                 return calc_classification_metrics(pred_scores, preds_labels,
                                                    p.label_ids)
             elif task_name == "regression":
-                preds = np.squeeze(p.predictions)
+                preds = np.squeeze(predictions)
                 return calc_regression_metrics(preds, p.label_ids)
             else:
                 return {}
@@ -178,7 +183,7 @@ def main():
             output_eval_file = os.path.join(
                 training_args.output_dir, f"eval_metric_results_{task}_fold_{i+1}.txt"
             )
-            if trainer.is_world_master():
+            if trainer.is_world_process_zero():
                 with open(output_eval_file, "w") as writer:
                     logger.info("***** Eval results {} *****".format(task))
                     for key, value in eval_result.items():
@@ -190,13 +195,13 @@ def main():
         if training_args.do_predict:
             logging.info("*** Test ***")
 
-            predictions = trainer.predict(test_dataset=test_dataset).predictions
+            predictions = trainer.predict(test_dataset=test_dataset).predictions[0]
             output_test_file = os.path.join(
                 training_args.output_dir, f"test_results_{task}_fold_{i+1}.txt"
             )
             eval_result = trainer.evaluate(eval_dataset=test_dataset)
             logger.info(pformat(eval_result, indent=4))
-            if trainer.is_world_master():
+            if trainer.is_world_process_zero():
                 with open(output_test_file, "w") as writer:
                     logger.info("***** Test results {} *****".format(task))
                     writer.write("index\tprediction\n")
