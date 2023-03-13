@@ -8,7 +8,7 @@ logger = logging.getLogger(__name__)
 
 
 class CategoricalFeatures:
-    """ Class to help encode categorical features
+    """Class to help encode categorical features
     From https://github.com/abhishekkrthakur/mlframework/blob/master/src/categorical.py
     """
 
@@ -45,20 +45,23 @@ class CategoricalFeatures:
         return self.output_df[self.cat_feats].values
 
     def _label_binarization(self):
-        vals =[]
+        vals = []
         self.feat_names = []
 
         def change_name_func(x):
-            return x.lower().replace(', ', '_').replace(' ', '_')
+            return x.lower().replace(", ", "_").replace(" ", "_")
+
         for c in self.cat_feats:
             self.df[c] = self.df[c].astype(str)
             classes_orig = self.df[c].unique()
             val = preprocessing.label_binarize(self.df[c].values, classes=classes_orig)
             vals.append(val)
             if len(classes_orig) == 2:
-                classes = [c + '_binary']
+                classes = [c + "_binary"]
             else:
-                change_classes_func_vec = np.vectorize(lambda x: c + '_' + change_name_func(x))
+                change_classes_func_vec = np.vectorize(
+                    lambda x: c + "_" + change_name_func(x)
+                )
                 classes = change_classes_func_vec(classes_orig)
             self.feat_names.extend(classes)
         return np.concatenate(vals, axis=1)
@@ -128,7 +131,7 @@ def convert_to_func(container_arg):
 def agg_text_columns_func(empty_row_values, replace_text, texts):
     """replace empty texts or remove empty text str from a list of text str"""
     processed_texts = []
-    for text in texts.astype('str'):
+    for text in texts.astype("str"):
         if text not in empty_row_values:
             processed_texts.append(text)
         else:
@@ -146,7 +149,7 @@ def load_cat_and_num_feats(df, cat_bool_func, num_bool_func, enocde_type=None):
 def load_cat_feats(df, cat_bool_func, encode_type=None):
     """load categorical features from DataFrame and do encoding if specified"""
     cat_cols = get_matching_cols(df, cat_bool_func)
-    logger.info(f'{len(cat_cols)} categorical columns')
+    logger.info(f"{len(cat_cols)} categorical columns")
     if len(cat_cols) == 0:
         return None
     cat_feat_processor = CategoricalFeatures(df, cat_cols, encode_type)
@@ -155,7 +158,7 @@ def load_cat_feats(df, cat_bool_func, encode_type=None):
 
 def load_num_feats(df, num_bool_func):
     num_cols = get_matching_cols(df, num_bool_func)
-    logger.info(f'{len(num_cols)} numerical columns')
+    logger.info(f"{len(num_cols)} numerical columns")
     df = df.copy()
     df[num_cols] = df[num_cols].astype(float)
     df[num_cols] = df[num_cols].fillna(dict(df[num_cols].median()), inplace=False)
