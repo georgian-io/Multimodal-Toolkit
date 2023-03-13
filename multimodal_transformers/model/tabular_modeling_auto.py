@@ -9,7 +9,7 @@ from transformers import (
     RobertaConfig,
     XLNetConfig,
     XLMConfig,
-    XLMRobertaConfig
+    XLMRobertaConfig,
 )
 
 from .tabular_transformers import (
@@ -19,7 +19,7 @@ from .tabular_transformers import (
     AlbertWithTabular,
     XLNetWithTabular,
     XLMWithTabular,
-    XLMRobertaWithTabular
+    XLMRobertaWithTabular,
 )
 
 
@@ -31,7 +31,7 @@ MODEL_FOR_SEQUENCE_W_TABULAR_CLASSIFICATION_MAPPING = OrderedDict(
         (AlbertConfig, AlbertWithTabular),
         (XLNetConfig, XLNetWithTabular),
         (XLMConfig, XLMWithTabular),
-        (XLMRobertaConfig, XLMRobertaWithTabular)
+        (XLMRobertaConfig, XLMRobertaWithTabular),
     ]
 )
 
@@ -46,7 +46,7 @@ class AutoModelWithTabular:
 
     @classmethod
     def from_config(cls, config):
-        r""" Instantiates one of the base model classes of the library
+        r"""Instantiates one of the base model classes of the library
         from a configuration.
 
         Note:
@@ -62,7 +62,10 @@ class AutoModelWithTabular:
             config = BertConfig.from_pretrained('bert-base-uncased')    # Download configuration from S3 and cache.
             model = AutoModelWithTabular.from_config(config)  # E.g. model was saved using `save_pretrained('./test/saved_model/')`
         """
-        for config_class, model_class in MODEL_FOR_SEQUENCE_W_TABULAR_CLASSIFICATION_MAPPING.items():
+        for (
+            config_class,
+            model_class,
+        ) in MODEL_FOR_SEQUENCE_W_TABULAR_CLASSIFICATION_MAPPING.items():
             if isinstance(config, config_class):
                 return model_class(config)
         raise ValueError(
@@ -70,13 +73,16 @@ class AutoModelWithTabular:
             "Model type should be one of {}.".format(
                 config.__class__,
                 cls.__name__,
-                ", ".join(c.__name__ for c in MODEL_FOR_SEQUENCE_W_TABULAR_CLASSIFICATION_MAPPING.keys()),
+                ", ".join(
+                    c.__name__
+                    for c in MODEL_FOR_SEQUENCE_W_TABULAR_CLASSIFICATION_MAPPING.keys()
+                ),
             )
         )
 
     @classmethod
     def from_pretrained(cls, pretrained_model_name_or_path, *model_args, **kwargs):
-        r""" Instantiates one of the sequence classification model classes of the library
+        r"""Instantiates one of the sequence classification model classes of the library
         from a pre-trained model configuration.
         See multimodal_transformers.py for supported transformer models
 
@@ -144,14 +150,22 @@ class AutoModelWithTabular:
         if not isinstance(config, PretrainedConfig):
             config = AutoConfig.from_pretrained(pretrained_model_name_or_path, **kwargs)
 
-        for config_class, model_class in MODEL_FOR_SEQUENCE_W_TABULAR_CLASSIFICATION_MAPPING.items():
+        for (
+            config_class,
+            model_class,
+        ) in MODEL_FOR_SEQUENCE_W_TABULAR_CLASSIFICATION_MAPPING.items():
             if isinstance(config, config_class):
-                return model_class.from_pretrained(pretrained_model_name_or_path, *model_args, config=config, **kwargs)
+                return model_class.from_pretrained(
+                    pretrained_model_name_or_path, *model_args, config=config, **kwargs
+                )
         raise ValueError(
             "Unrecognized configuration class {} for this kind of AutoModel: {}.\n"
             "Model type should be one of {}.".format(
                 config.__class__,
                 cls.__name__,
-                ", ".join(c.__name__ for c in MODEL_FOR_SEQUENCE_W_TABULAR_CLASSIFICATION_MAPPING.keys()),
+                ", ".join(
+                    c.__name__
+                    for c in MODEL_FOR_SEQUENCE_W_TABULAR_CLASSIFICATION_MAPPING.keys()
+                ),
             )
         )
