@@ -170,7 +170,7 @@ def test_model(json_file: str, model_string: str):
     )
 
     # Train
-    trainer.train(model_path=model_path)
+    trainer.train(resume_from_checkpoint=model_path)
 
     # Get predictions
     test_results = trainer.predict(test_dataset=test_dataset)
