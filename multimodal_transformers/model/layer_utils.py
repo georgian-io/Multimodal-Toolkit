@@ -7,9 +7,17 @@ from torch.nn import CrossEntropyLoss, MSELoss
 class MLP(nn.Module):
     """mlp can specify number of hidden layers and hidden layer channels"""
 
-    def __init__(self, input_dim, output_dim, act='relu', num_hidden_lyr=2,
-                 dropout_prob=0.5, return_layer_outs=False,
-                 hidden_channels=None, bn=False):
+    def __init__(
+        self,
+        input_dim,
+        output_dim,
+        act="relu",
+        num_hidden_lyr=2,
+        dropout_prob=0.5,
+        return_layer_outs=False,
+        hidden_channels=None,
+        bn=False,
+    ):
         super().__init__()
         self.out_dim = output_dim
         self.dropout = nn.Dropout(dropout_prob)
@@ -18,20 +26,31 @@ class MLP(nn.Module):
             hidden_channels = [input_dim for _ in range(num_hidden_lyr)]
         elif len(hidden_channels) != num_hidden_lyr:
             raise ValueError(
-                "number of hidden layers should be the same as the lengh of hidden_channels")
+                "number of hidden layers should be the same as the lengh of hidden_channels"
+            )
         self.layer_channels = [input_dim] + hidden_channels + [output_dim]
         self.act_name = act
         self.activation = create_act(act)
-        self.layers = nn.ModuleList(list(
-            map(self.weight_init, [nn.Linear(self.layer_channels[i], self.layer_channels[i + 1])
-                                   for i in range(len(self.layer_channels) - 2)])))
+        self.layers = nn.ModuleList(
+            list(
+                map(
+                    self.weight_init,
+                    [
+                        nn.Linear(self.layer_channels[i], self.layer_channels[i + 1])
+                        for i in range(len(self.layer_channels) - 2)
+                    ],
+                )
+            )
+        )
         final_layer = nn.Linear(self.layer_channels[-2], self.layer_channels[-1])
-        self.weight_init(final_layer,   activation='linear')
+        self.weight_init(final_layer, activation="linear")
         self.layers.append(final_layer)
 
         self.bn = bn
         if self.bn:
-            self.bn = nn.ModuleList([torch.nn.BatchNorm1d(dim) for dim in self.layer_channels[1:-1]])
+            self.bn = nn.ModuleList(
+                [torch.nn.BatchNorm1d(dim) for dim in self.layer_channels[1:-1]]
+            )
 
     def weight_init(self, m, activation=None):
         if activation is None:
@@ -75,22 +94,23 @@ def calc_mlp_dims(input_dim, division=2, output_dim=1):
 
 
 def create_act(act, num_parameters=None):
-    if act == 'relu':
+    if act == "relu":
         return nn.ReLU()
-    elif act == 'prelu':
+    elif act == "prelu":
         return nn.PReLU(num_parameters)
-    elif act == 'sigmoid':
+    elif act == "sigmoid":
         return nn.Sigmoid()
-    elif act == 'tanh':
+    elif act == "tanh":
         return nn.Tanh()
-    elif act == 'linear':
+    elif act == "linear":
+
         class Identity(nn.Module):
             def forward(self, x):
                 return x
 
         return Identity()
     else:
-        raise ValueError('Unknown activation function {}'.format(act))
+        raise ValueError("Unknown activation function {}".format(act))
 
 
 def glorot(tensor):

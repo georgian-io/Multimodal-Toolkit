@@ -4,15 +4,15 @@ from .tabular_modeling_auto import AutoModelWithTabular
 from .tabular_transformers import (
     BertWithTabular,
     RobertaWithTabular,
-    DistilBertWithTabular
+    DistilBertWithTabular,
 )
 
 
 __all__ = [
-    'TabularFeatCombiner',
-    'TabularConfig',
-    'AutoModelWithTabular',
-    'BertWithTabular',
-    'RobertaWithTabular',
-    'DistilBertWithTabular'
+    "TabularFeatCombiner",
+    "TabularConfig",
+    "AutoModelWithTabular",
+    "BertWithTabular",
+    "RobertaWithTabular",
+    "DistilBertWithTabular",
 ]
