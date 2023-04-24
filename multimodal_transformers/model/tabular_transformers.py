@@ -17,9 +17,8 @@ from transformers.models.albert.modeling_albert import ALBERT_INPUTS_DOCSTRING
 from transformers.models.xlnet.modeling_xlnet import XLNET_INPUTS_DOCSTRING
 from transformers.models.xlm.modeling_xlm import XLM_INPUTS_DOCSTRING
 #from transformers.models.xlm_roberta.configuration_xlm_roberta import XLMRobertaConfig
-from transformers.file_utils import add_start_docstrings_to_model_forward
-from transformers.file_utils import add_start_docstrings_to_model_forward
 from transformers.models.longformer.modeling_longformer import LONGFORMER_INPUTS_DOCSTRING
+from transformers.file_utils import add_start_docstrings_to_model_forward
 
 from .tabular_combiner import TabularFeatCombiner
 from .tabular_config import TabularConfig
@@ -719,10 +718,7 @@ class LongformerWithTabular(LongformerForSequenceClassification):
         self.embedding_layer = nn.Embedding.from_pretrained(torch.from_numpy(embedding_weights).float(), freeze=True)
         # self.embedding_layer = nn.Embedding()
 
-    #@add_start_docstrings(LONGFORMER_INPUTS_DOCSTRING.format("(batch_size, sequence_length)"))
-    #@add_start_docstrings_to_model_forward(LONGFORMER_INPUTS_DOCSTRING)
     @add_start_docstrings_to_model_forward(LONGFORMER_INPUTS_DOCSTRING.format("(batch_size, sequence_length)")
-    
     def forward(
         self,
         input_ids=None,
