@@ -18,7 +18,7 @@ from transformers.models.xlnet.modeling_xlnet import XLNET_INPUTS_DOCSTRING
 from transformers.models.xlm.modeling_xlm import XLM_INPUTS_DOCSTRING
 #from transformers.models.xlm_roberta.configuration_xlm_roberta import XLMRobertaConfig
 from transformers.models.longformer.modeling_longformer import LONGFORMER_INPUTS_DOCSTRING
-from transformers.file_utils import add_start_docstrings_to_model_forward
+from transformers.file_utils import @add_start_docstrings_to_model_forward
 
 from .tabular_combiner import TabularFeatCombiner
 from .tabular_config import TabularConfig
