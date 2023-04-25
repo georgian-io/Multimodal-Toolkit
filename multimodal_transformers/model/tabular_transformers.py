@@ -718,8 +718,7 @@ class LongformerWithTabular(LongformerForSequenceClassification):
         self.embedding_layer = nn.Embedding.from_pretrained(torch.from_numpy(embedding_weights).float(), freeze=True)
         self.embedding_layer = nn.Embedding()
           
-    @add_start_docstrings_to_model_forward(LONGFORMER_INPUTS_DOCSTRING)    
-    #@add_start_docstrings_to_model_forward(LONGFORMER_INPUTS_DOCSTRING.format("(batch_size, sequence_length)")
+    @add_start_docstrings_to_callable(LONGFORMER_INPUTS_DOCSTRING.format("(batch_size, sequence_length)"))
     def forward(
         self,
         input_ids=None,
@@ -735,11 +734,7 @@ class LongformerWithTabular(LongformerForSequenceClassification):
         return_dict=None,
         class_weights=None,
         cat_feats=None,
-        numerical_feats=None,
-        answer_tokens=None,
-        key_tokens=None,
-        answer_mask=None,
-        key_mask=None
+        numerical_feats=None
     ):
         if global_attention_mask is None:
             print("Initializing global attention on CLS token...")
@@ -751,7 +746,7 @@ class LongformerWithTabular(LongformerForSequenceClassification):
             input_ids,
             attention_mask=attention_mask,
             global_attention_mask=global_attention_mask,
-            # head_mask=head_mask,
+            head_mask=head_mask,
             token_type_ids=token_type_ids,
             position_ids=position_ids,
             inputs_embeds=inputs_embeds,
@@ -760,49 +755,9 @@ class LongformerWithTabular(LongformerForSequenceClassification):
             return_dict=return_dict,
         )
         sequence_output = outputs[0]
-        text_feats = sequence_output[:, 0, :]
-        text_feats = self.dropout(text_feats)
-        # print('Sequence Outputs Shape')
-        # print(sequence_output.shape)
-        # print('Text Feats Shape')
-        # print(text_feats.shape)
-        # print('Cat Feats Shape')
-        # print(cat_feats.shape)
-        combined_feats = self.tabular_combiner(text_feats,
+        combined_feats = self.tabular_combiner(sequence_output,
                                                cat_feats,
-                                               numerical_feats,
-                                               keyword_feats)
-
-        ans_emb = self.embedding_layer(answer_tokens)
-        ans_mask_emb = self.embedding_layer(answer_mask)
-        keys_emb = self.embedding_layer(key_tokens)
-        keys_mask_emb = self.embedding_layer(key_mask)
-
-        att_layer = KeyAttention(
-            name='attention',
-            op='dot',
-            seed=0,
-            emb_dim=300,
-            word_att_pool='mean',
-            merge_ans_key='concat',
-            beta=False
-        )
-
-        for i in range(key_num):
-            t_k = LambdaLayer(lambda x: x[:, i], name='key_%d' % i)(keys_emb)
-            t_k_m = LambdaLayer(lambda x: x[:, i], name='ans_%d' % i)(key_masks)
-
-            f, *att_rtn = att_layer([ans_emb, ans_mask, t_k, t_k_m])
-
-            fea_att_list.append(f)
-
-        for i_a_r, a_r in enumerate(att_rtn):
-            attentions[att_rtn_keys[i_a_r]].append(a_r)
-
-        # do something with this- represents keyword attention
-        fea_rubric = torch.cat(fea_att_list)
-
-
+                                               numerical_feats)
         loss, logits, classifier_layer_outputs = hf_loss_func(combined_feats,
                                                               self.tabular_classifier,
                                                               labels,
