@@ -688,6 +688,7 @@ class LongformerWithTabular(LongformerForSequenceClassification):
     Longformer Model With Sequence Classification Head
     """
     def __init__(self, hf_model_config, embedding_weights=None):
+        hf_model_config.summary_proj_to_labels=False #Added from XLM example
         super().__init__(hf_model_config)
         tabular_config = hf_model_config.tabular_config
         if type(tabular_config) is dict:  # when loading from saved model
