@@ -701,7 +701,7 @@ class LongformerWithTabular(LongformerForSequenceClassification):
         self.tabular_combiner = TabularFeatCombiner(tabular_config)
         self.num_labels = tabular_config.num_labels
         combined_feat_dim = self.tabular_combiner.final_out_dim
-        self.dropout = nn.Dropout(hf_model_config.hidden_dropout_prob)
+        #self.dropout = nn.Dropout(hf_model_config.hidden_dropout_prob)
         if tabular_config.use_simple_classifier:
             self.tabular_classifier = nn.Linear(combined_feat_dim,
                                                 tabular_config.num_labels)
