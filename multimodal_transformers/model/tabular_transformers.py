@@ -738,6 +738,27 @@ class LongformerWithTabular(LongformerForSequenceClassification):
         cat_feats=None,
         numerical_feats=None
     ):
+        ##added from XLM
+        return_dict = (
+            return_dict if return_dict is not None else self.config.use_return_dict
+        )
+        
+        #added from XLM
+        transformer_outputs = self.transformer(
+            input_ids,
+            attention_mask=attention_mask,
+            langs=langs,
+            token_type_ids=token_type_ids,
+            position_ids=position_ids,
+            lengths=lengths,
+            cache=cache,
+            head_mask=head_mask,
+            inputs_embeds=inputs_embeds,
+            output_attentions=output_attentions,
+            output_hidden_states=output_hidden_states,
+            return_dict=return_dict,
+        )
+        
         if global_attention_mask is None:
             print("Initializing global attention on CLS token...")
             global_attention_mask = torch.zeros_like(input_ids)
