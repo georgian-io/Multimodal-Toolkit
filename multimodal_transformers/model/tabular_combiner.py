@@ -445,7 +445,7 @@ class TabularFeatCombiner(nn.Module):
         elif self.combine_feat_method == "attention_on_cat_and_numerical_feats":
             # attention keyed by transformer text features
             #w_text = torch.mm(text_feats, self.weight_transformer)
-            w_text = torch.matmul(text_feats, self.weight_transformer)
+            w_text = torch.mul(text_feats, self.weight_transformer)
             g_text = (
                 (torch.cat([w_text, w_text], dim=-1) * self.weight_a)
                 .sum(dim=1)
@@ -457,7 +457,7 @@ class TabularFeatCombiner(nn.Module):
                 if self.cat_feat_dim > self.text_out_dim:
                     cat_feats = self.cat_mlp(cat_feats)
                 #w_cat = torch.mm(cat_feats, self.weight_cat)
-                w_cat = torch.matmul(cat_feats, self.weight_cat) 
+                w_cat = torch.mul(cat_feats, self.weight_cat) 
                 g_cat = (
                     (torch.cat([w_text, w_cat], dim=-1) * self.weight_a)
                     .sum(dim=1)
@@ -472,7 +472,7 @@ class TabularFeatCombiner(nn.Module):
                 if self.numerical_feat_dim > self.text_out_dim:
                     numerical_feats = self.num_mlp(numerical_feats)
                 #w_num = torch.mm(numerical_feats, self.weight_num)
-                w_num = torch.matmul(numerical_feats, self.weight_num)
+                w_num = torch.mul(numerical_feats, self.weight_num)
                 g_num = (
                     (torch.cat([w_text, w_num], dim=-1) * self.weight_a)
                     .sum(dim=1)
