@@ -444,8 +444,8 @@ class TabularFeatCombiner(nn.Module):
             combined_feats = text_feats + cat_feats + numerical_feats
         elif self.combine_feat_method == "attention_on_cat_and_numerical_feats":
             # attention keyed by transformer text features
-            w_text = torch.mm(text_feats, self.weight_transformer)
-            #w_text = torch.mul(text_feats, self.weight_transformer)
+            #w_text = torch.mm(text_feats, self.weight_transformer)
+            w_text = torch.mul(text_feats, self.weight_transformer)
             g_text = (
                 (torch.cat([w_text, w_text], dim=-1) * self.weight_a)
                 .sum(dim=1)
