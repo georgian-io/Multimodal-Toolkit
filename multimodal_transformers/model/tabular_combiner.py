@@ -424,7 +424,8 @@ class TabularFeatCombiner(nn.Module):
             if numerical_feats.shape[1] != 0:
                 numerical_feats = self.num_mlp(numerical_feats)
             #combined_feats = torch.cat((text_feats, cat_feats, numerical_feats), dim=1)
-            combined_feats = torch.cat((text_feats, cat_feats, numerical_feats), dim=-1)
+            #combined_feats = torch.cat((text_feats, cat_feats, numerical_feats), dim=-1)
+            combined_feats = torch.stack((text_feats, cat_feats, numerical_feats), dim=1)
         elif (
             self.combine_feat_method
             == "weighted_feature_sum_on_transformer_cat_and_numerical_feats"
