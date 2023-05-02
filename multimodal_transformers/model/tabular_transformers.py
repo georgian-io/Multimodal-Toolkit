@@ -723,7 +723,8 @@ class LongformerWithTabular(LongformerForSequenceClassification):
     @add_start_docstrings_to_model_forward(LONGFORMER_INPUTS_DOCSTRING.format("(batch_size, sequence_length)"))
     def forward(
         self,
-        input_ids=None,
+        input_ids=torch.LongTensor(batch_size, sequence_length)
+        #input_ids=None,
         attention_mask=None,
         global_attention_mask=None,
         head_mask=None,
