@@ -687,8 +687,8 @@ class LongformerWithTabular(LongformerForSequenceClassification):
     """
     Longformer Model With Sequence Classification Head
     """
-    def __init__(self, hf_model_config, embedding_weights=None):
-        hf_model_config.summary_proj_to_labels=False #Added from XLM example
+    def __init__(self, hf_model_config): #, embedding_weights=None):
+        #hf_model_config.summary_proj_to_labels=False #Added from XLM example
         super().__init__(hf_model_config)
         tabular_config = hf_model_config.tabular_config
         if type(tabular_config) is dict:  # when loading from saved model
@@ -701,7 +701,7 @@ class LongformerWithTabular(LongformerForSequenceClassification):
         self.tabular_combiner = TabularFeatCombiner(tabular_config)
         self.num_labels = tabular_config.num_labels
         combined_feat_dim = self.tabular_combiner.final_out_dim
-        #self.dropout = nn.Dropout(hf_model_config.hidden_dropout_prob)
+        self.dropout = nn.Dropout(hf_model_config.hidden_dropout_prob)
         if tabular_config.use_simple_classifier:
             self.tabular_classifier = nn.Linear(combined_feat_dim,
                                                 tabular_config.num_labels)
@@ -726,39 +726,41 @@ class LongformerWithTabular(LongformerForSequenceClassification):
         #input_ids(torch.LongTensor(batch_size, sequence_length)),
         input_ids=None,
         attention_mask=None,
-        global_attention_mask=None,
-        head_mask=None,
         token_type_ids=None,
         position_ids=None,
+        #global_attention_mask=None,
+        head_mask=None,
         inputs_embeds=None,
         labels=None,
         output_attentions=None,
         output_hidden_states=None,
-        return_dict=None,
+        #return_dict=None,
         class_weights=None,
         cat_feats=None,
         numerical_feats=None
     ):
-        if global_attention_mask is None:
-            print("Initializing global attention on CLS token...")
-            global_attention_mask = torch.zeros_like(input_ids)
-            # global attention on cls token
-            global_attention_mask[:, 0] = 1
+#         if global_attention_mask is None:
+#             print("Initializing global attention on CLS token...")
+#             global_attention_mask = torch.zeros_like(input_ids)
+#             # global attention on cls token
+#             global_attention_mask[:, 0] = 1
 
         outputs = self.longformer(
             input_ids,
             attention_mask=attention_mask,
-            global_attention_mask=global_attention_mask,
-            head_mask=head_mask,
+            #global_attention_mask=global_attention_mask,
             token_type_ids=token_type_ids,
             position_ids=position_ids,
+            head_mask=head_mask,
             inputs_embeds=inputs_embeds,
             output_attentions=output_attentions,
             output_hidden_states=output_hidden_states,
-            return_dict=return_dict,
+            #return_dict=return_dict,
         )
-        sequence_output = outputs[0]
-        combined_feats = self.tabular_combiner(sequence_output,
+        sequence_output = outputs[0] #added from Roberta
+        text_feats = sequence_output[:,0,:] #added from Roberta
+        text_feats = self.dropout(text_feats) #added from Roberta
+        combined_feats = self.tabular_combiner(text_feats,
                                                cat_feats,
                                                numerical_feats)
         loss, logits, classifier_layer_outputs = hf_loss_func(combined_feats,
