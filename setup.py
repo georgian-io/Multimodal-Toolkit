@@ -21,8 +21,7 @@ def get_version(rel_path: str) -> str:
 
 
 __version__ = get_version("multimodal_transformers/__init__.py")
-#url = "https://github.com/georgianpartners/Multimodal-Toolkit"
-url = "https://github.com/jtfields/Multimodal-Toolkit-Longformer"
+url = "https://github.com/georgianpartners/Multimodal-Toolkit"
 
 install_requires = [
     "transformers>=4.26.1",
