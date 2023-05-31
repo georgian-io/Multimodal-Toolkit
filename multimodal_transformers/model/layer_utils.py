@@ -134,12 +134,8 @@ def hf_loss_func(inputs, classifier, labels, num_labels, class_weights):
         if num_labels == 1:
             #  We are doing regression
             loss_fct = MSELoss()
-            #loss_fct = BCEWithLogitsLoss
             labels = labels.float()
             loss = loss_fct(logits.view(-1), labels.view(-1))
-            
-            
-            
         else:
             loss_fct = CrossEntropyLoss(weight=class_weights)
             labels = labels.long()
