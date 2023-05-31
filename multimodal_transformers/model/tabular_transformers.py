@@ -1,3 +1,4 @@
+import torch
 from torch import nn
 from transformers import (
     BertForSequenceClassification,
@@ -6,6 +7,7 @@ from transformers import (
     AlbertForSequenceClassification,
     XLNetForSequenceClassification,
     XLMForSequenceClassification,
+    LongformerForSequenceClassification
 )
 from transformers.models.bert.modeling_bert import BERT_INPUTS_DOCSTRING
 from transformers.models.roberta.modeling_roberta import ROBERTA_INPUTS_DOCSTRING
@@ -15,6 +17,7 @@ from transformers.models.distilbert.modeling_distilbert import (
 from transformers.models.albert.modeling_albert import ALBERT_INPUTS_DOCSTRING
 from transformers.models.xlnet.modeling_xlnet import XLNET_INPUTS_DOCSTRING
 from transformers.models.xlm.modeling_xlm import XLM_INPUTS_DOCSTRING
+from transformers.models.longformer.modeling_longformer import LONGFORMER_INPUTS_DOCSTRING
 from transformers.models.xlm_roberta.configuration_xlm_roberta import XLMRobertaConfig
 from transformers.file_utils import add_start_docstrings_to_model_forward
 
@@ -678,4 +681,91 @@ class XLMWithTabular(XLMForSequenceClassification):
             self.num_labels,
             class_weights,
         )
+        return loss, logits, classifier_layer_outputs
+
+class LongformerWithTabular(LongformerForSequenceClassification):
+    """
+    Longformer Model With Sequence Classification Head
+    """
+    def __init__(self, hf_model_config): #, embedding_weights=None):
+        #hf_model_config.summary_proj_to_labels=False #Added from XLM example
+        super().__init__(hf_model_config)
+        tabular_config = hf_model_config.tabular_config
+        if type(tabular_config) is dict:  # when loading from saved model
+            tabular_config = TabularConfig(**tabular_config)
+        else:
+            self.config.tabular_config = tabular_config.__dict__
+
+        tabular_config.text_feat_dim = hf_model_config.hidden_size
+        tabular_config.hidden_dropout_prob = hf_model_config.hidden_dropout_prob
+        self.tabular_combiner = TabularFeatCombiner(tabular_config)
+        self.num_labels = tabular_config.num_labels
+        combined_feat_dim = self.tabular_combiner.final_out_dim
+        self.dropout = nn.Dropout(hf_model_config.hidden_dropout_prob)
+        if tabular_config.use_simple_classifier:
+            self.tabular_classifier = nn.Linear(combined_feat_dim,
+                                                tabular_config.num_labels)
+        else:
+            dims = calc_mlp_dims(combined_feat_dim,
+                                 division=tabular_config.mlp_division,
+                                 output_dim=tabular_config.num_labels)
+            self.tabular_classifier = MLP(combined_feat_dim,
+                                          tabular_config.num_labels,
+                                          num_hidden_lyr=len(dims),
+                                          dropout_prob=tabular_config.mlp_dropout,
+                                          hidden_channels=dims,
+                                          bn=True)
+
+        # load embeddings
+        #self.embedding_layer = nn.Embedding.from_pretrained(torch.from_numpy(embedding_weights).float(), freeze=True)
+        #self.embedding_layer = nn.Embedding()
+          
+    @add_start_docstrings_to_model_forward(LONGFORMER_INPUTS_DOCSTRING.format("(batch_size, sequence_length)"))
+    def forward(
+        self,
+        #input_ids(torch.LongTensor(batch_size, sequence_length)),
+        input_ids=None,
+        attention_mask=None,
+        token_type_ids=None,
+        position_ids=None,
+        #global_attention_mask=None,
+        head_mask=None,
+        inputs_embeds=None,
+        labels=None,
+        output_attentions=None,
+        output_hidden_states=None,
+        #return_dict=None,
+        class_weights=None,
+        cat_feats=None,
+        numerical_feats=None
+    ):
+#         if global_attention_mask is None:
+#             print("Initializing global attention on CLS token...")
+#             global_attention_mask = torch.zeros_like(input_ids)
+#             # global attention on cls token
+#             global_attention_mask[:, 0] = 1
+
+        outputs = self.longformer(
+            input_ids,
+            attention_mask=attention_mask,
+            #global_attention_mask=global_attention_mask,
+            token_type_ids=token_type_ids,
+            position_ids=position_ids,
+            head_mask=head_mask,
+            inputs_embeds=inputs_embeds,
+            output_attentions=output_attentions,
+            output_hidden_states=output_hidden_states,
+            #return_dict=return_dict,
+        )
+        sequence_output = outputs[0] #added from Roberta
+        text_feats = sequence_output[:,0,:] #added from Roberta
+        text_feats = self.dropout(text_feats) #added from Roberta
+        combined_feats = self.tabular_combiner(text_feats,
+                                               cat_feats,
+                                               numerical_feats)
+        loss, logits, classifier_layer_outputs = hf_loss_func(combined_feats,
+                                                              self.tabular_classifier,
+                                                              labels,
+                                                              self.num_labels,
+                                                              class_weights)
         return loss, logits, classifier_layer_outputs

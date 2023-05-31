@@ -2,6 +2,7 @@ from collections import OrderedDict
 
 from transformers.configuration_utils import PretrainedConfig
 from transformers import (
+    LongformerConfig,
     AutoConfig,
     AlbertConfig,
     BertConfig,
@@ -9,29 +10,31 @@ from transformers import (
     RobertaConfig,
     XLNetConfig,
     XLMConfig,
-    XLMRobertaConfig,
+    XLMRobertaConfig
 )
 
 from .tabular_transformers import (
+    LongformerWithTabular,
     RobertaWithTabular,
     BertWithTabular,
     DistilBertWithTabular,
     AlbertWithTabular,
     XLNetWithTabular,
     XLMWithTabular,
-    XLMRobertaWithTabular,
+    XLMRobertaWithTabular
 )
 
 
 MODEL_FOR_SEQUENCE_W_TABULAR_CLASSIFICATION_MAPPING = OrderedDict(
     [
+        (LongformerConfig, LongformerWithTabular),
         (RobertaConfig, RobertaWithTabular),
         (BertConfig, BertWithTabular),
         (DistilBertConfig, DistilBertWithTabular),
         (AlbertConfig, AlbertWithTabular),
         (XLNetConfig, XLNetWithTabular),
         (XLMConfig, XLMWithTabular),
-        (XLMRobertaConfig, XLMRobertaWithTabular),
+        (XLMRobertaConfig, XLMRobertaWithTabular)
     ]
 )
 
