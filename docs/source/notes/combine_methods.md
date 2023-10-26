@@ -18,15 +18,15 @@ The following describes each supported method and whether or not it requires bot
 | gating_on_cat_and_num_feats_then_sum | Gated summation of transformer outputs, numerical feats, and categorical feats before final classifier layer(s). Inspired by [Integrating Multimodal Information in Large Pretrained Transformers](https://www.aclweb.org/anthology/2020.acl-main.214.pdf) which performs the mechanism for each token. | False
 | weighted_feature_sum_on_transformer_cat_and_numerical_feats | Learnable weighted feature-wise sum of transformer outputs, numerical feats and categorical feats for each feature dimension before final classifier layer(s) | False
 
-This table shows the the equations involved with each method. First we define some notation
+This table shows the the equations involved with each method. First we define some notations:
 
-* ![equation](https://latex.codecogs.com/svg.latex?%5Cinline%20%5Cmathbf%7Bm%7D)  &nbsp;denotes the combined multimodal features
-* ![equation](https://latex.codecogs.com/svg.latex?%5Cinline%20%5Cmathbf%7Bx%7D)  &nbsp;denotes the output text features from the transformer
-* ![equation](https://latex.codecogs.com/svg.latex?%5Cinline%20%5Cmathbf%7Bc%7D)  &nbsp;denotes the categorical features
-* ![equation](https://latex.codecogs.com/svg.latex?%5Cinline%20%5Cmathbf%7Bn%7D)  &nbsp;denotes the numerical features
-* ![equation](https://latex.codecogs.com/svg.latex?%5Cinline%20h_%7B%5Cmathbf%7B%5CTheta%7D%7D) denotes a MLP parameterized by ![equation](https://latex.codecogs.com/svg.latex?%5Cinline%20%5Cmathbf%7B%5CTheta%7D)
-* ![equation](https://latex.codecogs.com/svg.latex?%5Cmathbf%7BW%7D) &nbsp;denotes a weight matrix
-* ![equation](https://latex.codecogs.com/svg.latex?b)  &nbsp;denotes a scalar bias
+* ![m](https://latex.codecogs.com/svg.latex?%5Cinline%20%5Cmathbf%7Bm%7D)  &nbsp; denotes the combined multimodal features
+* ![x](https://latex.codecogs.com/svg.latex?%5Cinline%20%5Cmathbf%7Bx%7D)  &nbsp; denotes the output text features from the transformer
+* ![c](https://latex.codecogs.com/svg.latex?%5Cinline%20%5Cmathbf%7Bc%7D)  &nbsp; denotes the categorical features
+* ![n](https://latex.codecogs.com/svg.latex?%5Cinline%20%5Cmathbf%7Bn%7D)  &nbsp; denotes the numerical features
+* ![h_theta](https://latex.codecogs.com/svg.latex?%5Cinline%20h_%7B%5Cmathbf%7B%5CTheta%7D%7D) denotes a MLP parameterized by ![theta](https://latex.codecogs.com/svg.latex?%5Cinline%20%5Cmathbf%7B%5CTheta%7D)
+* ![W](https://latex.codecogs.com/svg.latex?%5Cmathbf%7BW%7D) &nbsp; denotes a weight matrix
+* ![b](https://latex.codecogs.com/svg.latex?b)  &nbsp; denotes a scalar bias
 
 | Combine Feat Method | Equation |
 |:--------------|:-------------------|
