@@ -153,11 +153,6 @@ class OurTrainingArguments(TrainingArguments):
         metadata={'help': 'A name for the experiment'}
     )
 
-    gpu_num: int = field(
-        default=0,
-        metadata={'help': 'The gpu number to train on'}
-    )
-
     debug_dataset: bool = field(
         default=False,
         metadata={'help': 'Whether we are training in debug mode (smaller model)'}
@@ -187,42 +182,9 @@ class OurTrainingArguments(TrainingArguments):
 
     learning_rate: float = field(default=5e-5, metadata={"help": "The initial learning rate for Adam."})
 
-    report_to: Optional[List[str]] = field(
-        default_factory=list, metadata={"help": "The list of integrations to report the results and logs to."}
-    )
-
     def __post_init__(self):
+        super().__post_init__()
         if self.debug_dataset:
             self.max_token_length = 16
             self.logging_steps = 5
             self.overwrite_output_dir = True
-
-
-    @cached_property
-    def _setup_devices(self) -> Tuple["torch.device", int]:
-        requires_backends(self, ["torch"])
-        logger.info("PyTorch: setting up devices")
-        if self.no_cuda:
-            device = torch.device("cpu")
-            self._n_gpu = 0
-        elif self.local_rank == -1:
-            # if n_gpu is > 1 we'll use nn.DataParallel.
-            # If you only want to use a specific subset of GPUs use `CUDA_VISIBLE_DEVICES=0`
-            # Explicitly set CUDA to the first (index 0) CUDA device, otherwise `set_device` will
-            # trigger an error that a device index is missing. Index 0 takes into account the
-            # GPUs available in the environment, so `CUDA_VISIBLE_DEVICES=1,2` with `cuda:0`
-            # will use the first GPU in that env, i.e. GPU#1
-            device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-            self._n_gpu = torch.cuda.device_count()
-        else:
-            # Here, we'll use torch.distributed.
-            # Initializes the distributed backend which will take care of sychronizing nodes/GPUs
-            if not torch.distributed.is_initialized():
-                torch.distributed.init_process_group(backend="nccl", timeout=self.ddp_timeout_delta)
-            device = torch.device("cuda", self.local_rank)
-            self._n_gpu = 1
-
-        if device.type == "cuda":
-            torch.cuda.set_device(device)
-
-        return device
