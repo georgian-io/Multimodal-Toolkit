@@ -24,14 +24,14 @@ __version__ = get_version("multimodal_transformers/__init__.py")
 url = "https://github.com/georgianpartners/Multimodal-Toolkit"
 
 install_requires = [
-    "transformers>=4.26.1",
-    "torch>=1.13.1",
+    "transformers>=4.34.1",
+    "torch>=2.0.1",
     "sacremoses~=0.0.53",
     "networkx~=2.6.3",
     "scikit-learn~=1.0.2",
-    "scipy~=1.7.3",
+    "scipy~=1.11.3",
     "pandas~=1.3.5",
-    "numpy~=1.21.6",
+    "numpy~=1.26.1",
     "tqdm~=4.64.1",
     "pytest~=7.2.2",
 ]
@@ -58,7 +58,7 @@ setup(
     install_requires=install_requires,
     python_requires=">=3.7",
     classifiers=[
-        "Development Status :: 3 - Alpha",  # Chose either "3 - Alpha", "4 - Beta" or "5 - Production/Stable" as the current state of your package
+        "Development Status :: 5 - Production/Stable",  # Chose either "3 - Alpha", "4 - Beta" or "5 - Production/Stable" as the current state of your package
         "Intended Audience :: Developers",  # Define that your audience are developers
         "Topic :: Software Development :: Build Tools",
         "License :: OSI Approved :: MIT License",  # Again, pick a license
