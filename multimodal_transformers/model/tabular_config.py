@@ -9,6 +9,7 @@ class TabularConfig:
             See :obj:`TabularFeatCombiner` for details on the supported methods.
         mlp_dropout (float): dropout ratio used for MLP layers
         numerical_bn (bool): whether to use batchnorm on numerical features
+        categorical_bn (bool): whether to use batchnorm on categorical features
         use_simple_classifier (bool): whether to use single layer or MLP as final classifier
         mlp_act (str): the activation function to use for finetuning layers
         gating_beta (float): the beta hyperparameters used for gating tabular data
@@ -25,6 +26,7 @@ class TabularConfig:
         combine_feat_method="text_only",
         mlp_dropout=0.1,
         numerical_bn=True,
+        categorical_bn=True,
         use_simple_classifier=True,
         mlp_act="relu",
         gating_beta=0.2,
@@ -36,6 +38,7 @@ class TabularConfig:
         self.combine_feat_method = combine_feat_method
         self.mlp_dropout = mlp_dropout
         self.numerical_bn = numerical_bn
+        self.categorical_bn = categorical_bn
         self.use_simple_classifier = use_simple_classifier
         self.mlp_act = mlp_act
         self.gating_beta = gating_beta

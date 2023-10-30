@@ -111,6 +111,10 @@ class MultimodalDataTrainingArguments:
                                metadata={
                                    'help': 'whether to use batchnorm on numerical features'
                                })
+    categorical_bn: bool = field(default=True,
+                               metadata={
+                                   'help': 'whether to use batchnorm on categorical features'
+                               })
     use_simple_classifier: str = field(default=True,
                                        metadata={
                                            'help': 'whether to use single layer or MLP as final classifier'
