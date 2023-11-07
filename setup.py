@@ -25,6 +25,7 @@ url = "https://github.com/georgianpartners/Multimodal-Toolkit"
 
 install_requires = [
     "transformers>=4.34.1",
+    "accelerate>=0.24.1",
     "torch>=2.0.1",
     "sacremoses~=0.0.53",
     "networkx~=2.6.3",
