@@ -32,7 +32,6 @@ Say for example we had categorical features of dim 9 and numerical features of d
             cat_feat_dim=9,  # need to specify this
             numerical_feat_dim=5,  # need to specify this
             num_labels=2,   # need to specify this, assuming our task is binary classification
-            use_num_bn=False,
     )
 
     bert_config.tabular_config = tabular_config

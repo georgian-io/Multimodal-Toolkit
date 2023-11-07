@@ -95,16 +95,12 @@ class TabularFeatCombiner(nn.Module):
         self.numerical_feat_dim = tabular_config.numerical_feat_dim
         self.num_labels = tabular_config.num_labels
         self.numerical_bn = tabular_config.numerical_bn
+        self.categorical_bn = tabular_config.categorical_bn
         self.mlp_act = tabular_config.mlp_act
         self.mlp_dropout = tabular_config.mlp_dropout
         self.mlp_division = tabular_config.mlp_division
         self.text_out_dim = tabular_config.text_feat_dim
         self.tabular_config = tabular_config
-
-        if self.numerical_bn and self.numerical_feat_dim > 0:
-            self.num_bn = nn.BatchNorm1d(self.numerical_feat_dim)
-        else:
-            self.num_bn = None
 
         if self.combine_feat_method == "text_only":
             self.final_out_dim = self.text_out_dim
@@ -131,7 +127,7 @@ class TabularFeatCombiner(nn.Module):
                 dropout_prob=self.mlp_dropout,
                 hidden_channels=dims,
                 return_layer_outs=False,
-                bn=True,
+                bn=self.categorical_bn,
             )
             self.final_out_dim = (
                 self.text_out_dim + output_dim + self.numerical_feat_dim
@@ -157,7 +153,7 @@ class TabularFeatCombiner(nn.Module):
                 dropout_prob=self.mlp_dropout,
                 hidden_channels=dims,
                 return_layer_outs=False,
-                bn=True,
+                bn=self.categorical_bn and self.numerical_bn,
             )
             self.final_out_dim = self.text_out_dim + output_dim
         elif (
@@ -181,7 +177,7 @@ class TabularFeatCombiner(nn.Module):
                     dropout_prob=self.mlp_dropout,
                     hidden_channels=dims,
                     return_layer_outs=False,
-                    bn=True,
+                    bn=self.categorical_bn,
                 )
 
             output_dim_num = 0
@@ -194,7 +190,7 @@ class TabularFeatCombiner(nn.Module):
                     dropout_prob=self.mlp_dropout,
                     num_hidden_lyr=1,
                     return_layer_outs=False,
-                    bn=True,
+                    bn=self.numerical_bn,
                 )
             self.final_out_dim = self.text_out_dim + output_dim_num + output_dim_cat
         elif (
@@ -220,7 +216,7 @@ class TabularFeatCombiner(nn.Module):
                         dropout_prob=self.mlp_dropout,
                         hidden_channels=dims,
                         return_layer_outs=False,
-                        bn=True,
+                        bn=self.categorical_bn,
                     )
                 else:
                     self.cat_layer = nn.Linear(self.cat_feat_dim, output_dim_cat)
@@ -242,7 +238,7 @@ class TabularFeatCombiner(nn.Module):
                         dropout_prob=self.mlp_dropout,
                         hidden_channels=dims,
                         return_layer_outs=False,
-                        bn=True,
+                        bn=self.numerical_bn,
                     )
                 else:
                     self.num_layer = nn.Linear(self.numerical_feat_dim, output_dim_num)
@@ -275,7 +271,7 @@ class TabularFeatCombiner(nn.Module):
                         dropout_prob=self.mlp_dropout,
                         return_layer_outs=False,
                         hidden_channels=dims,
-                        bn=True,
+                        bn=self.categorical_bn,
                     )
                 else:
                     output_dim_cat = self.cat_feat_dim
@@ -297,7 +293,7 @@ class TabularFeatCombiner(nn.Module):
                         dropout_prob=self.mlp_dropout,
                         return_layer_outs=False,
                         hidden_channels=dims,
-                        bn=True,
+                        bn=self.numerical_bn,
                     )
                 else:
                     output_dim_num = self.numerical_feat_dim
@@ -330,7 +326,7 @@ class TabularFeatCombiner(nn.Module):
                         dropout_prob=self.mlp_dropout,
                         hidden_channels=dims,
                         return_layer_outs=False,
-                        bn=True,
+                        bn=self.categorical_bn,
                     )
                 self.g_cat_layer = nn.Linear(
                     self.text_out_dim + min(self.text_out_dim, self.cat_feat_dim),
@@ -357,7 +353,7 @@ class TabularFeatCombiner(nn.Module):
                         dropout_prob=self.mlp_dropout,
                         hidden_channels=dims,
                         return_layer_outs=False,
-                        bn=True,
+                        bn=self.numerical_bn,
                     )
                 self.g_num_layer = nn.Linear(
                     min(self.numerical_feat_dim, self.text_out_dim) + self.text_out_dim,
@@ -397,9 +393,6 @@ class TabularFeatCombiner(nn.Module):
             numerical_feats = torch.zeros((text_feats.shape[0], 0)).to(
                 text_feats.device
             )
-
-        if self.numerical_bn and self.numerical_feat_dim != 0:
-            numerical_feats = self.num_bn(numerical_feats)
 
         if self.combine_feat_method == "text_only":
             combined_feats = text_feats
