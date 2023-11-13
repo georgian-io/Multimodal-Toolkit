@@ -492,7 +492,7 @@ class XLNetWithTabular(XLNetForSequenceClassification):
             self.config.tabular_config = tabular_config.__dict__
 
         tabular_config.text_feat_dim = hf_model_config.hidden_size
-        tabular_config.hidden_dropout_prob = hf_model_config.hidden_dropout_prob
+        tabular_config.hidden_dropout_prob = hf_model_config.dropout
         self.tabular_combiner = TabularFeatCombiner(tabular_config)
         self.num_labels = tabular_config.num_labels
         combined_feat_dim = self.tabular_combiner.final_out_dim
@@ -604,7 +604,7 @@ class XLMWithTabular(XLMForSequenceClassification):
             self.config.tabular_config = tabular_config.__dict__
 
         tabular_config.text_feat_dim = hf_model_config.hidden_size
-        tabular_config.hidden_dropout_prob = hf_model_config.hidden_dropout_prob
+        tabular_config.dropout = hf_model_config.dropout
         self.tabular_combiner = TabularFeatCombiner(tabular_config)
         self.num_labels = tabular_config.num_labels
         combined_feat_dim = self.tabular_combiner.final_out_dim
