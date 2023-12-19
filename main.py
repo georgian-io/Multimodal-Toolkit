@@ -1,5 +1,7 @@
 import logging
 import os
+# os.environ['CUDA_VISIBLE_DEVICES'] = '1'
+
 from statistics import mean, stdev
 import sys
 from typing import Callable, Dict
@@ -27,6 +29,7 @@ from multimodal_transformers.data import load_data_from_folder, load_data_into_f
 from multimodal_transformers.model import TabularConfig
 from multimodal_transformers.model import AutoModelWithTabular
 from util import create_dir_if_not_exists, get_args_info_as_str
+from multimodal_transformers.model.tokenizer import SmilesTokenizer
 
 os.environ["COMET_MODE"] = "DISABLED"
 logger = logging.getLogger(__name__)
@@ -74,12 +77,14 @@ def main():
         f"======== Training Args ========\n{get_args_info_as_str(training_args)}\n"
     )
 
-    tokenizer = AutoTokenizer.from_pretrained(
-        model_args.tokenizer_name
-        if model_args.tokenizer_name
-        else model_args.model_name_or_path,
-        cache_dir=model_args.cache_dir,
-    )
+    # tokenizer = AutoTokenizer.from_pretrained(
+    #     model_args.tokenizer_name
+    #     if model_args.tokenizer_name
+    #     else model_args.model_name_or_path,
+    #     cache_dir=model_args.cache_dir,
+    # )
+
+    tokenizer = SmilesTokenizer("/home/ShareFolder/models/rxnfp-20231207/vocab.txt", do_lower_case=False)
 
     if not data_args.create_folds:
         train_dataset, val_dataset, test_dataset = load_data_from_folder(

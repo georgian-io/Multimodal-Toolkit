@@ -7,7 +7,8 @@ from .tabular_transformers import (
     DistilBertWithTabular,
     LongformerWithTabular
 )
-
+from .Bertmodel import SmilesClassificationModel
+from .tokenizer import SmilesTokenizer
 
 __all__ = [
     "TabularFeatCombiner",
@@ -16,5 +17,6 @@ __all__ = [
     "BertWithTabular",
     "RobertaWithTabular",
     "DistilBertWithTabular",
-    "LongformerWithTabular"
+    "LongformerWithTabular",
+    "SmilesTokenizer"
 ]
