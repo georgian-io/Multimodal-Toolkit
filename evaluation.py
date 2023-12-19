@@ -9,8 +9,10 @@ from sklearn.metrics import (
     matthews_corrcoef,
     mean_squared_error,
     mean_absolute_error,
+    r2_score,
+    max_error
 )
-
+from scipy.stats import pearsonr, spearmanr, kendalltau
 
 def calc_classification_metrics(pred_scores, pred_labels, labels):
     if len(np.unique(labels)) == 2:  # binary classification
@@ -55,8 +57,19 @@ def calc_regression_metrics(preds, labels):
     mse = mean_squared_error(labels, preds)
     rmse = math.sqrt(mse)
     mae = mean_absolute_error(labels, preds)
+    maxe = max_error(labels, preds)  # 最大误差
+    r2 = r2_score(labels, preds)  # 决定系数
+    pearson_val = pearsonr(labels, preds)[0] ** 2  # 相关系数
+    spearman_val = spearmanr(labels, preds)[0] ** 2  # 相关系数
+    kendalltau_val = kendalltau(labels, preds)[0] ** 2  # 相关系数
+
     return {
         "mse": mse,
         "rmse": rmse,
         "mae": mae,
+        "maxe": maxe,
+        "r2_sklearn": r2,
+        "r2_pearson": pearson_val,
+        "r2_spearman": spearman_val,
+        "r2_kendalltau": kendalltau_val,
     }

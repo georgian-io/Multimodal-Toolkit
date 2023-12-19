@@ -34,8 +34,29 @@ from multimodal_transformers.model.tokenizer import SmilesTokenizer
 os.environ["COMET_MODE"] = "DISABLED"
 logger = logging.getLogger(__name__)
 
+import wandb
+
+# Define sweep config
+sweep_configuration = {
+    "method": "bayes",
+    "name": "sweep",
+    "metric": {"goal": "minimize", "name": "eval_mse"},
+    "parameters": {
+        "combine_feat_method": {"values": [
+            "gating_on_cat_and_num_feats_then_sum",
+            "weighted_feature_sum_on_transformer_cat_and_numerical_feats",
+            "attention_on_cat_and_numerical_feats"
+        ]},
+        "learning_rate": {"max": 0.1, "min": 0.000001},
+        "hidden_dropout": {"max": 0.5, "min": 0.0},
+        "mlp_dropout": {"max": 0.5, "min": 0.0},
+        "epoch": {"max": 30, "min": 5}
+    },
+}
+sweep_id = wandb.sweep(sweep=sweep_configuration, project="SMILES+DFT-sweep")
 
 def main():
+    run = wandb.init()
     parser = HfArgumentParser(
         (ModelArguments, MultimodalDataTrainingArguments, OurTrainingArguments)
     )
@@ -47,6 +68,11 @@ def main():
         )
     else:
         model_args, data_args, training_args = parser.parse_args_into_dataclasses()
+
+    data_args.combine_feat_method = wandb.config.combine_feat_method
+    data_args.mlp_dropout = wandb.config.mlp_dropout
+    training_args.learning_rate = wandb.config.learning_rate
+    training_args.num_train_epochs = wandb.config.epoch
 
     if (
         os.path.exists(training_args.output_dir)
@@ -183,6 +209,7 @@ def main():
             else 0,
             **vars(data_args),
         )
+        config.hidden_dropout_prob = wandb.config.hidden_dropout
         config.tabular_config = tabular_config
 
         model = AutoModelWithTabular.from_pretrained(
@@ -227,6 +254,7 @@ def main():
                     for key, value in eval_result.items():
                         logger.info("  %s = %s", key, value)
                         writer.write("%s = %s\n" % (key, value))
+                    wandb.log(eval_result)
 
             eval_results.update(eval_result)
 
@@ -305,6 +333,7 @@ def aggregate_results(total_test_results):
         aggr_results[metric_name + "_stdev"] = metric_stdev
     return aggr_results
 
+wandb.agent(sweep_id, function=main, count=300)
 
 if __name__ == "__main__":
     main()

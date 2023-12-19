@@ -1,5 +1,8 @@
-*/wandb/
+.vscode
+wandb
+# */wandb/
 */logs/
 */cache/
 __pycache__/
 */__pycache__/
+logs_*/
