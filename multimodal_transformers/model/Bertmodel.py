@@ -8,7 +8,6 @@ import random
 import warnings
 import pkg_resources
 import sklearn
-import nni
 from tqdm.auto import tqdm, trange
 
 from torch.optim import AdamW
@@ -862,7 +861,6 @@ class SmilesClassificationModel(ClassificationModel):
                                 )
 
                         evals_val = make_metric_report(results, default_metric)
-                        nni.report_intermediate_result(evals_val)
 
                         report = pd.DataFrame(training_progress_scores)
                         report.to_csv(
@@ -1031,7 +1029,6 @@ class SmilesClassificationModel(ClassificationModel):
                         )
 
                 evals_val = make_metric_report(results, default_metric)
-                nni.report_intermediate_result(evals_val)
 
                 report = pd.DataFrame(training_progress_scores)
                 report.to_csv(

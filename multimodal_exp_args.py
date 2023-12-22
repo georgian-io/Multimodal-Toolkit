@@ -146,6 +146,9 @@ class MultimodalDataTrainingArguments:
     mlp_dropout: float = field(
         default=0.1, metadata={"help": "dropout ratio used for MLP layers"}
     )
+    bert_hidden_dropout: float = field(
+        default=0.1, metadata={"help": "dropout ratio used for bert hidden states"}
+    )
     numerical_bn: bool = field(
         default=True,
         metadata={"help": "whether to use batchnorm on numerical features"},
@@ -232,6 +235,17 @@ class OurTrainingArguments(TrainingArguments):
 
     learning_rate: float = field(
         default=5e-5, metadata={"help": "The initial learning rate for Adam."}
+    )
+
+    freeze_encoder: bool = field(
+        default=True, metadata={"help": "Whether to freeze the encoder"}
+    )
+
+    freeze_all_but_one: bool = field(
+        default=False,
+        metadata={
+            "help": "Whether to freeze all but one layer of the encoder. Only used when freeze_encoder = False"
+        }
     )
 
     def __post_init__(self):

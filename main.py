@@ -31,36 +31,40 @@ from multimodal_transformers.model import AutoModelWithTabular
 from util import create_dir_if_not_exists, get_args_info_as_str
 from multimodal_transformers.model.tokenizer import SmilesTokenizer
 
+use_sweep = '--use_sweep' in sys.argv
+
 os.environ["COMET_MODE"] = "DISABLED"
 logger = logging.getLogger(__name__)
 
-import wandb
+if use_sweep:
+    import wandb
 
-# Define sweep config
-sweep_configuration = {
-    "method": "bayes",
-    "name": "sweep",
-    "metric": {"goal": "minimize", "name": "eval_mse"},
-    "parameters": {
-        "combine_feat_method": {"values": [
-            "gating_on_cat_and_num_feats_then_sum",
-            "weighted_feature_sum_on_transformer_cat_and_numerical_feats",
-            "attention_on_cat_and_numerical_feats"
-        ]},
-        "learning_rate": {"max": 0.1, "min": 0.000001},
-        "hidden_dropout": {"max": 0.5, "min": 0.0},
-        "mlp_dropout": {"max": 0.5, "min": 0.0},
-        "epoch": {"max": 30, "min": 5}
-    },
-}
-sweep_id = wandb.sweep(sweep=sweep_configuration, project="SMILES+DFT-sweep")
+    # Define sweep config
+    sweep_configuration = {
+        "method": "bayes",
+        "name": "sweep",
+        "metric": {"goal": "minimize", "name": "eval_mse"},
+        "parameters": {
+            "combine_feat_method": {"values": [
+                "gating_on_cat_and_num_feats_then_sum",
+                "weighted_feature_sum_on_transformer_cat_and_numerical_feats",
+                "attention_on_cat_and_numerical_feats"
+            ]},
+            "learning_rate": {"max": 0.1, "min": 0.000001},
+            "hidden_dropout": {"max": 0.5, "min": 0.0},
+            "mlp_dropout": {"max": 0.5, "min": 0.0},
+            "epoch": {"max": 30, "min": 5}
+        },
+    }
+    sweep_id = wandb.sweep(sweep=sweep_configuration, project="SMILES+DFT-sweep-20231220")
 
 def main():
-    run = wandb.init()
+    if use_sweep:
+        run = wandb.init()
     parser = HfArgumentParser(
         (ModelArguments, MultimodalDataTrainingArguments, OurTrainingArguments)
     )
-    if len(sys.argv) == 2 and sys.argv[1].endswith(".json"):
+    if len(sys.argv) in [2, 3] and (sys.argv[1].endswith(".json") or sys.argv[2].endswith(".json")):
         # If we pass only one argument to the script and it's the path to a json file,
         # let's parse it to get our arguments.
         model_args, data_args, training_args = parser.parse_json_file(
@@ -69,10 +73,11 @@ def main():
     else:
         model_args, data_args, training_args = parser.parse_args_into_dataclasses()
 
-    data_args.combine_feat_method = wandb.config.combine_feat_method
-    data_args.mlp_dropout = wandb.config.mlp_dropout
-    training_args.learning_rate = wandb.config.learning_rate
-    training_args.num_train_epochs = wandb.config.epoch
+    if use_sweep:
+        data_args.combine_feat_method = wandb.config.combine_feat_method
+        data_args.mlp_dropout = wandb.config.mlp_dropout
+        training_args.learning_rate = wandb.config.learning_rate
+        training_args.num_train_epochs = wandb.config.epoch
 
     if (
         os.path.exists(training_args.output_dir)
@@ -209,7 +214,7 @@ def main():
             else 0,
             **vars(data_args),
         )
-        config.hidden_dropout_prob = wandb.config.hidden_dropout
+        config.hidden_dropout_prob = data_args.bert_hidden_dropout
         config.tabular_config = tabular_config
 
         model = AutoModelWithTabular.from_pretrained(
@@ -219,6 +224,23 @@ def main():
             config=config,
             cache_dir=model_args.cache_dir,
         )
+
+        if training_args.freeze_encoder:
+            for name, param in model.named_parameters():
+                if 'classifier' in name:
+                    continue
+                param.requires_grad = False
+        elif training_args.freeze_all_but_one:
+            n_layers = model.config.num_hidden_layers
+            for name, param in model.named_parameters():
+                if str(n_layers-1) in name:
+                    continue
+                elif 'classifier' in name:
+                    continue
+                elif 'pooler' in name:
+                    continue
+                param.requires_grad = False
+        
         if i == 0:
             logger.info(tabular_config)
             logger.info(model)
@@ -254,7 +276,8 @@ def main():
                     for key, value in eval_result.items():
                         logger.info("  %s = %s", key, value)
                         writer.write("%s = %s\n" % (key, value))
-                    wandb.log(eval_result)
+                    if use_sweep:
+                        wandb.log(eval_result)
 
             eval_results.update(eval_result)
 
@@ -333,7 +356,8 @@ def aggregate_results(total_test_results):
         aggr_results[metric_name + "_stdev"] = metric_stdev
     return aggr_results
 
-wandb.agent(sweep_id, function=main, count=300)
+if use_sweep:
+    wandb.agent(sweep_id, function=main, count=300)
 
 if __name__ == "__main__":
     main()
