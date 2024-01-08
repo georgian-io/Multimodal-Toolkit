@@ -352,7 +352,7 @@ def load_data(
     data_df,
     text_cols,
     tokenizer,
-    label_col,
+    label_col=None,
     label_list=None,
     categorical_cols=None,
     numerical_cols=None,
@@ -434,7 +434,8 @@ def load_data(
         tokenizer.convert_ids_to_tokens(hf_model_text_input["input_ids"][0])
     )
     logger.debug(f"Tokenized text example: {tokenized_text_ex}")
-    labels = data_df[label_col].values
+    if label_col:
+        labels = data_df[label_col].values
 
     return TorchTabularTextDataset(
         hf_model_text_input,
