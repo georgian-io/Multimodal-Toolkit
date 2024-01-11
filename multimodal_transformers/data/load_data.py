@@ -364,6 +364,7 @@ def load_data(
     max_token_length=None,
     debug=False,
     debug_dataset_size=100,
+    class_weights=None
 ):
     """Function to load a single dataset given a pandas DataFrame
 
@@ -403,6 +404,7 @@ def load_data(
         max_token_length (int, optional): The token length to pad or truncate to on the
             input text
         debug (bool, optional): Whether or not to load a smaller debug version of the dataset
+        class_weights (:obj:`list` of :obj:`float`, optional): The weights to assign to each class
 
     Returns:
         :obj:`tabular_torch_dataset.TorchTextDataset`: The converted dataset
@@ -446,4 +448,5 @@ def load_data(
         labels,
         data_df,
         label_list,
+        class_weights
     )
