@@ -67,7 +67,7 @@ class TorchTabularTextDataset(TorchDataset):
         return item
 
     def __len__(self):
-        return len(self.encodings["input_ids"])
+        return len(self.encodings)
 
     def get_labels(self):
         """returns the label names for classification"""
