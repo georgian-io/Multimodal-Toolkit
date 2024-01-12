@@ -352,7 +352,7 @@ def load_data(
     data_df,
     text_cols,
     tokenizer,
-    label_col,
+    label_col=None,
     label_list=None,
     categorical_cols=None,
     numerical_cols=None,
@@ -364,6 +364,7 @@ def load_data(
     max_token_length=None,
     debug=False,
     debug_dataset_size=100,
+    class_weights=None
 ):
     """Function to load a single dataset given a pandas DataFrame
 
@@ -403,6 +404,7 @@ def load_data(
         max_token_length (int, optional): The token length to pad or truncate to on the
             input text
         debug (bool, optional): Whether or not to load a smaller debug version of the dataset
+        class_weights (:obj:`list` of :obj:`float`, optional): The weights to assign to each class
 
     Returns:
         :obj:`tabular_torch_dataset.TorchTextDataset`: The converted dataset
@@ -434,7 +436,10 @@ def load_data(
         tokenizer.convert_ids_to_tokens(hf_model_text_input["input_ids"][0])
     )
     logger.debug(f"Tokenized text example: {tokenized_text_ex}")
-    labels = data_df[label_col].values
+    if label_col:
+        labels = data_df[label_col].values
+    else:
+        labels = None
 
     return TorchTabularTextDataset(
         hf_model_text_input,
@@ -443,4 +448,5 @@ def load_data(
         labels,
         data_df,
         label_list,
+        class_weights
     )
