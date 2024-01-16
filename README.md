@@ -17,8 +17,22 @@ on the supervised task. For a brief literature review, check out the accompanyin
 ## Installation
 The code was developed in Python 3.7 with PyTorch and Transformers 4.26.1.
 The multimodal specific code is in `multimodal_transformers` folder.
-```
-pip install multimodal-transformers
+```bash
+conda create -n mmt python=3.9 -y
+
+conda activate mmt
+
+pip3 install torch torchvision torchaudio -i https://pypi.tuna.tsinghua.edu.cn/simple
+
+pip install -e . -i https://pypi.tuna.tsinghua.edu.cn/simple
+
+# cd apex
+# pip3 install -v --no-cache-dir ./
+# cd ..
+
+# pip install -r requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple
+
+# pip install multimodal-transformers
 ```
 
 ## Supported Transformers
