@@ -1,8 +1,6 @@
 class TabularConfig:
     r"""Config used for tabular combiner
 
-
-
     Args:
         mlp_division (int): how much to decrease each MLP dim for each additional layer
         combine_feat_method (str): The method to combine categorical and numerical features.
@@ -46,4 +44,4 @@ class TabularConfig:
         self.numerical_feat_dim = numerical_feat_dim
         self.cat_feat_dim = cat_feat_dim
         self.num_labels = num_labels
-        self.class_weights=  class_weights
+        self.class_weights = class_weights

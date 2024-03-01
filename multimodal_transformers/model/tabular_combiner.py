@@ -448,7 +448,7 @@ class TabularFeatCombiner(nn.Module):
             if cat_feats.shape[1] != 0:
                 if self.cat_feat_dim > self.text_out_dim:
                     cat_feats = self.cat_mlp(cat_feats)
-                w_cat = torch.mm(cat_feats, self.weight_cat) 
+                w_cat = torch.mm(cat_feats, self.weight_cat)
                 g_cat = (
                     (torch.cat([w_text, w_cat], dim=-1) * self.weight_a)
                     .sum(dim=1)

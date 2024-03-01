@@ -363,7 +363,7 @@ def load_data(
     replace_empty_text=None,
     max_token_length=None,
     debug=False,
-    debug_dataset_size=100
+    debug_dataset_size=100,
 ):
     """Function to load a single dataset given a pandas DataFrame
 
@@ -445,5 +445,5 @@ def load_data(
         numerical_feats,
         labels,
         data_df,
-        label_list
+        label_list,
     )
