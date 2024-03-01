@@ -47,6 +47,7 @@ class BertWithTabular(BertForSequenceClassification):
         else:
             self.config.tabular_config = tabular_config.__dict__
 
+        self.class_weights = tabular_config.class_weights
         tabular_config.text_feat_dim = hf_model_config.hidden_size
         tabular_config.hidden_dropout_prob = hf_model_config.hidden_dropout_prob
         self.tabular_combiner = TabularFeatCombiner(tabular_config)
@@ -83,15 +84,12 @@ class BertWithTabular(BertForSequenceClassification):
         head_mask=None,
         inputs_embeds=None,
         labels=None,
-        class_weights=None,
         output_attentions=None,
         output_hidden_states=None,
         cat_feats=None,
         numerical_feats=None,
     ):
         r"""
-            class_weights (:obj:`torch.FloatTensor` of shape :obj:`(tabular_config.num_labels,)`, `optional`, defaults to :obj:`None`):
-                Class weights to be used for cross entropy loss function for classification task
             labels (:obj:`torch.LongTensor` of shape :obj:`(batch_size,)`, `optional`, defaults to :obj:`None`):
                 Labels for computing the sequence classification/regression loss.
                 Indices should be in :obj:`[0, ..., config.num_labels - 1]`.
@@ -131,7 +129,7 @@ class BertWithTabular(BertForSequenceClassification):
             self.tabular_classifier,
             labels,
             self.num_labels,
-            class_weights,
+            self.class_weights,
         )
         return loss, logits, classifier_layer_outputs
 
@@ -156,7 +154,8 @@ class RobertaWithTabular(RobertaForSequenceClassification):
             tabular_config = TabularConfig(**tabular_config)
         else:
             self.config.tabular_config = tabular_config.__dict__
-
+        
+        self.class_weights = tabular_config.class_weights
         tabular_config.text_feat_dim = hf_model_config.hidden_size
         tabular_config.hidden_dropout_prob = hf_model_config.hidden_dropout_prob
         self.tabular_combiner = TabularFeatCombiner(tabular_config)
@@ -196,13 +195,10 @@ class RobertaWithTabular(RobertaForSequenceClassification):
         labels=None,
         output_attentions=None,
         output_hidden_states=None,
-        class_weights=None,
         cat_feats=None,
         numerical_feats=None,
     ):
         r"""
-            class_weights (:obj:`torch.FloatTensor` of shape :obj:`(tabular_config.num_labels,)`, `optional`, defaults to :obj:`None`):
-                Class weights to be used for cross entropy loss function for classification task
             labels (:obj:`torch.LongTensor` of shape :obj:`(batch_size,)`, `optional`, defaults to :obj:`None`):
                 Labels for computing the sequence classification/regression loss.
                 Indices should be in :obj:`[0, ..., config.num_labels - 1]`.
@@ -244,7 +240,7 @@ class RobertaWithTabular(RobertaForSequenceClassification):
             self.tabular_classifier,
             labels,
             self.num_labels,
-            class_weights,
+            self.class_weights,
         )
         return loss, logits, classifier_layer_outputs
 
@@ -279,6 +275,7 @@ class DistilBertWithTabular(DistilBertForSequenceClassification):
         else:
             self.config.tabular_config = tabular_config.__dict__
 
+        self.class_weights = tabular_config.class_weights
         tabular_config.text_feat_dim = hf_model_config.hidden_size
         tabular_config.hidden_dropout_prob = hf_model_config.seq_classif_dropout
         self.tabular_combiner = TabularFeatCombiner(tabular_config)
@@ -315,13 +312,10 @@ class DistilBertWithTabular(DistilBertForSequenceClassification):
         labels=None,
         output_attentions=None,
         output_hidden_states=None,
-        class_weights=None,
         cat_feats=None,
         numerical_feats=None,
     ):
         r"""
-            class_weights (:obj:`torch.FloatTensor` of shape :obj:`(tabular_config.num_labels,)`,`optional`, defaults to :obj:`None`):
-                Class weights to be used for cross entropy loss function for classification task
             labels (:obj:`torch.LongTensor` of shape :obj:`(batch_size,)`, `optional`, defaults to :obj:`None`):
                 Labels for computing the sequence classification/regression loss.
                 Indices should be in :obj:`[0, ..., config.num_labels - 1]`.
@@ -361,7 +355,7 @@ class DistilBertWithTabular(DistilBertForSequenceClassification):
             self.tabular_classifier,
             labels,
             self.num_labels,
-            class_weights,
+            self.class_weights,
         )
         return loss, logits, classifier_layer_outputs
 
@@ -387,6 +381,7 @@ class AlbertWithTabular(AlbertForSequenceClassification):
         else:
             self.config.tabular_config = tabular_config.__dict__
 
+        self.class_weights = tabular_config.class_weights
         tabular_config.text_feat_dim = hf_model_config.hidden_size
         tabular_config.hidden_dropout_prob = hf_model_config.hidden_dropout_prob
         self.tabular_combiner = TabularFeatCombiner(tabular_config)
@@ -424,7 +419,6 @@ class AlbertWithTabular(AlbertForSequenceClassification):
         output_attentions=None,
         output_hidden_states=None,
         return_dict=None,
-        class_weights=None,
         cat_feats=None,
         numerical_feats=None,
     ):
@@ -462,7 +456,7 @@ class AlbertWithTabular(AlbertForSequenceClassification):
             self.tabular_classifier,
             labels,
             self.num_labels,
-            class_weights,
+            self.class_weights,
         )
         return loss, logits, classifier_layer_outputs
 
@@ -491,6 +485,7 @@ class XLNetWithTabular(XLNetForSequenceClassification):
         else:
             self.config.tabular_config = tabular_config.__dict__
 
+        self.class_weights = tabular_config.class_weights
         tabular_config.text_feat_dim = hf_model_config.hidden_size
         tabular_config.hidden_dropout_prob = hf_model_config.dropout
         self.tabular_combiner = TabularFeatCombiner(tabular_config)
@@ -534,7 +529,6 @@ class XLNetWithTabular(XLNetForSequenceClassification):
         output_attentions=None,
         output_hidden_states=None,
         return_dict=None,
-        class_weights=None,
         cat_feats=None,
         numerical_feats=None,
     ):
@@ -574,7 +568,7 @@ class XLNetWithTabular(XLNetForSequenceClassification):
             self.tabular_classifier,
             labels,
             self.num_labels,
-            class_weights,
+            self.class_weights,
         )
         return loss, logits, classifier_layer_outputs
 
@@ -603,6 +597,7 @@ class XLMWithTabular(XLMForSequenceClassification):
         else:
             self.config.tabular_config = tabular_config.__dict__
 
+        self.class_weights = tabular_config.class_weights
         tabular_config.text_feat_dim = hf_model_config.hidden_size
         tabular_config.dropout = hf_model_config.dropout
         self.tabular_combiner = TabularFeatCombiner(tabular_config)
@@ -643,7 +638,6 @@ class XLMWithTabular(XLMForSequenceClassification):
         output_attentions=None,
         output_hidden_states=None,
         return_dict=None,
-        class_weights=None,
         cat_feats=None,
         numerical_feats=None,
     ):
@@ -681,7 +675,7 @@ class XLMWithTabular(XLMForSequenceClassification):
             self.tabular_classifier,
             labels,
             self.num_labels,
-            class_weights,
+            self.class_weights,
         )
         return loss, logits, classifier_layer_outputs
 
@@ -698,6 +692,7 @@ class LongformerWithTabular(LongformerForSequenceClassification):
         else:
             self.config.tabular_config = tabular_config.__dict__
 
+        self.class_weights = tabular_config.class_weights
         tabular_config.text_feat_dim = hf_model_config.hidden_size
         tabular_config.hidden_dropout_prob = hf_model_config.hidden_dropout_prob
         self.tabular_combiner = TabularFeatCombiner(tabular_config)
@@ -737,7 +732,6 @@ class LongformerWithTabular(LongformerForSequenceClassification):
         output_attentions=None,
         output_hidden_states=None,
         #return_dict=None,
-        class_weights=None,
         cat_feats=None,
         numerical_feats=None
     ):
@@ -769,5 +763,5 @@ class LongformerWithTabular(LongformerForSequenceClassification):
                                                               self.tabular_classifier,
                                                               labels,
                                                               self.num_labels,
-                                                              class_weights)
+                                                              self.class_weights)
         return loss, logits, classifier_layer_outputs
