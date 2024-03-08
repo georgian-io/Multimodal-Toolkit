@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>multimodal_transformers.model.tabular_combiner &mdash; Multimodal Transformers  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=19f00094" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
+        <script src="../../../_static/doctools.js?v=888ff710"></script>
+        <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            Multimodal Transformers
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Notes</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../notes/installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../notes/introduction.html">Introduction by Example</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../notes/combine_methods.html">Combine Methods</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../notes/colab_example.html">Colab Example</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Package Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../modules/model.html">multimodal_transformers.model</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../modules/data.html">multimodal_transformers.data</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">Multimodal Transformers</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">multimodal_transformers.model.tabular_combiner</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for multimodal_transformers.model.tabular_combiner</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">torch</span>
+<span class="kn">from</span> <span class="nn">torch</span> <span class="kn">import</span> <span class="n">nn</span>
+<span class="kn">import</span> <span class="nn">torch.nn.functional</span> <span class="k">as</span> <span class="nn">F</span>
+
+<span class="kn">from</span> <span class="nn">.layer_utils</span> <span class="kn">import</span> <span class="n">calc_mlp_dims</span><span class="p">,</span> <span class="n">create_act</span><span class="p">,</span> <span class="n">glorot</span><span class="p">,</span> <span class="n">zeros</span><span class="p">,</span> <span class="n">MLP</span>
+
+
+<div class="viewcode-block" id="TabularFeatCombiner">
+<a class="viewcode-back" href="../../../modules/model.html#multimodal_transformers.model.tabular_combiner.TabularFeatCombiner">[docs]</a>
+<span class="k">class</span> <span class="nc">TabularFeatCombiner</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">     Combiner module for combining text features with categorical and numerical features</span>
+<span class="sd">     The methods of combining, specified by :obj:`tabular_config.combine_feat_method` are shown below.</span>
+<span class="sd">     :math:`\mathbf{m}` denotes the combined multimodal features,</span>
+<span class="sd">     :math:`\mathbf{x}` denotes the output text features from the transformer,</span>
+<span class="sd">     :math:`\mathbf{c}` denotes the categorical features, :math:`\mathbf{t}` denotes the numerical features,</span>
+<span class="sd">     :math:`h_{\mathbf{\Theta}}` denotes a MLP parameterized by :math:`\Theta`, :math:`W` denotes a weight matrix,</span>
+<span class="sd">     and :math:`b` denotes a scalar bias</span>
+
+<span class="sd">     - **text_only**</span>
+
+<span class="sd">         .. math::</span>
+<span class="sd">             \mathbf{m} = \mathbf{x}</span>
+
+<span class="sd">     - **concat**</span>
+
+<span class="sd">         .. math::</span>
+<span class="sd">             \mathbf{m} = \mathbf{x} \, \Vert \, \mathbf{c} \, \Vert \, \mathbf{n}</span>
+
+<span class="sd">     - **mlp_on_categorical_then_concat**</span>
+
+<span class="sd">         .. math::</span>
+<span class="sd">             \mathbf{m} = \mathbf{x} \, \Vert \, h_{\mathbf{\Theta}}( \mathbf{c}) \, \Vert \, \mathbf{n}</span>
+
+<span class="sd">     - **individual_mlps_on_cat_and_numerical_feats_then_concat**</span>
+
+<span class="sd">         .. math::</span>
+<span class="sd">             \mathbf{m} = \mathbf{x} \, \Vert \, h_{\mathbf{\Theta_c}}( \mathbf{c}) \, \Vert \, h_{\mathbf{\Theta_n}}(\mathbf{n})</span>
+
+<span class="sd">     - **mlp_on_concatenated_cat_and_numerical_feats_then_concat**</span>
+
+<span class="sd">         .. math::</span>
+<span class="sd">             \mathbf{m} = \mathbf{x} \, \Vert \, h_{\mathbf{\Theta}}( \mathbf{c} \, \Vert \, \mathbf{n})</span>
+
+<span class="sd">     - **attention_on_cat_and_numerical_feats** self attention on the text features</span>
+
+<span class="sd">         .. math::</span>
+<span class="sd">             \mathbf{m} = \alpha_{x,x}\mathbf{W}_x\mathbf{x} + \alpha_{x,c}\mathbf{W}_c\mathbf{c} + \alpha_{x,n}\mathbf{W}_n\mathbf{n}</span>
+
+<span class="sd">       where :math:`\mathbf{W}_x` is of shape :obj:`(out_dim, text_feat_dim)`,</span>
+<span class="sd">       :math:`\mathbf{W}_c` is of shape :obj:`(out_dim, cat_feat_dim)`,</span>
+<span class="sd">       :math:`\mathbf{W}_n` is of shape :obj:`(out_dim, num_feat_dim)`, and the attention coefficients :math:`\alpha_{i,j}` are computed as</span>
+
+<span class="sd">         .. math::</span>
+<span class="sd">             \alpha_{i,j} =</span>
+<span class="sd">             \frac{</span>
+<span class="sd">             \exp\left(\mathrm{LeakyReLU}\left(\mathbf{a}^{\top}</span>
+<span class="sd">             [\mathbf{W}_i\mathbf{x}_i \, \Vert \, \mathbf{W}_j\mathbf{x}_j]</span>
+<span class="sd">             \right)\right)}</span>
+<span class="sd">             {\sum_{k \in \{ x, c, n \}}</span>
+<span class="sd">             \exp\left(\mathrm{LeakyReLU}\left(\mathbf{a}^{\top}</span>
+<span class="sd">             [\mathbf{W}_i\mathbf{x}_i \, \Vert \, \mathbf{W}_k\mathbf{x}_k]</span>
+<span class="sd">             \right)\right)}.</span>
+
+<span class="sd">     - **gating_on_cat_and_num_feats_then_sum** sum of features gated by text features. Inspired by the gating mechanism introduced in `Integrating Multimodal Information in Large Pretrained Transformers &lt;https://www.aclweb.org/anthology/2020.acl-main.214.pdf&gt;`_</span>
+
+<span class="sd">         .. math::</span>
+<span class="sd">             \mathbf{m}= \mathbf{x} + \alpha\mathbf{h}</span>
+<span class="sd">         .. math::</span>
+<span class="sd">             \mathbf{h} = \mathbf{g_c} \odot (\mathbf{W}_c\mathbf{c}) + \mathbf{g_n} \odot (\mathbf{W}_n\mathbf{n}) + b_h</span>
+<span class="sd">         .. math::</span>
+<span class="sd">             \alpha = \mathrm{min}( \frac{\| \mathbf{x} \|_2}{\| \mathbf{h} \|_2}*\beta, 1)</span>
+
+<span class="sd">       where :math:`\beta` is a hyperparamter, :math:`\mathbf{W}_c` is of shape :obj:`(out_dim, cat_feat_dim)`,</span>
+<span class="sd">       :math:`\mathbf{W}_n` is of shape :obj:`(out_dim, num_feat_dim)`. and the gating vector :math:`\mathbf{g}_i` with activation function :math:`R` is defined as</span>
+
+<span class="sd">         .. math::</span>
+<span class="sd">             \mathbf{g}_i = R(\mathbf{W}_{gi}[\mathbf{i} \, \Vert \, \mathbf{x}]+ b_i)</span>
+
+<span class="sd">       where :math:`\mathbf{W}_{gi}` is of shape :obj:`(out_dim, i_feat_dim + text_feat_dim)`</span>
+
+<span class="sd">     - **weighted_feature_sum_on_transformer_cat_and_numerical_feats**</span>
+
+<span class="sd">         .. math::</span>
+<span class="sd">             \mathbf{m} = \mathbf{x} + \mathbf{W}_{c&#39;} \odot \mathbf{W}_c \mathbf{c} + \mathbf{W}_{n&#39;} \odot \mathbf{W}_n \mathbf{t}</span>
+
+<span class="sd">    Parameters:</span>
+<span class="sd">        tabular_config (:class:`~multimodal_config.TabularConfig`):</span>
+<span class="sd">            Tabular model configuration class with all the parameters of the model.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tabular_config</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">combine_feat_method</span> <span class="o">=</span> <span class="n">tabular_config</span><span class="o">.</span><span class="n">combine_feat_method</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cat_feat_dim</span> <span class="o">=</span> <span class="n">tabular_config</span><span class="o">.</span><span class="n">cat_feat_dim</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">numerical_feat_dim</span> <span class="o">=</span> <span class="n">tabular_config</span><span class="o">.</span><span class="n">numerical_feat_dim</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">num_labels</span> <span class="o">=</span> <span class="n">tabular_config</span><span class="o">.</span><span class="n">num_labels</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">numerical_bn</span> <span class="o">=</span> <span class="n">tabular_config</span><span class="o">.</span><span class="n">numerical_bn</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">categorical_bn</span> <span class="o">=</span> <span class="n">tabular_config</span><span class="o">.</span><span class="n">categorical_bn</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mlp_act</span> <span class="o">=</span> <span class="n">tabular_config</span><span class="o">.</span><span class="n">mlp_act</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mlp_dropout</span> <span class="o">=</span> <span class="n">tabular_config</span><span class="o">.</span><span class="n">mlp_dropout</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mlp_division</span> <span class="o">=</span> <span class="n">tabular_config</span><span class="o">.</span><span class="n">mlp_division</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">text_out_dim</span> <span class="o">=</span> <span class="n">tabular_config</span><span class="o">.</span><span class="n">text_feat_dim</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tabular_config</span> <span class="o">=</span> <span class="n">tabular_config</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">combine_feat_method</span> <span class="o">==</span> <span class="s2">&quot;text_only&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">final_out_dim</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">text_out_dim</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">combine_feat_method</span> <span class="o">==</span> <span class="s2">&quot;concat&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">final_out_dim</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">text_out_dim</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">cat_feat_dim</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">numerical_feat_dim</span>
+            <span class="p">)</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">combine_feat_method</span> <span class="o">==</span> <span class="s2">&quot;mlp_on_categorical_then_concat&quot;</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">cat_feat_dim</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;dimension of cat feats should not be 0&quot;</span>
+            <span class="c1"># reduce dim of categorical features to same of num dim or text dim if necessary</span>
+            <span class="n">output_dim</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">text_out_dim</span><span class="p">,</span>
+                <span class="nb">max</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">numerical_feat_dim</span><span class="p">,</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">cat_feat_dim</span> <span class="o">//</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mlp_division</span> <span class="o">//</span> <span class="mi">2</span><span class="p">),</span>
+                <span class="p">),</span>
+            <span class="p">)</span>
+            <span class="n">dims</span> <span class="o">=</span> <span class="n">calc_mlp_dims</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cat_feat_dim</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">mlp_division</span><span class="p">,</span> <span class="n">output_dim</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">cat_mlp</span> <span class="o">=</span> <span class="n">MLP</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">cat_feat_dim</span><span class="p">,</span>
+                <span class="n">output_dim</span><span class="p">,</span>
+                <span class="n">act</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">mlp_act</span><span class="p">,</span>
+                <span class="n">num_hidden_lyr</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">dims</span><span class="p">),</span>
+                <span class="n">dropout_prob</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">mlp_dropout</span><span class="p">,</span>
+                <span class="n">hidden_channels</span><span class="o">=</span><span class="n">dims</span><span class="p">,</span>
+                <span class="n">return_layer_outs</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                <span class="n">bn</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">categorical_bn</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">final_out_dim</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">text_out_dim</span> <span class="o">+</span> <span class="n">output_dim</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">numerical_feat_dim</span>
+            <span class="p">)</span>
+        <span class="k">elif</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">combine_feat_method</span>
+            <span class="o">==</span> <span class="s2">&quot;mlp_on_concatenated_cat_and_numerical_feats_then_concat&quot;</span>
+        <span class="p">):</span>
+            <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">cat_feat_dim</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;dimension of cat feats should not be 0&quot;</span>
+            <span class="k">assert</span> <span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">numerical_feat_dim</span> <span class="o">!=</span> <span class="mi">0</span>
+            <span class="p">),</span> <span class="s2">&quot;dimension of numerical feats should not be 0&quot;</span>
+            <span class="n">output_dim</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">numerical_feat_dim</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">cat_feat_dim</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">text_out_dim</span>
+            <span class="p">)</span>
+            <span class="n">in_dim</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cat_feat_dim</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">numerical_feat_dim</span>
+            <span class="n">dims</span> <span class="o">=</span> <span class="n">calc_mlp_dims</span><span class="p">(</span><span class="n">in_dim</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">mlp_division</span><span class="p">,</span> <span class="n">output_dim</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">cat_and_numerical_mlp</span> <span class="o">=</span> <span class="n">MLP</span><span class="p">(</span>
+                <span class="n">in_dim</span><span class="p">,</span>
+                <span class="n">output_dim</span><span class="p">,</span>
+                <span class="n">act</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">mlp_act</span><span class="p">,</span>
+                <span class="n">num_hidden_lyr</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">dims</span><span class="p">),</span>
+                <span class="n">dropout_prob</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">mlp_dropout</span><span class="p">,</span>
+                <span class="n">hidden_channels</span><span class="o">=</span><span class="n">dims</span><span class="p">,</span>
+                <span class="n">return_layer_outs</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                <span class="n">bn</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">categorical_bn</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">numerical_bn</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">final_out_dim</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">text_out_dim</span> <span class="o">+</span> <span class="n">output_dim</span>
+        <span class="k">elif</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">combine_feat_method</span>
+            <span class="o">==</span> <span class="s2">&quot;individual_mlps_on_cat_and_numerical_feats_then_concat&quot;</span>
+        <span class="p">):</span>
+            <span class="n">output_dim_cat</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">cat_feat_dim</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">output_dim_cat</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">cat_feat_dim</span> <span class="o">//</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mlp_division</span> <span class="o">//</span> <span class="mi">2</span><span class="p">),</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">numerical_feat_dim</span><span class="p">,</span>
+                <span class="p">)</span>
+                <span class="n">dims</span> <span class="o">=</span> <span class="n">calc_mlp_dims</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">cat_feat_dim</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">mlp_division</span><span class="p">,</span> <span class="n">output_dim_cat</span>
+                <span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">cat_mlp</span> <span class="o">=</span> <span class="n">MLP</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">cat_feat_dim</span><span class="p">,</span>
+                    <span class="n">output_dim_cat</span><span class="p">,</span>
+                    <span class="n">act</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">mlp_act</span><span class="p">,</span>
+                    <span class="n">num_hidden_lyr</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">dims</span><span class="p">),</span>
+                    <span class="n">dropout_prob</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">mlp_dropout</span><span class="p">,</span>
+                    <span class="n">hidden_channels</span><span class="o">=</span><span class="n">dims</span><span class="p">,</span>
+                    <span class="n">return_layer_outs</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                    <span class="n">bn</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">categorical_bn</span><span class="p">,</span>
+                <span class="p">)</span>
+
+            <span class="n">output_dim_num</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">numerical_feat_dim</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">output_dim_num</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">numerical_feat_dim</span> <span class="o">//</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mlp_division</span> <span class="o">//</span> <span class="mi">2</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">num_mlp</span> <span class="o">=</span> <span class="n">MLP</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">numerical_feat_dim</span><span class="p">,</span>
+                    <span class="n">output_dim_num</span><span class="p">,</span>
+                    <span class="n">act</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">mlp_act</span><span class="p">,</span>
+                    <span class="n">dropout_prob</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">mlp_dropout</span><span class="p">,</span>
+                    <span class="n">num_hidden_lyr</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+                    <span class="n">return_layer_outs</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                    <span class="n">bn</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">numerical_bn</span><span class="p">,</span>
+                <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">final_out_dim</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">text_out_dim</span> <span class="o">+</span> <span class="n">output_dim_num</span> <span class="o">+</span> <span class="n">output_dim_cat</span>
+        <span class="k">elif</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">combine_feat_method</span>
+            <span class="o">==</span> <span class="s2">&quot;weighted_feature_sum_on_transformer_cat_and_numerical_feats&quot;</span>
+        <span class="p">):</span>
+            <span class="k">assert</span> <span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">cat_feat_dim</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">numerical_feat_dim</span> <span class="o">!=</span> <span class="mi">0</span>
+            <span class="p">),</span> <span class="s2">&quot;should have some non text features&quot;</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">cat_feat_dim</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">output_dim_cat</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">text_out_dim</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">cat_feat_dim</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">text_out_dim</span><span class="p">:</span>
+                    <span class="n">dims</span> <span class="o">=</span> <span class="n">calc_mlp_dims</span><span class="p">(</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">cat_feat_dim</span><span class="p">,</span>
+                        <span class="n">division</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">mlp_division</span><span class="p">,</span>
+                        <span class="n">output_dim</span><span class="o">=</span><span class="n">output_dim_cat</span><span class="p">,</span>
+                    <span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">cat_layer</span> <span class="o">=</span> <span class="n">MLP</span><span class="p">(</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">cat_feat_dim</span><span class="p">,</span>
+                        <span class="n">output_dim_cat</span><span class="p">,</span>
+                        <span class="n">act</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">mlp_act</span><span class="p">,</span>
+                        <span class="n">num_hidden_lyr</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">dims</span><span class="p">),</span>
+                        <span class="n">dropout_prob</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">mlp_dropout</span><span class="p">,</span>
+                        <span class="n">hidden_channels</span><span class="o">=</span><span class="n">dims</span><span class="p">,</span>
+                        <span class="n">return_layer_outs</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                        <span class="n">bn</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">categorical_bn</span><span class="p">,</span>
+                    <span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">cat_layer</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cat_feat_dim</span><span class="p">,</span> <span class="n">output_dim_cat</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">dropout_cat</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Dropout</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mlp_dropout</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">weight_cat</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Parameter</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="n">output_dim_cat</span><span class="p">))</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">numerical_feat_dim</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">output_dim_num</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">text_out_dim</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">numerical_feat_dim</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">text_out_dim</span><span class="p">:</span>
+                    <span class="n">dims</span> <span class="o">=</span> <span class="n">calc_mlp_dims</span><span class="p">(</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">numerical_feat_dim</span><span class="p">,</span>
+                        <span class="n">division</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">mlp_division</span><span class="p">,</span>
+                        <span class="n">output_dim</span><span class="o">=</span><span class="n">output_dim_num</span><span class="p">,</span>
+                    <span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">num_layer</span> <span class="o">=</span> <span class="n">MLP</span><span class="p">(</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">numerical_feat_dim</span><span class="p">,</span>
+                        <span class="n">output_dim_num</span><span class="p">,</span>
+                        <span class="n">act</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">mlp_act</span><span class="p">,</span>
+                        <span class="n">num_hidden_lyr</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">dims</span><span class="p">),</span>
+                        <span class="n">dropout_prob</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">mlp_dropout</span><span class="p">,</span>
+                        <span class="n">hidden_channels</span><span class="o">=</span><span class="n">dims</span><span class="p">,</span>
+                        <span class="n">return_layer_outs</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                        <span class="n">bn</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">numerical_bn</span><span class="p">,</span>
+                    <span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">num_layer</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">numerical_feat_dim</span><span class="p">,</span> <span class="n">output_dim_num</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">dropout_num</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Dropout</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mlp_dropout</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">weight_num</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Parameter</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="n">output_dim_num</span><span class="p">))</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">act_func</span> <span class="o">=</span> <span class="n">create_act</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mlp_act</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">layer_norm</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">LayerNorm</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">text_out_dim</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">final_dropout</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Dropout</span><span class="p">(</span><span class="n">tabular_config</span><span class="o">.</span><span class="n">hidden_dropout_prob</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">final_out_dim</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">text_out_dim</span>
+
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">combine_feat_method</span> <span class="o">==</span> <span class="s2">&quot;attention_on_cat_and_numerical_feats&quot;</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">cat_feat_dim</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">numerical_feat_dim</span> <span class="o">!=</span> <span class="mi">0</span>
+            <span class="p">),</span> <span class="s2">&quot;should have some non-text features for this method&quot;</span>
+
+            <span class="n">output_dim</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">text_out_dim</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">cat_feat_dim</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">cat_feat_dim</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">text_out_dim</span><span class="p">:</span>
+                    <span class="n">output_dim_cat</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">text_out_dim</span>
+                    <span class="n">dims</span> <span class="o">=</span> <span class="n">calc_mlp_dims</span><span class="p">(</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">cat_feat_dim</span><span class="p">,</span>
+                        <span class="n">division</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">mlp_division</span><span class="p">,</span>
+                        <span class="n">output_dim</span><span class="o">=</span><span class="n">output_dim_cat</span><span class="p">,</span>
+                    <span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">cat_mlp</span> <span class="o">=</span> <span class="n">MLP</span><span class="p">(</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">cat_feat_dim</span><span class="p">,</span>
+                        <span class="n">output_dim_cat</span><span class="p">,</span>
+                        <span class="n">num_hidden_lyr</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">dims</span><span class="p">),</span>
+                        <span class="n">dropout_prob</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">mlp_dropout</span><span class="p">,</span>
+                        <span class="n">return_layer_outs</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                        <span class="n">hidden_channels</span><span class="o">=</span><span class="n">dims</span><span class="p">,</span>
+                        <span class="n">bn</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">categorical_bn</span><span class="p">,</span>
+                    <span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">output_dim_cat</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cat_feat_dim</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">weight_cat</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Parameter</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">rand</span><span class="p">((</span><span class="n">output_dim_cat</span><span class="p">,</span> <span class="n">output_dim</span><span class="p">)))</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">bias_cat</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Parameter</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">output_dim</span><span class="p">))</span>
+
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">numerical_feat_dim</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">numerical_feat_dim</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">text_out_dim</span><span class="p">:</span>
+                    <span class="n">output_dim_num</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">text_out_dim</span>
+                    <span class="n">dims</span> <span class="o">=</span> <span class="n">calc_mlp_dims</span><span class="p">(</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">numerical_feat_dim</span><span class="p">,</span>
+                        <span class="n">division</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">mlp_division</span><span class="p">,</span>
+                        <span class="n">output_dim</span><span class="o">=</span><span class="n">output_dim_num</span><span class="p">,</span>
+                    <span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">num_mlp</span> <span class="o">=</span> <span class="n">MLP</span><span class="p">(</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">numerical_feat_dim</span><span class="p">,</span>
+                        <span class="n">output_dim_num</span><span class="p">,</span>
+                        <span class="n">num_hidden_lyr</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">dims</span><span class="p">),</span>
+                        <span class="n">dropout_prob</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">mlp_dropout</span><span class="p">,</span>
+                        <span class="n">return_layer_outs</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                        <span class="n">hidden_channels</span><span class="o">=</span><span class="n">dims</span><span class="p">,</span>
+                        <span class="n">bn</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">numerical_bn</span><span class="p">,</span>
+                    <span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">output_dim_num</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">numerical_feat_dim</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">weight_num</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Parameter</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">rand</span><span class="p">((</span><span class="n">output_dim_num</span><span class="p">,</span> <span class="n">output_dim</span><span class="p">)))</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">bias_num</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Parameter</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">output_dim</span><span class="p">))</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">weight_transformer</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Parameter</span><span class="p">(</span>
+                <span class="n">torch</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">text_out_dim</span><span class="p">,</span> <span class="n">output_dim</span><span class="p">)</span>
+            <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">weight_a</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Parameter</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">rand</span><span class="p">((</span><span class="mi">1</span><span class="p">,</span> <span class="n">output_dim</span> <span class="o">+</span> <span class="n">output_dim</span><span class="p">)))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">bias_transformer</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Parameter</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="n">output_dim</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">bias</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Parameter</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">output_dim</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">negative_slope</span> <span class="o">=</span> <span class="mf">0.2</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">final_out_dim</span> <span class="o">=</span> <span class="n">output_dim</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__reset_parameters</span><span class="p">()</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">combine_feat_method</span> <span class="o">==</span> <span class="s2">&quot;gating_on_cat_and_num_feats_then_sum&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">act_func</span> <span class="o">=</span> <span class="n">create_act</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mlp_act</span><span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">cat_feat_dim</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">cat_feat_dim</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">text_out_dim</span><span class="p">:</span>
+                    <span class="n">dims</span> <span class="o">=</span> <span class="n">calc_mlp_dims</span><span class="p">(</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">numerical_feat_dim</span><span class="p">,</span>
+                        <span class="n">division</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">mlp_division</span><span class="p">,</span>
+                        <span class="n">output_dim</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">text_out_dim</span><span class="p">,</span>
+                    <span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">cat_layer</span> <span class="o">=</span> <span class="n">MLP</span><span class="p">(</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">cat_feat_dim</span><span class="p">,</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">text_out_dim</span><span class="p">,</span>
+                        <span class="n">act</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">mlp_act</span><span class="p">,</span>
+                        <span class="n">num_hidden_lyr</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">dims</span><span class="p">),</span>
+                        <span class="n">dropout_prob</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">mlp_dropout</span><span class="p">,</span>
+                        <span class="n">hidden_channels</span><span class="o">=</span><span class="n">dims</span><span class="p">,</span>
+                        <span class="n">return_layer_outs</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                        <span class="n">bn</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">categorical_bn</span><span class="p">,</span>
+                    <span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">g_cat_layer</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">text_out_dim</span> <span class="o">+</span> <span class="nb">min</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">text_out_dim</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">cat_feat_dim</span><span class="p">),</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">text_out_dim</span><span class="p">,</span>
+                <span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">dropout_cat</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Dropout</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mlp_dropout</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">h_cat_layer</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span>
+                    <span class="nb">min</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">text_out_dim</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">cat_feat_dim</span><span class="p">),</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">text_out_dim</span><span class="p">,</span>
+                    <span class="n">bias</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                <span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">numerical_feat_dim</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">numerical_feat_dim</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">text_out_dim</span><span class="p">:</span>
+                    <span class="n">dims</span> <span class="o">=</span> <span class="n">calc_mlp_dims</span><span class="p">(</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">numerical_feat_dim</span><span class="p">,</span>
+                        <span class="n">division</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">mlp_division</span><span class="p">,</span>
+                        <span class="n">output_dim</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">text_out_dim</span><span class="p">,</span>
+                    <span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">num_layer</span> <span class="o">=</span> <span class="n">MLP</span><span class="p">(</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">numerical_feat_dim</span><span class="p">,</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">text_out_dim</span><span class="p">,</span>
+                        <span class="n">act</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">mlp_act</span><span class="p">,</span>
+                        <span class="n">num_hidden_lyr</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">dims</span><span class="p">),</span>
+                        <span class="n">dropout_prob</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">mlp_dropout</span><span class="p">,</span>
+                        <span class="n">hidden_channels</span><span class="o">=</span><span class="n">dims</span><span class="p">,</span>
+                        <span class="n">return_layer_outs</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                        <span class="n">bn</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">numerical_bn</span><span class="p">,</span>
+                    <span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">g_num_layer</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span>
+                    <span class="nb">min</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">numerical_feat_dim</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">text_out_dim</span><span class="p">)</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">text_out_dim</span><span class="p">,</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">text_out_dim</span><span class="p">,</span>
+                <span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">dropout_num</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Dropout</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mlp_dropout</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">h_num_layer</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span>
+                    <span class="nb">min</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">text_out_dim</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">numerical_feat_dim</span><span class="p">),</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">text_out_dim</span><span class="p">,</span>
+                    <span class="n">bias</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">h_bias</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Parameter</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">text_out_dim</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">layer_norm</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">LayerNorm</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">text_out_dim</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">final_out_dim</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">text_out_dim</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;combine_feat_method </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">combine_feat_method</span><span class="si">}</span><span class="s2"> &quot;</span> <span class="sa">f</span><span class="s2">&quot;not implemented&quot;</span>
+            <span class="p">)</span>
+
+<div class="viewcode-block" id="TabularFeatCombiner.forward">
+<a class="viewcode-back" href="../../../modules/model.html#multimodal_transformers.model.tabular_combiner.TabularFeatCombiner.forward">[docs]</a>
+    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text_feats</span><span class="p">,</span> <span class="n">cat_feats</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">numerical_feats</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            text_feats (:obj:`torch.FloatTensor` of shape :obj:`(batch_size, text_out_dim)`):</span>
+<span class="sd">                The tensor of text features. This is assumed to be the output from a HuggingFace transformer model</span>
+<span class="sd">            cat_feats (:obj:`torch.FloatTensor` of shape :obj:`(batch_size, cat_feat_dim)`, `optional`, defaults to :obj:`None`)):</span>
+<span class="sd">                The tensor of categorical features</span>
+<span class="sd">            numerical_feats (:obj:`torch.FloatTensor` of shape :obj:`(batch_size, numerical_feat_dim)`, `optional`, defaults to :obj:`None`):</span>
+<span class="sd">                The tensor of numerical features</span>
+<span class="sd">        Returns:</span>
+<span class="sd">            :obj:`torch.FloatTensor` of shape :obj:`(batch_size, final_out_dim)`:</span>
+<span class="sd">                A tensor representing the combined features</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">cat_feats</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">cat_feats</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">text_feats</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="mi">0</span><span class="p">))</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">text_feats</span><span class="o">.</span><span class="n">device</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">numerical_feats</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">numerical_feats</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">text_feats</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="mi">0</span><span class="p">))</span><span class="o">.</span><span class="n">to</span><span class="p">(</span>
+                <span class="n">text_feats</span><span class="o">.</span><span class="n">device</span>
+            <span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">combine_feat_method</span> <span class="o">==</span> <span class="s2">&quot;text_only&quot;</span><span class="p">:</span>
+            <span class="n">combined_feats</span> <span class="o">=</span> <span class="n">text_feats</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">combine_feat_method</span> <span class="o">==</span> <span class="s2">&quot;concat&quot;</span><span class="p">:</span>
+            <span class="n">combined_feats</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">((</span><span class="n">text_feats</span><span class="p">,</span> <span class="n">cat_feats</span><span class="p">,</span> <span class="n">numerical_feats</span><span class="p">),</span> <span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">combine_feat_method</span> <span class="o">==</span> <span class="s2">&quot;mlp_on_categorical_then_concat&quot;</span><span class="p">:</span>
+            <span class="n">cat_feats</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cat_mlp</span><span class="p">(</span><span class="n">cat_feats</span><span class="p">)</span>
+            <span class="n">combined_feats</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">((</span><span class="n">text_feats</span><span class="p">,</span> <span class="n">cat_feats</span><span class="p">,</span> <span class="n">numerical_feats</span><span class="p">),</span> <span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">combine_feat_method</span>
+            <span class="o">==</span> <span class="s2">&quot;mlp_on_concatenated_cat_and_numerical_feats_then_concat&quot;</span>
+        <span class="p">):</span>
+            <span class="n">tabular_feats</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">((</span><span class="n">cat_feats</span><span class="p">,</span> <span class="n">numerical_feats</span><span class="p">),</span> <span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+            <span class="n">tabular_feats</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cat_and_numerical_mlp</span><span class="p">(</span><span class="n">tabular_feats</span><span class="p">)</span>
+            <span class="n">combined_feats</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">((</span><span class="n">text_feats</span><span class="p">,</span> <span class="n">tabular_feats</span><span class="p">),</span> <span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">combine_feat_method</span>
+            <span class="o">==</span> <span class="s2">&quot;individual_mlps_on_cat_and_numerical_feats_then_concat&quot;</span>
+        <span class="p">):</span>
+            <span class="k">if</span> <span class="n">cat_feats</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">cat_feats</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cat_mlp</span><span class="p">(</span><span class="n">cat_feats</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">numerical_feats</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">numerical_feats</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_mlp</span><span class="p">(</span><span class="n">numerical_feats</span><span class="p">)</span>
+            <span class="n">combined_feats</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">((</span><span class="n">text_feats</span><span class="p">,</span> <span class="n">cat_feats</span><span class="p">,</span> <span class="n">numerical_feats</span><span class="p">),</span> <span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">combine_feat_method</span>
+            <span class="o">==</span> <span class="s2">&quot;weighted_feature_sum_on_transformer_cat_and_numerical_feats&quot;</span>
+        <span class="p">):</span>
+            <span class="k">if</span> <span class="n">cat_feats</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">cat_feats</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dropout_cat</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cat_layer</span><span class="p">(</span><span class="n">cat_feats</span><span class="p">))</span>
+                <span class="n">cat_feats</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">weight_cat</span><span class="o">.</span><span class="n">expand_as</span><span class="p">(</span><span class="n">cat_feats</span><span class="p">)</span> <span class="o">*</span> <span class="n">cat_feats</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">cat_feats</span> <span class="o">=</span> <span class="mi">0</span>
+
+            <span class="k">if</span> <span class="n">numerical_feats</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">numerical_feats</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dropout_num</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">num_layer</span><span class="p">(</span><span class="n">numerical_feats</span><span class="p">))</span>
+                <span class="n">numerical_feats</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">weight_num</span><span class="o">.</span><span class="n">expand_as</span><span class="p">(</span><span class="n">numerical_feats</span><span class="p">)</span> <span class="o">*</span> <span class="n">numerical_feats</span>
+                <span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">numerical_feats</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="n">combined_feats</span> <span class="o">=</span> <span class="n">text_feats</span> <span class="o">+</span> <span class="n">cat_feats</span> <span class="o">+</span> <span class="n">numerical_feats</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">combine_feat_method</span> <span class="o">==</span> <span class="s2">&quot;attention_on_cat_and_numerical_feats&quot;</span><span class="p">:</span>
+            <span class="c1"># attention keyed by transformer text features</span>
+            <span class="n">w_text</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">mm</span><span class="p">(</span><span class="n">text_feats</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">weight_transformer</span><span class="p">)</span>
+            <span class="n">g_text</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">([</span><span class="n">w_text</span><span class="p">,</span> <span class="n">w_text</span><span class="p">],</span> <span class="n">dim</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">weight_a</span><span class="p">)</span>
+                <span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+                <span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+                <span class="o">.</span><span class="n">T</span>
+            <span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">cat_feats</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">cat_feat_dim</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">text_out_dim</span><span class="p">:</span>
+                    <span class="n">cat_feats</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cat_mlp</span><span class="p">(</span><span class="n">cat_feats</span><span class="p">)</span>
+                <span class="n">w_cat</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">mm</span><span class="p">(</span><span class="n">cat_feats</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">weight_cat</span><span class="p">)</span>
+                <span class="n">g_cat</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">([</span><span class="n">w_text</span><span class="p">,</span> <span class="n">w_cat</span><span class="p">],</span> <span class="n">dim</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">weight_a</span><span class="p">)</span>
+                    <span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+                    <span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+                    <span class="o">.</span><span class="n">T</span>
+                <span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">w_cat</span> <span class="o">=</span> <span class="kc">None</span>
+                <span class="n">g_cat</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="n">g_text</span><span class="o">.</span><span class="n">device</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">numerical_feats</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">numerical_feat_dim</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">text_out_dim</span><span class="p">:</span>
+                    <span class="n">numerical_feats</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_mlp</span><span class="p">(</span><span class="n">numerical_feats</span><span class="p">)</span>
+                <span class="n">w_num</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">mm</span><span class="p">(</span><span class="n">numerical_feats</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">weight_num</span><span class="p">)</span>
+                <span class="n">g_num</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">([</span><span class="n">w_text</span><span class="p">,</span> <span class="n">w_num</span><span class="p">],</span> <span class="n">dim</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">weight_a</span><span class="p">)</span>
+                    <span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+                    <span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+                    <span class="o">.</span><span class="n">T</span>
+                <span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">w_num</span> <span class="o">=</span> <span class="kc">None</span>
+                <span class="n">g_num</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="n">g_text</span><span class="o">.</span><span class="n">device</span><span class="p">)</span>
+
+            <span class="n">alpha</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">([</span><span class="n">g_text</span><span class="p">,</span> <span class="n">g_cat</span><span class="p">,</span> <span class="n">g_num</span><span class="p">],</span> <span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>  <span class="c1"># N by 3</span>
+            <span class="n">alpha</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">leaky_relu</span><span class="p">(</span><span class="n">alpha</span><span class="p">,</span> <span class="mf">0.02</span><span class="p">)</span>
+            <span class="n">alpha</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">softmax</span><span class="p">(</span><span class="n">alpha</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+            <span class="n">stack_tensors</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="n">tensor</span> <span class="k">for</span> <span class="n">tensor</span> <span class="ow">in</span> <span class="p">[</span><span class="n">w_text</span><span class="p">,</span> <span class="n">w_cat</span><span class="p">,</span> <span class="n">w_num</span><span class="p">]</span> <span class="k">if</span> <span class="n">tensor</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+            <span class="p">]</span>
+            <span class="n">combined</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">stack_tensors</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>  <span class="c1"># N by 3 by final_out_dim</span>
+            <span class="n">outputs_w_attention</span> <span class="o">=</span> <span class="n">alpha</span><span class="p">[:,</span> <span class="p">:,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">*</span> <span class="n">combined</span>
+            <span class="n">combined_feats</span> <span class="o">=</span> <span class="n">outputs_w_attention</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>  <span class="c1"># N by final_out_dim</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">combine_feat_method</span> <span class="o">==</span> <span class="s2">&quot;gating_on_cat_and_num_feats_then_sum&quot;</span><span class="p">:</span>
+            <span class="c1"># assumes shifting of features relative to text features and that text features are the most important</span>
+            <span class="k">if</span> <span class="n">cat_feats</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">cat_feat_dim</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">text_out_dim</span><span class="p">:</span>
+                    <span class="n">cat_feats</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cat_layer</span><span class="p">(</span><span class="n">cat_feats</span><span class="p">)</span>
+                <span class="n">g_cat</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dropout_cat</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">act_func</span><span class="p">(</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">g_cat_layer</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">([</span><span class="n">text_feats</span><span class="p">,</span> <span class="n">cat_feats</span><span class="p">],</span> <span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span>
+                    <span class="p">)</span>
+                <span class="p">)</span>
+                <span class="n">g_mult_cat</span> <span class="o">=</span> <span class="n">g_cat</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">h_cat_layer</span><span class="p">(</span><span class="n">cat_feats</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">g_mult_cat</span> <span class="o">=</span> <span class="mi">0</span>
+
+            <span class="k">if</span> <span class="n">numerical_feats</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">numerical_feat_dim</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">text_out_dim</span><span class="p">:</span>
+                    <span class="n">numerical_feats</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_layer</span><span class="p">(</span><span class="n">numerical_feats</span><span class="p">)</span>
+                <span class="n">g_num</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dropout_num</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">act_func</span><span class="p">(</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">g_num_layer</span><span class="p">(</span>
+                            <span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">([</span><span class="n">text_feats</span><span class="p">,</span> <span class="n">numerical_feats</span><span class="p">],</span> <span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+                        <span class="p">)</span>
+                    <span class="p">)</span>
+                <span class="p">)</span>
+                <span class="n">g_mult_num</span> <span class="o">=</span> <span class="n">g_num</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">h_num_layer</span><span class="p">(</span><span class="n">numerical_feats</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">g_mult_num</span> <span class="o">=</span> <span class="mi">0</span>
+
+            <span class="n">H</span> <span class="o">=</span> <span class="n">g_mult_cat</span> <span class="o">+</span> <span class="n">g_mult_num</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">h_bias</span>
+            <span class="n">norm</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">text_feats</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="n">torch</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">H</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+            <span class="n">alpha</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">clamp</span><span class="p">(</span><span class="n">norm</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">tabular_config</span><span class="o">.</span><span class="n">gating_beta</span><span class="p">,</span> <span class="nb">min</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="nb">max</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+            <span class="n">combined_feats</span> <span class="o">=</span> <span class="n">text_feats</span> <span class="o">+</span> <span class="n">alpha</span><span class="p">[:,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">*</span> <span class="n">H</span>
+
+        <span class="k">return</span> <span class="n">combined_feats</span></div>
+
+
+    <span class="k">def</span> <span class="nf">__reset_parameters</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">glorot</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">weight_a</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;weight_cat&quot;</span><span class="p">):</span>
+            <span class="n">glorot</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">weight_cat</span><span class="p">)</span>
+            <span class="n">zeros</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">bias_cat</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;weight_num&quot;</span><span class="p">):</span>
+            <span class="n">glorot</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">weight_num</span><span class="p">)</span>
+            <span class="n">zeros</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">bias_num</span><span class="p">)</span>
+        <span class="n">glorot</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">weight_transformer</span><span class="p">)</span>
+        <span class="n">zeros</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">bias_transformer</span><span class="p">)</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2020, Ken Gu.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
