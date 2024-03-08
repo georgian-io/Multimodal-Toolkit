@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Combine Methods &mdash; Multimodal Transformers  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=19f00094" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+        <script src="../_static/doctools.js?v=888ff710"></script>
+        <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Colab Example" href="colab_example.html" />
+    <link rel="prev" title="Introduction by Example" href="introduction.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            Multimodal Transformers
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Notes</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction by Example</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Combine Methods</a></li>
+<li class="toctree-l1"><a class="reference internal" href="colab_example.html">Colab Example</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Package Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../modules/model.html">multimodal_transformers.model</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../modules/data.html">multimodal_transformers.data</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Multimodal Transformers</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Combine Methods</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/notes/combine_methods.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="combine-methods">
+<h1>Combine Methods<a class="headerlink" href="#combine-methods" title="Link to this heading"></a></h1>
+<p>This page explains the methods that are supported by <code class="docutils literal notranslate"><span class="pre">multimodal_transformers.tabular_combiner.TabularFeatCombiner</span></code>.
+See the table for details.</p>
+<p>If you have rich categorical and numerical features any of the <code class="docutils literal notranslate"><span class="pre">attention</span></code>, <code class="docutils literal notranslate"><span class="pre">gating</span></code>, or <code class="docutils literal notranslate"><span class="pre">weighted</span> <span class="pre">sum</span></code> methods are worth trying.</p>
+<p>The following describes each supported method and whether or not it requires both categorical and numerical features.</p>
+<table border="1" class="docutils">
+<thead>
+<tr>
+<th style="text-align: left;">Combine Feat Method</th>
+<th style="text-align: left;">Description</th>
+<th style="text-align: left;">requires both cat and num features</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">text_only</td>
+<td style="text-align: left;">Uses just the text columns as processed by transformer before final classifier layer(s). Essentially equivalent to HuggingFace's <code>ForSequenceClassification</code> models</td>
+<td style="text-align: left;">False</td>
+</tr>
+<tr>
+<td style="text-align: left;">concat</td>
+<td style="text-align: left;">Concatenate transformer output, numerical feats, and categorical feats all at once before final classifier layer(s)</td>
+<td style="text-align: left;">False</td>
+</tr>
+<tr>
+<td style="text-align: left;">mlp_on_categorical_then_concat</td>
+<td style="text-align: left;">MLP on categorical feats then concat transformer output, numerical feats, and processed categorical feats before final classifier layer(s)</td>
+<td style="text-align: left;">False (Requires cat feats)</td>
+</tr>
+<tr>
+<td style="text-align: left;">individual_mlps_on_cat_and_numerical_feats_then_concat</td>
+<td style="text-align: left;">Separate MLPs on categorical feats and numerical feats then concatenation of transformer output, with processed numerical feats, and processed categorical feats before final classifier layer(s).</td>
+<td style="text-align: left;">False</td>
+</tr>
+<tr>
+<td style="text-align: left;">mlp_on_concatenated_cat_and_numerical_feats_then_concat</td>
+<td style="text-align: left;">MLP on concatenated categorical and numerical feat then concatenated with transformer output before final classifier layer(s)</td>
+<td style="text-align: left;">True</td>
+</tr>
+<tr>
+<td style="text-align: left;">attention_on_cat_and_numerical_feats</td>
+<td style="text-align: left;">Attention based summation of transformer outputs, numerical feats, and categorical feats queried by transformer outputs before final classifier layer(s).</td>
+<td style="text-align: left;">False</td>
+</tr>
+<tr>
+<td style="text-align: left;">gating_on_cat_and_num_feats_then_sum</td>
+<td style="text-align: left;">Gated summation of transformer outputs, numerical feats, and categorical feats before final classifier layer(s). Inspired by <a href="https://www.aclweb.org/anthology/2020.acl-main.214.pdf">Integrating Multimodal Information in Large Pretrained Transformers</a> which performs the mechanism for each token.</td>
+<td style="text-align: left;">False</td>
+</tr>
+<tr>
+<td style="text-align: left;">weighted_feature_sum_on_transformer_cat_and_numerical_feats</td>
+<td style="text-align: left;">Learnable weighted feature-wise sum of transformer outputs, numerical feats and categorical feats for each feature dimension before final classifier layer(s)</td>
+<td style="text-align: left;">False</td>
+</tr>
+</tbody>
+</table><p>This table shows the the equations involved with each method. First we define some notations:</p>
+<ul class="simple">
+<li><p><img alt="m" src="https://latex.codecogs.com/svg.latex?%5Cinline%20%5Cmathbf%7Bm%7D" />    denotes the combined multimodal features</p></li>
+<li><p><img alt="x" src="https://latex.codecogs.com/svg.latex?%5Cinline%20%5Cmathbf%7Bx%7D" />    denotes the output text features from the transformer</p></li>
+<li><p><img alt="c" src="https://latex.codecogs.com/svg.latex?%5Cinline%20%5Cmathbf%7Bc%7D" />    denotes the categorical features</p></li>
+<li><p><img alt="n" src="https://latex.codecogs.com/svg.latex?%5Cinline%20%5Cmathbf%7Bn%7D" />    denotes the numerical features</p></li>
+<li><p><img alt="h_theta" src="https://latex.codecogs.com/svg.latex?%5Cinline%20h_%7B%5Cmathbf%7B%5CTheta%7D%7D" /> denotes a MLP parameterized by <img alt="theta" src="https://latex.codecogs.com/svg.latex?%5Cinline%20%5Cmathbf%7B%5CTheta%7D" /></p></li>
+<li><p><img alt="W" src="https://latex.codecogs.com/svg.latex?%5Cmathbf%7BW%7D" />   denotes a weight matrix</p></li>
+<li><p><img alt="b" src="https://latex.codecogs.com/svg.latex?b" />    denotes a scalar bias</p></li>
+</ul>
+<table border="1" class="docutils">
+<thead>
+<tr>
+<th style="text-align: left;">Combine Feat Method</th>
+<th style="text-align: left;">Equation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">text_only</td>
+<td style="text-align: left;"><img alt="equation" src="https://latex.codecogs.com/svg.latex?%5Cmathbf%7Bm%7D%20%3D%20%5Cmathbf%7Bx%7D" /></td>
+</tr>
+<tr>
+<td style="text-align: left;">concat</td>
+<td style="text-align: left;"><img alt="equation" src="https://latex.codecogs.com/svg.latex?%5Cmathbf%7Bm%7D%20%3D%20%5Cmathbf%7Bx%7D%20%5C%2C%20%5CVert%20%5C%2C%20%5Cmathbf%7Bc%7D%20%5C%2C%20%5CVert%20%5C%2C%20%5Cmathbf%7Bn%7D" /></td>
+</tr>
+<tr>
+<td style="text-align: left;">mlp_on_categorical_then_concat</td>
+<td style="text-align: left;"><img alt="equation" src="https://latex.codecogs.com/svg.latex?%5Cmathbf%7Bm%7D%20%3D%20%5Cmathbf%7Bx%7D%20%5C%2C%20%5CVert%20%5C%2C%20h_%7B%5Cmathbf%7B%5CTheta%7D%7D%28%20%5Cmathbf%7Bc%7D%29%20%5C%2C%20%5CVert%20%5C%2C%20%5Cmathbf%7Bn%7D" /></td>
+</tr>
+<tr>
+<td style="text-align: left;">individual_mlps_on_cat_and_<br>numerical_feats_then_concat</td>
+<td style="text-align: left;"><img alt="equation" src="https://latex.codecogs.com/svg.latex?%5Cmathbf%7Bm%7D%20%3D%20%5Cmathbf%7Bx%7D%20%5C%2C%20%5CVert%20%5C%2C%20h_%7B%5Cmathbf%7B%5CTheta_c%7D%7D%28%20%5Cmathbf%7Bc%7D%29%20%5C%2C%20%5CVert%20%5C%2C%20h_%7B%5Cmathbf%7B%5CTheta_n%7D%7D%28%5Cmathbf%7Bn%7D%29" /></td>
+</tr>
+<tr>
+<td style="text-align: left;">mlp_on_concatenated_cat_and_<br>numerical_feats_then_concat</td>
+<td style="text-align: left;"><img alt="equation" src="https://latex.codecogs.com/svg.latex?%5Cmathbf%7Bm%7D%20%3D%20%5Cmathbf%7Bx%7D%20%5C%2C%20%5CVert%20%5C%2C%20h_%7B%5Cmathbf%7B%5CTheta%7D%7D%28%20%5Cmathbf%7Bc%7D%20%5C%2C%20%5CVert%20%5C%2C%20%5Cmathbf%7Bn%7D%29" /></td>
+</tr>
+<tr>
+<td style="text-align: left;">attention_on_cat_and_numerical_feats</td>
+<td style="text-align: left;"><img alt="equation" src="https://latex.codecogs.com/svg.latex?%5Cmathbf%7Bm%7D%20%3D%20%5Calpha_%7Bx%2Cx%7D%5Cmathbf%7BW%7D_x%5Cmathbf%7Bx%7D%20&plus;%20%5Calpha_%7Bx%2Cc%7D%5Cmathbf%7BW%7D_c%5Cmathbf%7Bc%7D%20&plus;%20%5Calpha_%7Bx%2Cn%7D%5Cmathbf%7BW%7D_n%5Cmathbf%7Bn%7D" /> <br><br> where <br><br> <img alt="equation" src="https://latex.codecogs.com/svg.latex?%5Calpha_%7Bi%2Cj%7D%20%3D%20%5Cfrac%7B%20%5Cexp%5Cleft%28%5Cmathrm%7BLeakyReLU%7D%5Cleft%28%5Cmathbf%7Ba%7D%5E%7B%5Ctop%7D%20%5B%5Cmathbf%7BW%7D_i%5Cmathbf%7Bx%7D_i%20%5C%2C%20%5CVert%20%5C%2C%20%5Cmathbf%7BW%7D_j%5Cmathbf%7Bx%7D_j%5D%20%5Cright%29%5Cright%29%7D%20%7B%5Csum_%7Bk%20%5Cin%20%5C%7B%20x%2C%20c%2C%20n%20%5C%7D%7D%20%5Cexp%5Cleft%28%5Cmathrm%7BLeakyReLU%7D%5Cleft%28%5Cmathbf%7Ba%7D%5E%7B%5Ctop%7D%20%5B%5Cmathbf%7BW%7D_i%5Cmathbf%7Bx%7D_i%20%5C%2C%20%5CVert%20%5C%2C%20%5Cmathbf%7BW%7D_k%5Cmathbf%7Bx%7D_k%5D%20%5Cright%29%5Cright%29%7D." /></td>
+</tr>
+<tr>
+<td style="text-align: left;">gating_on_cat_and_num_feats_<br>then_sum</td>
+<td style="text-align: left;"><img alt="equation" src="https://latex.codecogs.com/svg.latex?%5Cmathbf%7Bm%7D%3D%20%5Cmathbf%7Bx%7D%20&plus;%20%5Calpha%5Cmathbf%7Bh%7D" /> <br><br> <img alt="equation" src="https://latex.codecogs.com/svg.latex?%5Cmathbf%7Bh%7D%20%3D%20%5Cmathbf%7Bg_c%7D%20%5Codot%20%28%5Cmathbf%7BW%7D_c%5Cmathbf%7Bc%7D%29%20&plus;%20%5Cmathbf%7Bg_n%7D%20%5Codot%20%28%5Cmathbf%7BW%7D_n%5Cmathbf%7Bn%7D%29%20&plus;%20b_h" /> <br><br> <img alt="equation" src="https://latex.codecogs.com/svg.latex?%5Calpha%20%3D%20%5Cmathrm%7Bmin%7D%28%20%5Cfrac%7B%5C%7C%20%5Cmathbf%7Bx%7D%20%5C%7C_2%7D%7B%5C%7C%20%5Cmathbf%7Bh%7D%20%5C%7C_2%7D*%5Cbeta%2C%201%29" /> <br><br> <img alt="equation" src="https://latex.codecogs.com/svg.latex?%5Cmathbf%7Bg%7D_i%20%3D%20R%28%5Cmathbf%7BW%7D_%7Bgi%7D%5B%5Cmathbf%7Bi%7D%20%5C%2C%20%5CVert%20%5C%2C%20%5Cmathbf%7Bx%7D%5D&plus;%20b_i%29" /> <br><br> where <img alt="equation" src="https://latex.codecogs.com/svg.latex?%5Cbeta" /> is a hyperparameter and  <img alt="equation" src="https://latex.codecogs.com/svg.latex?R" /> is an activation function</td>
+</tr>
+<tr>
+<td style="text-align: left;">weighted_feature_sum_on_transformer_<br>cat_and_numerical_feats</td>
+<td style="text-align: left;"><img alt="equation" src="https://latex.codecogs.com/svg.latex?%5Cmathbf%7Bm%7D%20%3D%20%5Cmathbf%7Bx%7D%20&plus;%20%5Cmathbf%7BW%7D_%7Bc%27%7D%20%5Codot%20%5Cmathbf%7BW%7D_c%20%5Cmathbf%7Bc%7D%20&plus;%20%5Cmathbf%7BW%7D_%7Bn%27%7D%20%5Codot%20%5Cmathbf%7BW%7D_n%20%5Cmathbf%7Bn%7D" /></td>
+</tr>
+</tbody>
+</table></section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="introduction.html" class="btn btn-neutral float-left" title="Introduction by Example" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="colab_example.html" class="btn btn-neutral float-right" title="Colab Example" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2020, Ken Gu.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
