@@ -18,8 +18,6 @@ class TorchTabularTextDataset(TorchDataset):
             An array containing the preprocessed numerical features
         labels (:class: list` or `numpy.ndarray`, `optional`, defaults to :obj:`None`):
             The labels of the training examples
-        class_weights (:class:`numpy.ndarray`, of shape (n_classes),  `optional`, defaults to :obj:`None`):
-            Class weights used for cross entropy loss for classification
         df (:class:`pandas.DataFrame`, `optional`, defaults to :obj:`None`):
             Model configuration class with all the parameters of the model.
             This object must also have a tabular_config member variable that is a
@@ -35,14 +33,12 @@ class TorchTabularTextDataset(TorchDataset):
         labels=None,
         df=None,
         label_list=None,
-        class_weights=None,
     ):
         self.df = df
         self.encodings = encodings
         self.cat_feats = categorical_feats
         self.numerical_feats = numerical_feats
         self.labels = labels
-        self.class_weights = class_weights
         self.label_list = (
             label_list
             if label_list is not None
@@ -67,7 +63,7 @@ class TorchTabularTextDataset(TorchDataset):
         return item
 
     def __len__(self):
-        return len(self.labels)
+        return len(self.encodings["input_ids"])
 
     def get_labels(self):
         """returns the label names for classification"""

@@ -10,7 +10,7 @@ from transformers import (
     RobertaConfig,
     XLNetConfig,
     XLMConfig,
-    XLMRobertaConfig
+    XLMRobertaConfig,
 )
 
 from .tabular_transformers import (
@@ -21,7 +21,7 @@ from .tabular_transformers import (
     AlbertWithTabular,
     XLNetWithTabular,
     XLMWithTabular,
-    XLMRobertaWithTabular
+    XLMRobertaWithTabular,
 )
 
 
@@ -34,7 +34,7 @@ MODEL_FOR_SEQUENCE_W_TABULAR_CLASSIFICATION_MAPPING = OrderedDict(
         (AlbertConfig, AlbertWithTabular),
         (XLNetConfig, XLNetWithTabular),
         (XLMConfig, XLMWithTabular),
-        (XLMRobertaConfig, XLMRobertaWithTabular)
+        (XLMRobertaConfig, XLMRobertaWithTabular),
     ]
 )
 

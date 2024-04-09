@@ -252,7 +252,7 @@ def load_train_val_test_helper(
 ):
     if categorical_encode_type == "ohe" or categorical_encode_type == "binary":
         dfs = [df for df in [train_df, val_df, test_df] if df is not None]
-        data_df = pd.concat(dfs, axis=0)
+        data_df = pd.concat(dfs, axis=0).reset_index(drop=False)
         cat_feat_processor = CategoricalFeatures(
             data_df, categorical_cols, categorical_encode_type
         )
@@ -352,7 +352,7 @@ def load_data(
     data_df,
     text_cols,
     tokenizer,
-    label_col,
+    label_col=None,
     label_list=None,
     categorical_cols=None,
     numerical_cols=None,
@@ -434,7 +434,10 @@ def load_data(
         tokenizer.convert_ids_to_tokens(hf_model_text_input["input_ids"][0])
     )
     logger.debug(f"Tokenized text example: {tokenized_text_ex}")
-    labels = data_df[label_col].values
+    if label_col:
+        labels = data_df[label_col].values
+    else:
+        labels = None
 
     return TorchTabularTextDataset(
         hf_model_text_input,

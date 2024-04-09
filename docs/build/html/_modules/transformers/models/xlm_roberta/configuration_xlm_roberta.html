@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>transformers.models.xlm_roberta.configuration_xlm_roberta &mdash; Multimodal Transformers  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=19f00094" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../../../_static/documentation_options.js?v=5929fcd5"></script>
+        <script src="../../../../_static/doctools.js?v=888ff710"></script>
+        <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../index.html" class="icon icon-home">
+            Multimodal Transformers
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Notes</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../notes/installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../notes/introduction.html">Introduction by Example</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../notes/combine_methods.html">Combine Methods</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../notes/colab_example.html">Colab Example</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Package Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../modules/model.html">multimodal_transformers.model</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../modules/data.html">multimodal_transformers.data</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">Multimodal Transformers</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">transformers.models.xlm_roberta.configuration_xlm_roberta</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for transformers.models.xlm_roberta.configuration_xlm_roberta</h1><div class="highlight"><pre>
+<span></span><span class="c1"># coding=utf-8</span>
+<span class="c1"># Copyright 2018 The Google AI Language Team Authors and The HuggingFace Inc. team.</span>
+<span class="c1"># Copyright (c) 2018, NVIDIA CORPORATION.  All rights reserved.</span>
+<span class="c1">#</span>
+<span class="c1"># Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
+<span class="c1"># you may not use this file except in compliance with the License.</span>
+<span class="c1"># You may obtain a copy of the License at</span>
+<span class="c1">#</span>
+<span class="c1">#     http://www.apache.org/licenses/LICENSE-2.0</span>
+<span class="c1">#</span>
+<span class="c1"># Unless required by applicable law or agreed to in writing, software</span>
+<span class="c1"># distributed under the License is distributed on an &quot;AS IS&quot; BASIS,</span>
+<span class="c1"># WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</span>
+<span class="c1"># See the License for the specific language governing permissions and</span>
+<span class="c1"># limitations under the License.</span>
+<span class="sd">&quot;&quot;&quot; XLM-RoBERTa configuration&quot;&quot;&quot;</span>
+<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">OrderedDict</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Mapping</span>
+
+<span class="kn">from</span> <span class="nn">...configuration_utils</span> <span class="kn">import</span> <span class="n">PretrainedConfig</span>
+<span class="kn">from</span> <span class="nn">...onnx</span> <span class="kn">import</span> <span class="n">OnnxConfig</span>
+<span class="kn">from</span> <span class="nn">...utils</span> <span class="kn">import</span> <span class="n">logging</span>
+
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">get_logger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+<span class="n">XLM_ROBERTA_PRETRAINED_CONFIG_ARCHIVE_MAP</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;xlm-roberta-base&quot;</span><span class="p">:</span> <span class="s2">&quot;https://huggingface.co/xlm-roberta-base/resolve/main/config.json&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;xlm-roberta-large&quot;</span><span class="p">:</span> <span class="s2">&quot;https://huggingface.co/xlm-roberta-large/resolve/main/config.json&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;xlm-roberta-large-finetuned-conll02-dutch&quot;</span><span class="p">:</span> <span class="p">(</span>
+        <span class="s2">&quot;https://huggingface.co/xlm-roberta-large-finetuned-conll02-dutch/resolve/main/config.json&quot;</span>
+    <span class="p">),</span>
+    <span class="s2">&quot;xlm-roberta-large-finetuned-conll02-spanish&quot;</span><span class="p">:</span> <span class="p">(</span>
+        <span class="s2">&quot;https://huggingface.co/xlm-roberta-large-finetuned-conll02-spanish/resolve/main/config.json&quot;</span>
+    <span class="p">),</span>
+    <span class="s2">&quot;xlm-roberta-large-finetuned-conll03-english&quot;</span><span class="p">:</span> <span class="p">(</span>
+        <span class="s2">&quot;https://huggingface.co/xlm-roberta-large-finetuned-conll03-english/resolve/main/config.json&quot;</span>
+    <span class="p">),</span>
+    <span class="s2">&quot;xlm-roberta-large-finetuned-conll03-german&quot;</span><span class="p">:</span> <span class="p">(</span>
+        <span class="s2">&quot;https://huggingface.co/xlm-roberta-large-finetuned-conll03-german/resolve/main/config.json&quot;</span>
+    <span class="p">),</span>
+<span class="p">}</span>
+
+
+<span class="k">class</span> <span class="nc">XLMRobertaConfig</span><span class="p">(</span><span class="n">PretrainedConfig</span><span class="p">):</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This is the configuration class to store the configuration of a [`XLMRobertaModel`] or a [`TFXLMRobertaModel`]. It</span>
+<span class="sd">    is used to instantiate a XLM-RoBERTa model according to the specified arguments, defining the model architecture.</span>
+<span class="sd">    Instantiating a configuration with the defaults will yield a similar configuration to that of the XLMRoBERTa</span>
+<span class="sd">    [xlm-roberta-base](https://huggingface.co/xlm-roberta-base) architecture.</span>
+
+<span class="sd">    Configuration objects inherit from [`PretrainedConfig`] and can be used to control the model outputs. Read the</span>
+<span class="sd">    documentation from [`PretrainedConfig`] for more information.</span>
+
+
+<span class="sd">    Args:</span>
+<span class="sd">        vocab_size (`int`, *optional*, defaults to 30522):</span>
+<span class="sd">            Vocabulary size of the XLM-RoBERTa model. Defines the number of different tokens that can be represented by</span>
+<span class="sd">            the `inputs_ids` passed when calling [`XLMRobertaModel`] or [`TFXLMRobertaModel`].</span>
+<span class="sd">        hidden_size (`int`, *optional*, defaults to 768):</span>
+<span class="sd">            Dimensionality of the encoder layers and the pooler layer.</span>
+<span class="sd">        num_hidden_layers (`int`, *optional*, defaults to 12):</span>
+<span class="sd">            Number of hidden layers in the Transformer encoder.</span>
+<span class="sd">        num_attention_heads (`int`, *optional*, defaults to 12):</span>
+<span class="sd">            Number of attention heads for each attention layer in the Transformer encoder.</span>
+<span class="sd">        intermediate_size (`int`, *optional*, defaults to 3072):</span>
+<span class="sd">            Dimensionality of the &quot;intermediate&quot; (often named feed-forward) layer in the Transformer encoder.</span>
+<span class="sd">        hidden_act (`str` or `Callable`, *optional*, defaults to `&quot;gelu&quot;`):</span>
+<span class="sd">            The non-linear activation function (function or string) in the encoder and pooler. If string, `&quot;gelu&quot;`,</span>
+<span class="sd">            `&quot;relu&quot;`, `&quot;silu&quot;` and `&quot;gelu_new&quot;` are supported.</span>
+<span class="sd">        hidden_dropout_prob (`float`, *optional*, defaults to 0.1):</span>
+<span class="sd">            The dropout probability for all fully connected layers in the embeddings, encoder, and pooler.</span>
+<span class="sd">        attention_probs_dropout_prob (`float`, *optional*, defaults to 0.1):</span>
+<span class="sd">            The dropout ratio for the attention probabilities.</span>
+<span class="sd">        max_position_embeddings (`int`, *optional*, defaults to 512):</span>
+<span class="sd">            The maximum sequence length that this model might ever be used with. Typically set this to something large</span>
+<span class="sd">            just in case (e.g., 512 or 1024 or 2048).</span>
+<span class="sd">        type_vocab_size (`int`, *optional*, defaults to 2):</span>
+<span class="sd">            The vocabulary size of the `token_type_ids` passed when calling [`XLMRobertaModel`] or</span>
+<span class="sd">            [`TFXLMRobertaModel`].</span>
+<span class="sd">        initializer_range (`float`, *optional*, defaults to 0.02):</span>
+<span class="sd">            The standard deviation of the truncated_normal_initializer for initializing all weight matrices.</span>
+<span class="sd">        layer_norm_eps (`float`, *optional*, defaults to 1e-12):</span>
+<span class="sd">            The epsilon used by the layer normalization layers.</span>
+<span class="sd">        position_embedding_type (`str`, *optional*, defaults to `&quot;absolute&quot;`):</span>
+<span class="sd">            Type of position embedding. Choose one of `&quot;absolute&quot;`, `&quot;relative_key&quot;`, `&quot;relative_key_query&quot;`. For</span>
+<span class="sd">            positional embeddings use `&quot;absolute&quot;`. For more information on `&quot;relative_key&quot;`, please refer to</span>
+<span class="sd">            [Self-Attention with Relative Position Representations (Shaw et al.)](https://arxiv.org/abs/1803.02155).</span>
+<span class="sd">            For more information on `&quot;relative_key_query&quot;`, please refer to *Method 4* in [Improve Transformer Models</span>
+<span class="sd">            with Better Relative Position Embeddings (Huang et al.)](https://arxiv.org/abs/2009.13658).</span>
+<span class="sd">        is_decoder (`bool`, *optional*, defaults to `False`):</span>
+<span class="sd">            Whether the model is used as a decoder or not. If `False`, the model is used as an encoder.</span>
+<span class="sd">        use_cache (`bool`, *optional*, defaults to `True`):</span>
+<span class="sd">            Whether or not the model should return the last key/values attentions (not used by all models). Only</span>
+<span class="sd">            relevant if `config.is_decoder=True`.</span>
+<span class="sd">        classifier_dropout (`float`, *optional*):</span>
+<span class="sd">            The dropout ratio for the classification head.</span>
+
+<span class="sd">    Examples:</span>
+
+<span class="sd">    ```python</span>
+<span class="sd">    &gt;&gt;&gt; from transformers import XLMRobertaConfig, XLMRobertaModel</span>
+
+<span class="sd">    &gt;&gt;&gt; # Initializing a XLM-RoBERTa xlm-roberta-base style configuration</span>
+<span class="sd">    &gt;&gt;&gt; configuration = XLMRobertaConfig()</span>
+
+<span class="sd">    &gt;&gt;&gt; # Initializing a model (with random weights) from the xlm-roberta-base style configuration</span>
+<span class="sd">    &gt;&gt;&gt; model = XLMRobertaModel(configuration)</span>
+
+<span class="sd">    &gt;&gt;&gt; # Accessing the model configuration</span>
+<span class="sd">    &gt;&gt;&gt; configuration = model.config</span>
+<span class="sd">    ```&quot;&quot;&quot;</span>
+    <span class="n">model_type</span> <span class="o">=</span> <span class="s2">&quot;xlm-roberta&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">vocab_size</span><span class="o">=</span><span class="mi">30522</span><span class="p">,</span>
+        <span class="n">hidden_size</span><span class="o">=</span><span class="mi">768</span><span class="p">,</span>
+        <span class="n">num_hidden_layers</span><span class="o">=</span><span class="mi">12</span><span class="p">,</span>
+        <span class="n">num_attention_heads</span><span class="o">=</span><span class="mi">12</span><span class="p">,</span>
+        <span class="n">intermediate_size</span><span class="o">=</span><span class="mi">3072</span><span class="p">,</span>
+        <span class="n">hidden_act</span><span class="o">=</span><span class="s2">&quot;gelu&quot;</span><span class="p">,</span>
+        <span class="n">hidden_dropout_prob</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span>
+        <span class="n">attention_probs_dropout_prob</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span>
+        <span class="n">max_position_embeddings</span><span class="o">=</span><span class="mi">512</span><span class="p">,</span>
+        <span class="n">type_vocab_size</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+        <span class="n">initializer_range</span><span class="o">=</span><span class="mf">0.02</span><span class="p">,</span>
+        <span class="n">layer_norm_eps</span><span class="o">=</span><span class="mf">1e-12</span><span class="p">,</span>
+        <span class="n">pad_token_id</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+        <span class="n">bos_token_id</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+        <span class="n">eos_token_id</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+        <span class="n">position_embedding_type</span><span class="o">=</span><span class="s2">&quot;absolute&quot;</span><span class="p">,</span>
+        <span class="n">use_cache</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">classifier_dropout</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">pad_token_id</span><span class="o">=</span><span class="n">pad_token_id</span><span class="p">,</span> <span class="n">bos_token_id</span><span class="o">=</span><span class="n">bos_token_id</span><span class="p">,</span> <span class="n">eos_token_id</span><span class="o">=</span><span class="n">eos_token_id</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">vocab_size</span> <span class="o">=</span> <span class="n">vocab_size</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">hidden_size</span> <span class="o">=</span> <span class="n">hidden_size</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">num_hidden_layers</span> <span class="o">=</span> <span class="n">num_hidden_layers</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">num_attention_heads</span> <span class="o">=</span> <span class="n">num_attention_heads</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">hidden_act</span> <span class="o">=</span> <span class="n">hidden_act</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">intermediate_size</span> <span class="o">=</span> <span class="n">intermediate_size</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">hidden_dropout_prob</span> <span class="o">=</span> <span class="n">hidden_dropout_prob</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">attention_probs_dropout_prob</span> <span class="o">=</span> <span class="n">attention_probs_dropout_prob</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">max_position_embeddings</span> <span class="o">=</span> <span class="n">max_position_embeddings</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">type_vocab_size</span> <span class="o">=</span> <span class="n">type_vocab_size</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">initializer_range</span> <span class="o">=</span> <span class="n">initializer_range</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">layer_norm_eps</span> <span class="o">=</span> <span class="n">layer_norm_eps</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">position_embedding_type</span> <span class="o">=</span> <span class="n">position_embedding_type</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">use_cache</span> <span class="o">=</span> <span class="n">use_cache</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">classifier_dropout</span> <span class="o">=</span> <span class="n">classifier_dropout</span>
+
+
+<span class="c1"># Copied from transformers.models.roberta.configuration_roberta.RobertaOnnxConfig with Roberta-&gt;XLMRoberta</span>
+<span class="k">class</span> <span class="nc">XLMRobertaOnnxConfig</span><span class="p">(</span><span class="n">OnnxConfig</span><span class="p">):</span>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">inputs</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">task</span> <span class="o">==</span> <span class="s2">&quot;multiple-choice&quot;</span><span class="p">:</span>
+            <span class="n">dynamic_axis</span> <span class="o">=</span> <span class="p">{</span><span class="mi">0</span><span class="p">:</span> <span class="s2">&quot;batch&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">:</span> <span class="s2">&quot;choice&quot;</span><span class="p">,</span> <span class="mi">2</span><span class="p">:</span> <span class="s2">&quot;sequence&quot;</span><span class="p">}</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">dynamic_axis</span> <span class="o">=</span> <span class="p">{</span><span class="mi">0</span><span class="p">:</span> <span class="s2">&quot;batch&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">:</span> <span class="s2">&quot;sequence&quot;</span><span class="p">}</span>
+        <span class="k">return</span> <span class="n">OrderedDict</span><span class="p">(</span>
+            <span class="p">[</span>
+                <span class="p">(</span><span class="s2">&quot;input_ids&quot;</span><span class="p">,</span> <span class="n">dynamic_axis</span><span class="p">),</span>
+                <span class="p">(</span><span class="s2">&quot;attention_mask&quot;</span><span class="p">,</span> <span class="n">dynamic_axis</span><span class="p">),</span>
+            <span class="p">]</span>
+        <span class="p">)</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2020, Ken Gu.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
