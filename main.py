@@ -1,6 +1,10 @@
 import logging
 import os
-# os.environ['CUDA_VISIBLE_DEVICES'] = '1'
+
+# os.environ["WANDB_MODE"] = "offline"
+os.environ["HTTP_PROXY"] = "192.168.11.227:7890"
+os.environ["HTTPS_PROXY"] = "192.168.11.227:7890"
+os.environ['CUDA_VISIBLE_DEVICES'] = '1'
 
 from statistics import mean, stdev
 import sys
@@ -53,10 +57,19 @@ if use_sweep:
             "learning_rate": {"max": 0.1, "min": 0.000001},
             "hidden_dropout": {"max": 0.5, "min": 0.0},
             "mlp_dropout": {"max": 0.5, "min": 0.0},
-            "epoch": {"max": 30, "min": 5}
+            "epoch": {"max": 100, "min": 5},
+            # "batch_size": {"values": [16, 32, 64, 128]},
+            "freeze_encoder": {"values": [True, False]},
+            "freeze_all_but_one": {"values": [True, False]},
+            "base_model": {"values": [
+                "/home/ShareFolder/models/rxnfp-ee-pretrain-no_opt/",
+                "/home/ShareFolder/models/rxnfp-20231207-no_opt/",
+                "/home/ShareFolder/models/bert_pretrained/",
+                "/home/ShareFolder/models/base_BERT_model/",
+            ]}
         },
     }
-    sweep_id = wandb.sweep(sweep=sweep_configuration, project="SMILES+DFT-sweep-20231220")
+    sweep_id = wandb.sweep(sweep=sweep_configuration, project="SMILES+subs_lig_DFT")
 
 def main():
     if use_sweep:
@@ -78,6 +91,12 @@ def main():
         data_args.mlp_dropout = wandb.config.mlp_dropout
         training_args.learning_rate = wandb.config.learning_rate
         training_args.num_train_epochs = wandb.config.epoch
+        model_args.model_name_or_path = wandb.config.base_model
+        model_args.tokenizer_name = wandb.config.base_model
+        training_args.freeze_encoder = wandb.config.freeze_encoder
+        training_args.freeze_all_but_one = wandb.config.freeze_all_but_one
+        # training_args.train_batch_size = wandb.config.batch_size
+        # training_args.eval_batch_size = wandb.config.batch_size
 
     if (
         os.path.exists(training_args.output_dir)
@@ -115,7 +134,10 @@ def main():
     #     cache_dir=model_args.cache_dir,
     # )
 
-    tokenizer = SmilesTokenizer("/home/ShareFolder/models/rxnfp-20231207/vocab.txt", do_lower_case=False)
+    if use_sweep and wandb.config.base_model == "/home/ShareFolder/models/bert_pretrained/":
+        tokenizer = SmilesTokenizer("/home/ShareFolder/models/bert_pretrained/vocab.txt", do_lower_case=False)
+    else:
+        tokenizer = SmilesTokenizer("/home/ShareFolder/models/rxnfp-ee-pretrain/vocab.txt", do_lower_case=False)
 
     if not data_args.create_folds:
         train_dataset, val_dataset, test_dataset = load_data_from_folder(
@@ -285,6 +307,7 @@ def main():
             logging.info("*** Test ***")
 
             predictions = trainer.predict(test_dataset=test_dataset).predictions[0]
+            print(list(predictions.squeeze()))
             output_test_file = os.path.join(
                 training_args.output_dir, f"test_results_{task}_fold_{i+1}.txt"
             )
@@ -309,11 +332,15 @@ def main():
                     training_args.output_dir,
                     f"test_metric_results_{task}_fold_{i+1}.txt",
                 )
+                test_metric = {}
                 with open(output_test_file, "w") as writer:
                     logger.info("***** Test results {} *****".format(task))
                     for key, value in eval_result.items():
+                        test_metric[key.replace("eval", "test")] = value
                         logger.info("  %s = %s", key, value)
                         writer.write("%s = %s\n" % (key, value))
+                if use_sweep:
+                    wandb.log(test_metric)
                 eval_results.update(eval_result)
         del model
         del config

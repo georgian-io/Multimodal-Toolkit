@@ -238,7 +238,7 @@ class OurTrainingArguments(TrainingArguments):
     )
 
     freeze_encoder: bool = field(
-        default=True, metadata={"help": "Whether to freeze the encoder"}
+        default=False, metadata={"help": "Whether to freeze the encoder"}
     )
 
     freeze_all_but_one: bool = field(
