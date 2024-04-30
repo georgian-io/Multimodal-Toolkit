@@ -24,17 +24,18 @@ __version__ = get_version("multimodal_transformers/__init__.py")
 url = "https://github.com/georgianpartners/Multimodal-Toolkit"
 
 install_requires = [
-    "transformers>=4.40.1",
     "accelerate>=0.29.3",
-    "torch>=2.0.1",
-    "sacremoses~=0.0.53",
+    "importlib-metadata~=7.1.0",
     "networkx~=2.6.3",
+    "numpy~=1.26.4",
+    "pandas~=2.2.2",
+    "pytest~=7.2.2",
+    "sacremoses~=0.0.53",
     "scikit-learn~=1.4.2",
     "scipy~=1.13.0",
-    "pandas~=2.2.2",
-    "numpy~=1.26.4",
+    "torch>=2.0.1",
     "tqdm~=4.64.1",
-    "pytest~=7.2.2",
+    "transformers>=4.40.1",
 ]
 
 setup(
