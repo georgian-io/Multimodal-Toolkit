@@ -29,11 +29,11 @@ install_requires = [
     "torch>=2.0.1",
     "sacremoses~=0.0.53",
     "networkx~=2.6.3",
-    "scikit-learn~=1.0.2",
+    "scikit-learn>=1.0.2,<1.6.0",
     "scipy~=1.11.3",
     "pandas~=1.3.5",
     "numpy~=1.26.1",
-    "tqdm~=4.64.1",
+    "tqdm>=4.64.1,<4.67.0",
     "pytest~=7.2.2",
 ]
 
