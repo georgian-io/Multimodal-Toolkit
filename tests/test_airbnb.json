@@ -15,6 +15,7 @@
     "per_device_eval_batch_size": 2,
     "eval_steps": 500,
     "data_path": "./datasets/Melbourne_Airbnb_Open_Data",
-    "column_info_path":  "./datasets/Melbourne_Airbnb_Open_Data/column_info.json"
+    "column_info_path":  "./datasets/Melbourne_Airbnb_Open_Data/column_info.json",
+    "max_token_length": 128
   }
   

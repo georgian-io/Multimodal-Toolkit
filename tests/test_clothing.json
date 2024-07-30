@@ -15,5 +15,6 @@
     "per_device_eval_batch_size": 2,
     "eval_steps": 500,
     "data_path": "./datasets/Womens_Clothing_E-Commerce_Reviews",
-    "column_info_path":  "./datasets/Womens_Clothing_E-Commerce_Reviews/column_info_all_text.json"
+    "column_info_path":  "./datasets/Womens_Clothing_E-Commerce_Reviews/column_info_all_text.json",
+    "max_token_length": 128
   }
