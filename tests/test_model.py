@@ -112,6 +112,7 @@ def test_model(json_file: str, model_string: str):
         max_token_length=training_args.max_token_length,
         debug=True,
         debug_dataset_size=DEBUG_DATASET_SIZE,
+        encoder_save_path="./tests",
     )
 
     set_seed(training_args.seed)

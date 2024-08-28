@@ -3,6 +3,7 @@ import logging
 from os.path import join, exists
 
 import pandas as pd
+import joblib
 from sklearn.model_selection import KFold, train_test_split
 from sklearn.preprocessing import PowerTransformer, QuantileTransformer
 
@@ -38,6 +39,7 @@ def load_data_into_folds(
     max_token_length=None,
     debug=False,
     debug_dataset_size=100,
+    encoder_save_path=None,
 ):
     """
     Function to load tabular and text data from a specified folder into folds
@@ -126,6 +128,7 @@ def load_data_into_folds(
             max_token_length,
             debug,
             debug_dataset_size,
+            encoder_save_path,
         )
         train_splits.append(train)
         val_splits.append(val)
@@ -150,6 +153,7 @@ def load_data_from_folder(
     max_token_length=None,
     debug=False,
     debug_dataset_size=100,
+    encoder_save_path=None,
 ):
     """
     Function to load tabular and text data from a specified folder
@@ -228,6 +232,7 @@ def load_data_from_folder(
         max_token_length,
         debug,
         debug_dataset_size,
+        encoder_save_path,
     )
 
 
@@ -249,6 +254,7 @@ def load_train_val_test_helper(
     max_token_length=None,
     debug=False,
     debug_dataset_size=100,
+    encoder_save_path=None,
 ):
     if categorical_encode_type == "ohe" or categorical_encode_type == "binary":
         dfs = [df for df in [train_df, val_df, test_df] if df is not None]
@@ -271,6 +277,8 @@ def load_train_val_test_helper(
         test_df = data_df.iloc[len_train:]
 
         categorical_encode_type = None
+    else:
+        cat_feat_processor = None
 
     if numerical_transformer_method != "none":
         if numerical_transformer_method == "yeo_johnson":
@@ -288,6 +296,18 @@ def load_train_val_test_helper(
         numerical_transformer.fit(num_feats)
     else:
         numerical_transformer = None
+
+    # Save the categorical & numerical transformer if needed
+    if encoder_save_path:
+        if numerical_transformer:
+            joblib.dump(
+                numerical_transformer,
+                join(encoder_save_path, "numerical_transformer.pkl"),
+            )
+        if cat_feat_processor:
+            joblib.dump(
+                cat_feat_processor, join(encoder_save_path, "cat_feat_processor.pkl")
+            )
 
     train_dataset = load_data(
         train_df,
