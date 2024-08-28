@@ -47,8 +47,8 @@ setup(
     description="Multimodal Extension Library for PyTorch HuggingFace Transformers",
     author="Ken Gu",
     author_email="kgu@georgianpartners.com",
-    maintainer="Akash Saravanan, Kyryl Truskovskyi",
-    maintainer_email="akash.saravanan@georgian.io, kyryl@georgian.io",
+    maintainer="Akash Saravanan",
+    maintainer_email="akash.saravanan@georgian.io",
     url=url,
     download_url="{}/archive/v_{}.tar.gz".format(url, __version__),
     keywords=[
