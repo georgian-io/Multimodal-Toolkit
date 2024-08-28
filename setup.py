@@ -31,10 +31,10 @@ install_requires = [
     "pandas~=2.2.2",
     "pytest~=7.2.2",
     "sacremoses~=0.0.53",
-    "scikit-learn~=1.4.2",
+    "scikit-learn~=1.5.1",
     "scipy~=1.13.0",
     "torch>=2.0.1",
-    "tqdm~=4.64.1",
+    "tqdm~=4.66.4",
     "transformers>=4.40.1",
 ]
 
