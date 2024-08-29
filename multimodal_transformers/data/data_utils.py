@@ -12,39 +12,37 @@ class CategoricalFeatures:
     From https://github.com/abhishekkrthakur/mlframework/blob/master/src/categorical.py
     """
 
-    def __init__(self, df, categorical_cols, encoding_type, handle_na=False):
+    def __init__(self, categorical_cols, encoding_type, handle_na=False, na_value="-9999999"):
         """
         Args:
-            df (:obj: `pd.DataFrame`): DataFrame which contains categorical features
             categorical_cols (:obj:`list` of :obj:`str`, optional):
                 the column names in the dataset that contain categorical features
             encoding_type (str): method we want to preprocess our categorical features.
                 choices: [ 'ohe', 'binary', None]
             handle_na (bool): whether to handle nan by treating them as a separate
                 categorical value
+            na_value (string): what the nan values should be converted to
         """
-        self.df = df
         self.cat_feats = categorical_cols
         self.enc_type = encoding_type
         self.handle_na = handle_na
         self.label_encoders = dict()
         self.binary_encoders = dict()
         self.ohe = None
+        self.handle_na = handle_na
+        self.na_value = na_value
 
-        if self.handle_na:
-            for c in self.cat_feats:
-                self.df.loc[:, c] = self.df.loc[:, c].astype(str).fillna("-9999999")
-        self.output_df = self.df.copy(deep=True)
-
-    def _label_encoding(self):
+    def _label_encoding(self, dataframe):
         for c in self.cat_feats:
+            if self.handle_na:
+                dataframe.loc[:, c] = dataframe.loc[:, c].astype(str).fillna(self.na_value)
             lbl = preprocessing.LabelEncoder()
-            lbl.fit(self.df[c].values)
-            self.output_df.loc[:, c] = lbl.transform(self.df[c].values)
+            lbl.fit(dataframe[c].values)
+            dataframe.loc[:, c] = lbl.transform(dataframe[c].values)
             self.label_encoders[c] = lbl
-        return self.output_df[self.cat_feats].values
+        return dataframe[self.cat_feats].values
 
-    def _label_binarization(self):
+    def _label_binarization(self, dataframe):
         vals = []
         self.feat_names = []
 
@@ -52,9 +50,9 @@ class CategoricalFeatures:
             return x.lower().replace(", ", "_").replace(" ", "_")
 
         for c in self.cat_feats:
-            self.df[c] = self.df[c].astype(str)
-            classes_orig = self.df[c].unique()
-            val = preprocessing.label_binarize(self.df[c].values, classes=classes_orig)
+            dataframe[c] = dataframe[c].astype(str)
+            classes_orig = dataframe[c].unique()
+            val = preprocessing.label_binarize(dataframe[c].values, classes=classes_orig)
             vals.append(val)
             if len(classes_orig) == 2:
                 classes = [c + "_binary"]
@@ -66,28 +64,28 @@ class CategoricalFeatures:
             self.feat_names.extend(classes)
         return np.concatenate(vals, axis=1)
 
-    def _one_hot(self):
+    def _one_hot(self, dataframe):
         ohe = preprocessing.OneHotEncoder(sparse=False)
-        ohe.fit(self.df[self.cat_feats].values)
+        ohe.fit(dataframe[self.cat_feats].values)
         self.feat_names = list(ohe.get_feature_names_out(self.cat_feats))
-        return ohe.transform(self.df[self.cat_feats].values)
+        return ohe.transform(dataframe[self.cat_feats].values)
 
-    def fit_transform(self):
+    def fit_transform(self, dataframe):
         if self.enc_type == "label":
-            return self._label_encoding()
+            return self._label_encoding(dataframe)
         elif self.enc_type == "binary":
-            return self._label_binarization()
+            return self._label_binarization(dataframe)
         elif self.enc_type == "ohe":
-            return self._one_hot()
+            return self._one_hot(dataframe)
         elif self.enc_type is None or self.enc_type == "none":
-            return self.df[self.cat_feats].values
+            return dataframe[self.cat_feats].values
         else:
             raise Exception("Encoding type not understood")
 
     def transform(self, dataframe):
         if self.handle_na:
             for c in self.cat_feats:
-                dataframe.loc[:, c] = dataframe.loc[:, c].astype(str).fillna("-9999999")
+                dataframe.loc[:, c] = dataframe.loc[:, c].astype(str).fillna(self.na_value)
 
         if self.enc_type == "label":
             for c, lbl in self.label_encoders.items():

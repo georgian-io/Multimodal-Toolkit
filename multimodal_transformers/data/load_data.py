@@ -260,9 +260,9 @@ def load_train_val_test_helper(
         dfs = [df for df in [train_df, val_df, test_df] if df is not None]
         data_df = pd.concat(dfs, axis=0).reset_index(drop=False)
         cat_feat_processor = CategoricalFeatures(
-            data_df, categorical_cols, categorical_encode_type
+            categorical_cols, categorical_encode_type
         )
-        vals = cat_feat_processor.fit_transform()
+        vals = cat_feat_processor.fit_transform(data_df)
         cat_df = pd.DataFrame(vals, columns=cat_feat_processor.feat_names)
         data_df = pd.concat([data_df, cat_df], axis=1)
         categorical_cols = cat_feat_processor.feat_names
