@@ -75,9 +75,11 @@ def main():
     )
 
     tokenizer = AutoTokenizer.from_pretrained(
-        model_args.tokenizer_name
-        if model_args.tokenizer_name
-        else model_args.model_name_or_path,
+        (
+            model_args.tokenizer_name
+            if model_args.tokenizer_name
+            else model_args.model_name_or_path
+        ),
         cache_dir=model_args.cache_dir,
     )
 
@@ -92,9 +94,11 @@ def main():
             numerical_cols=data_args.column_info["num_cols"],
             categorical_encode_type=data_args.categorical_encode_type,
             numerical_transformer_method=data_args.numerical_transformer_method,
-            sep_text_token_str=tokenizer.sep_token
-            if not data_args.column_info["text_col_sep_token"]
-            else data_args.column_info["text_col_sep_token"],
+            sep_text_token_str=(
+                tokenizer.sep_token
+                if not data_args.column_info["text_col_sep_token"]
+                else data_args.column_info["text_col_sep_token"]
+            ),
             max_token_length=training_args.max_token_length,
             debug=training_args.debug_dataset,
             debug_dataset_size=training_args.debug_dataset_size,
@@ -115,9 +119,11 @@ def main():
             numerical_cols=data_args.column_info["num_cols"],
             categorical_encode_type=data_args.categorical_encode_type,
             numerical_transformer_method=data_args.numerical_transformer_method,
-            sep_text_token_str=tokenizer.sep_token
-            if not data_args.column_info["text_col_sep_token"]
-            else data_args.column_info["text_col_sep_token"],
+            sep_text_token_str=(
+                tokenizer.sep_token
+                if not data_args.column_info["text_col_sep_token"]
+                else data_args.column_info["text_col_sep_token"]
+            ),
             max_token_length=training_args.max_token_length,
             debug=training_args.debug_dataset,
             debug_dataset_size=training_args.debug_dataset_size,
@@ -163,27 +169,35 @@ def main():
     ):
         logger.info(f"======== Fold {i+1} ========")
         config = AutoConfig.from_pretrained(
-            model_args.config_name
-            if model_args.config_name
-            else model_args.model_name_or_path,
+            (
+                model_args.config_name
+                if model_args.config_name
+                else model_args.model_name_or_path
+            ),
             cache_dir=model_args.cache_dir,
         )
         tabular_config = TabularConfig(
             num_labels=num_labels,
-            cat_feat_dim=train_dataset.cat_feats.shape[1]
-            if train_dataset.cat_feats is not None
-            else 0,
-            numerical_feat_dim=train_dataset.numerical_feats.shape[1]
-            if train_dataset.numerical_feats is not None
-            else 0,
+            cat_feat_dim=(
+                train_dataset.cat_feats.shape[1]
+                if train_dataset.cat_feats is not None
+                else 0
+            ),
+            numerical_feat_dim=(
+                train_dataset.numerical_feats.shape[1]
+                if train_dataset.numerical_feats is not None
+                else 0
+            ),
             **vars(data_args),
         )
         config.tabular_config = tabular_config
 
         model = AutoModelWithTabular.from_pretrained(
-            model_args.config_name
-            if model_args.config_name
-            else model_args.model_name_or_path,
+            (
+                model_args.config_name
+                if model_args.config_name
+                else model_args.model_name_or_path
+            ),
             config=config,
             cache_dir=model_args.cache_dir,
         )
@@ -200,9 +214,11 @@ def main():
         )
         if training_args.do_train:
             trainer.train(
-                resume_from_checkpoint=model_args.model_name_or_path
-                if os.path.isdir(model_args.model_name_or_path)
-                else None
+                resume_from_checkpoint=(
+                    model_args.model_name_or_path
+                    if os.path.isdir(model_args.model_name_or_path)
+                    else None
+                )
             )
             trainer.save_model()
 

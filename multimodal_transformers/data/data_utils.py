@@ -12,7 +12,9 @@ class CategoricalFeatures:
     From https://github.com/abhishekkrthakur/mlframework/blob/master/src/categorical.py
     """
 
-    def __init__(self, categorical_cols, encoding_type, handle_na=False, na_value="-9999999"):
+    def __init__(
+        self, categorical_cols, encoding_type, handle_na=False, na_value="-9999999"
+    ):
         """
         Args:
             categorical_cols (:obj:`list` of :obj:`str`, optional):
@@ -35,7 +37,9 @@ class CategoricalFeatures:
     def _label_encoding(self, dataframe):
         for c in self.cat_feats:
             if self.handle_na:
-                dataframe.loc[:, c] = dataframe.loc[:, c].astype(str).fillna(self.na_value)
+                dataframe.loc[:, c] = (
+                    dataframe.loc[:, c].astype(str).fillna(self.na_value)
+                )
             lbl = preprocessing.LabelEncoder()
             lbl.fit(dataframe[c].values)
             dataframe.loc[:, c] = lbl.transform(dataframe[c].values)
@@ -52,7 +56,9 @@ class CategoricalFeatures:
         for c in self.cat_feats:
             dataframe[c] = dataframe[c].astype(str)
             classes_orig = dataframe[c].unique()
-            val = preprocessing.label_binarize(dataframe[c].values, classes=classes_orig)
+            val = preprocessing.label_binarize(
+                dataframe[c].values, classes=classes_orig
+            )
             vals.append(val)
             if len(classes_orig) == 2:
                 classes = [c + "_binary"]
@@ -85,7 +91,9 @@ class CategoricalFeatures:
     def transform(self, dataframe):
         if self.handle_na:
             for c in self.cat_feats:
-                dataframe.loc[:, c] = dataframe.loc[:, c].astype(str).fillna(self.na_value)
+                dataframe.loc[:, c] = (
+                    dataframe.loc[:, c].astype(str).fillna(self.na_value)
+                )
 
         if self.enc_type == "label":
             for c, lbl in self.label_encoders.items():
