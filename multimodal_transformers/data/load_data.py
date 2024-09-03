@@ -262,9 +262,7 @@ def load_train_val_test_helper(
         cat_feat_processor = CategoricalFeatures(
             categorical_cols, categorical_encode_type
         )
-        vals = cat_feat_processor.fit_transform(data_df)
-        cat_df = pd.DataFrame(vals, columns=cat_feat_processor.feat_names)
-        data_df = pd.concat([data_df, cat_df], axis=1)
+        data_df = cat_feat_processor.fit_transform(data_df)
         categorical_cols = cat_feat_processor.feat_names
 
         len_train = len(train_df)

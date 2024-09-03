@@ -2,6 +2,8 @@ import logging
 import types
 
 import numpy as np
+import pandas as pd
+from typing import List
 from sklearn import preprocessing
 
 logger = logging.getLogger(__name__)
@@ -13,16 +15,22 @@ class CategoricalFeatures:
     """
 
     def __init__(
-        self, categorical_cols, encoding_type, handle_na=False, na_value="-9999999"
+        self,
+        categorical_cols: List[str],
+        encoding_type: str,
+        handle_na: bool = False,
+        na_value: str = "-9999999",
     ):
         """
         Args:
             categorical_cols (:obj:`list` of :obj:`str`, optional):
-                the column names in the dataset that contain categorical features
-            encoding_type (str): method we want to preprocess our categorical features.
+                the column names in the dataset that contain categorical
+                features
+            encoding_type (str): method we want to preprocess our categorical
+            features.
                 choices: [ 'ohe', 'binary', None]
-            handle_na (bool): whether to handle nan by treating them as a separate
-                categorical value
+            handle_na (bool): whether to handle nan by treating them as a
+                separate categorical value
             na_value (string): what the nan values should be converted to
         """
         self.cat_feats = categorical_cols
@@ -33,62 +41,54 @@ class CategoricalFeatures:
         self.ohe = None
         self.handle_na = handle_na
         self.na_value = na_value
+        self.feat_names = []
 
-    def _label_encoding(self, dataframe):
+    def _label_encoding(self, dataframe: pd.DataFrame):
         for c in self.cat_feats:
-            if self.handle_na:
+            lbl = preprocessing.LabelEncoder()
+            lbl.fit(dataframe[c].values)
+            self.label_encoders[c] = lbl
+
+    def _label_binarization(self, dataframe: pd.DataFrame):
+        for c in self.cat_feats:
+            dataframe[c] = dataframe[c].astype(str)
+            lb = preprocessing.LabelBinarizer()
+            lb.fit(dataframe[c].values)
+            self.binary_encoders[c] = lb
+
+            # Create new class names
+            for class_name in lb.classes_:
+                new_col_name = f"{c}__{change_name_func(class_name)}"
+                self.feat_names.append(new_col_name)
+                if len(lb.classes_) == 2:
+                    break
+
+    def _one_hot(self, dataframe: pd.DataFrame):
+        self.ohe = preprocessing.OneHotEncoder(sparse=False)
+        self.ohe.fit(dataframe[self.cat_feats].values)
+        self.feat_names = list(self.ohe.get_feature_names_out(self.cat_feats))
+
+    def fit_transform(self, dataframe: pd.DataFrame):
+        if self.handle_na:
+            for c in self.cat_feats:
                 dataframe.loc[:, c] = (
                     dataframe.loc[:, c].astype(str).fillna(self.na_value)
                 )
-            lbl = preprocessing.LabelEncoder()
-            lbl.fit(dataframe[c].values)
-            dataframe.loc[:, c] = lbl.transform(dataframe[c].values)
-            self.label_encoders[c] = lbl
-        return dataframe[self.cat_feats].values
-
-    def _label_binarization(self, dataframe):
-        vals = []
-        self.feat_names = []
-
-        def change_name_func(x):
-            return x.lower().replace(", ", "_").replace(" ", "_")
-
-        for c in self.cat_feats:
-            dataframe[c] = dataframe[c].astype(str)
-            classes_orig = dataframe[c].unique()
-            val = preprocessing.label_binarize(
-                dataframe[c].values, classes=classes_orig
-            )
-            vals.append(val)
-            if len(classes_orig) == 2:
-                classes = [c + "_binary"]
-            else:
-                change_classes_func_vec = np.vectorize(
-                    lambda x: c + "_" + change_name_func(x)
-                )
-                classes = change_classes_func_vec(classes_orig)
-            self.feat_names.extend(classes)
-        return np.concatenate(vals, axis=1)
-
-    def _one_hot(self, dataframe):
-        ohe = preprocessing.OneHotEncoder(sparse=False)
-        ohe.fit(dataframe[self.cat_feats].values)
-        self.feat_names = list(ohe.get_feature_names_out(self.cat_feats))
-        return ohe.transform(dataframe[self.cat_feats].values)
-
-    def fit_transform(self, dataframe):
         if self.enc_type == "label":
-            return self._label_encoding(dataframe)
+            self._label_encoding(dataframe)
+            return self.transform(dataframe)
         elif self.enc_type == "binary":
-            return self._label_binarization(dataframe)
+            self._label_binarization(dataframe)
+            return self.transform(dataframe)
         elif self.enc_type == "ohe":
-            return self._one_hot(dataframe)
+            self._one_hot(dataframe)
+            return self.transform(dataframe)
         elif self.enc_type is None or self.enc_type == "none":
             return dataframe[self.cat_feats].values
         else:
             raise Exception("Encoding type not understood")
 
-    def transform(self, dataframe):
+    def transform(self, dataframe: pd.DataFrame):
         if self.handle_na:
             for c in self.cat_feats:
                 dataframe.loc[:, c] = (
@@ -104,17 +104,25 @@ class CategoricalFeatures:
             for c, lbl in self.binary_encoders.items():
                 val = lbl.transform(dataframe[c].values)
                 dataframe = dataframe.drop(c, axis=1)
-
-                for j in range(val.shape[1]):
-                    new_col_name = c + f"__bin_{j}"
-                    dataframe[new_col_name] = val[:, j]
+                class_names = [
+                    f"{c}__{lbl.classes_[j]}_binary" for j in range(val.shape[1])
+                ]
+                val = pd.DataFrame(val, columns=class_names)
+                dataframe = pd.concat([dataframe, val], axis=1)
             return dataframe
 
         elif self.enc_type == "ohe":
-            return self.ohe(dataframe[self.cat_feats].values)
+            val = self.ohe.transform(dataframe[self.cat_feats].values)
+            for j in range(val.shape(1)):
+                dataframe[self.feat_names[j]] = val[:, j]
+            return dataframe
 
         else:
             raise Exception("Encoding type not understood")
+
+
+def change_name_func(x):
+    return x.lower().replace(", ", "_").replace(" ", "_")
 
 
 def normalize_numerical_feats(numerical_feats, transformer=None):
@@ -146,8 +154,8 @@ def agg_text_columns_func(empty_row_values, replace_text, texts):
     return processed_texts
 
 
-def load_cat_and_num_feats(df, cat_bool_func, num_bool_func, enocde_type=None):
-    cat_feats = load_cat_feats(df, cat_bool_func, enocde_type)
+def load_cat_and_num_feats(df, cat_bool_func, num_bool_func, encode_type=None):
+    cat_feats = load_cat_feats(df, cat_bool_func, encode_type)
     num_feats = load_num_feats(df, num_bool_func)
     return cat_feats, num_feats
 
@@ -158,8 +166,8 @@ def load_cat_feats(df, cat_bool_func, encode_type=None):
     logger.info(f"{len(cat_cols)} categorical columns")
     if len(cat_cols) == 0:
         return None
-    cat_feat_processor = CategoricalFeatures(df, cat_cols, encode_type)
-    return cat_feat_processor.fit_transform()
+    cat_feat_processor = CategoricalFeatures(cat_cols, encode_type)
+    return cat_feat_processor.fit_transform(df)
 
 
 def load_num_feats(df, num_bool_func):
