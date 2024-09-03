@@ -68,6 +68,23 @@ class CategoricalFeatures:
         self.ohe.fit(dataframe[self.cat_feats].values)
         self.feat_names = list(self.ohe.get_feature_names_out(self.cat_feats))
 
+    def fit(self, dataframe: pd.DataFrame):
+        if self.handle_na:
+            for c in self.cat_feats:
+                dataframe.loc[:, c] = (
+                    dataframe.loc[:, c].astype(str).fillna(self.na_value)
+                )
+        if self.enc_type == "label":
+            self._label_encoding(dataframe)
+        elif self.enc_type == "binary":
+            self._label_binarization(dataframe)
+        elif self.enc_type == "ohe":
+            self._one_hot(dataframe)
+        elif self.enc_type is None or self.enc_type == "none":
+            logger.info(f"Encoding type is none, no action taken.")
+        else:
+            raise Exception("Encoding type not understood")
+
     def fit_transform(self, dataframe: pd.DataFrame):
         if self.handle_na:
             for c in self.cat_feats:
