@@ -5,17 +5,14 @@ from os.path import join, exists
 import pandas as pd
 import joblib
 from sklearn.model_selection import KFold, train_test_split
-from sklearn.preprocessing import PowerTransformer, QuantileTransformer
 
 from .tabular_torch_dataset import TorchTabularTextDataset
 from .data_utils import (
     CategoricalFeatures,
+    NumericalFeatures,
     agg_text_columns_func,
     convert_to_func,
     get_matching_cols,
-    load_num_feats,
-    load_cat_and_num_feats,
-    normalize_numerical_feats,
 )
 
 logger = logging.getLogger(__name__)
@@ -36,6 +33,9 @@ def load_data_into_folds(
     categorical_handle_na=False,
     categorical_na_value="-9999999",
     numerical_transformer_method="quantile_normal",
+    numerical_handle_na=False,
+    numerical_how_handle_na="value",
+    numerical_na_value=0.0,
     empty_text_values=None,
     replace_empty_text=None,
     max_token_length=None,
@@ -127,6 +127,9 @@ def load_data_into_folds(
             categorical_handle_na=categorical_handle_na,
             categorical_na_value=categorical_na_value,
             numerical_transformer_method=numerical_transformer_method,
+            numerical_handle_na=numerical_handle_na,
+            numerical_how_handle_na=numerical_how_handle_na,
+            numerical_na_value=numerical_na_value,
             empty_text_values=empty_text_values,
             replace_empty_text=replace_empty_text,
             max_token_length=max_token_length,
@@ -154,6 +157,9 @@ def load_data_from_folder(
     categorical_handle_na=False,
     categorical_na_value="-9999999",
     numerical_transformer_method="quantile_normal",
+    numerical_handle_na=False,
+    numerical_how_handle_na="value",
+    numerical_na_value=0.0,
     empty_text_values=None,
     replace_empty_text=None,
     max_token_length=None,
@@ -235,6 +241,9 @@ def load_data_from_folder(
         categorical_handle_na=categorical_handle_na,
         categorical_na_value=categorical_na_value,
         numerical_transformer_method=numerical_transformer_method,
+        numerical_handle_na=numerical_handle_na,
+        numerical_how_handle_na=numerical_how_handle_na,
+        numerical_na_value=numerical_na_value,
         empty_text_values=empty_text_values,
         replace_empty_text=replace_empty_text,
         max_token_length=max_token_length,
@@ -256,9 +265,12 @@ def load_train_val_test_helper(
     numerical_cols=[],
     sep_text_token_str=" ",
     categorical_encode_type="ohe",
-    categorical_handle_na=None,
+    categorical_handle_na=False,
     categorical_na_value=None,
     numerical_transformer_method="quantile_normal",
+    numerical_handle_na=False,
+    numerical_how_handle_na="value",
+    numerical_na_value=0.0,
     empty_text_values=None,
     replace_empty_text=None,
     max_token_length=None,
@@ -279,24 +291,19 @@ def load_train_val_test_helper(
             handle_na=categorical_handle_na,
             na_value=categorical_na_value,
         )
-        data_df = cat_feat_processor.fit(data_df)
+        cat_feat_processor.fit(data_df)
     else:
         cat_feat_processor = None
 
     if numerical_transformer_method != "none":
-        if numerical_transformer_method == "yeo_johnson":
-            numerical_transformer = PowerTransformer(method="yeo-johnson")
-        elif numerical_transformer_method == "box_cox":
-            numerical_transformer = PowerTransformer(method="box-cox")
-        elif numerical_transformer_method == "quantile_normal":
-            numerical_transformer = QuantileTransformer(output_distribution="normal")
-        else:
-            raise ValueError(
-                f"preprocessing transformer method "
-                f"{numerical_transformer_method} not implemented"
-            )
-        num_feats = load_num_feats(train_df, convert_to_func(numerical_cols))
-        numerical_transformer.fit(num_feats)
+        numerical_transformer = NumericalFeatures(
+            numerical_cols=numerical_cols,
+            numerical_transformer_method=numerical_transformer_method,
+            handle_na=numerical_handle_na,
+            how_handle_na=numerical_how_handle_na,
+            na_value=numerical_na_value,
+        )
+        numerical_transformer.fit(data_df)
     else:
         numerical_transformer = None
 

@@ -136,6 +136,29 @@ class MultimodalDataTrainingArguments:
             "choices": ["yeo_johnson", "box_cox", "quantile_normal", "none"],
         },
     )
+
+    numerical_handle_na: bool = field(
+        default=False,
+        metadata={
+            "help": "Whether to handle NaN values for numerical columns.",
+        },
+    )
+
+    numerical_how_handle_na: str = field(
+        default="median",
+        metadata={
+            "help": "How to handle NaN values in numerical columns. Mean/Median replaces NaNs with the mean/median of the column. Value replaces NaNs with numerical_na_value.",
+            "choices": ["median", "mean", "value"],
+        },
+    )
+
+    numerical_na_value: float = field(
+        default=0.0,
+        metadata={
+            "help": "Value to replace NaNs with in numerical columns when numerical_handle_na is set to True.",
+        },
+    )
+
     task: str = field(
         default="classification",
         metadata={

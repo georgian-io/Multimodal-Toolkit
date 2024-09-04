@@ -8,6 +8,8 @@
     "categorical_handle_na": true,
     "categorical_na_value": "-999999",
     "numerical_transformer_method": "quantile_normal",
+    "numerical_handle_na": true,
+    "numerical_how_handle_na": "median",
     "tokenizer_name": "bert-base-multilingual-uncased",
     "use_simple_classifier": false,
     "num_train_epochs": 1,

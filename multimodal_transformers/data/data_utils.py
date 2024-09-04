@@ -5,6 +5,7 @@ import numpy as np
 import pandas as pd
 from typing import List
 from sklearn import preprocessing
+from sklearn.preprocessing import PowerTransformer, QuantileTransformer
 
 logger = logging.getLogger(__name__)
 
@@ -33,9 +34,8 @@ class CategoricalFeatures:
                 separate categorical value
             na_value (string): what the nan values should be converted to
         """
-        self.cat_feats = categorical_cols
+        self.cat_cols = categorical_cols
         self.enc_type = encoding_type
-        self.handle_na = handle_na
         self.label_encoders = dict()
         self.binary_encoders = dict()
         self.ohe = None
@@ -44,13 +44,13 @@ class CategoricalFeatures:
         self.feat_names = []
 
     def _label_encoding(self, dataframe: pd.DataFrame):
-        for c in self.cat_feats:
+        for c in self.cat_cols:
             lbl = preprocessing.LabelEncoder()
             lbl.fit(dataframe[c].values)
             self.label_encoders[c] = lbl
 
     def _label_binarization(self, dataframe: pd.DataFrame):
-        for c in self.cat_feats:
+        for c in self.cat_cols:
             dataframe[c] = dataframe[c].astype(str)
             lb = preprocessing.LabelBinarizer()
             lb.fit(dataframe[c].values)
@@ -65,11 +65,11 @@ class CategoricalFeatures:
 
     def _one_hot(self, dataframe: pd.DataFrame):
         self.ohe = preprocessing.OneHotEncoder(sparse=False)
-        self.ohe.fit(dataframe[self.cat_feats].values)
-        self.feat_names = list(self.ohe.get_feature_names_out(self.cat_feats))
+        self.ohe.fit(dataframe[self.cat_cols].values)
+        self.feat_names = list(self.ohe.get_feature_names_out(self.cat_cols))
 
     def nan_handler(self, dataframe: pd.DataFrame):
-        for c in self.cat_feats:
+        for c in self.cat_cols:
             dataframe.loc[:, c] = dataframe.loc[:, c].astype(str).fillna(self.na_value)
         return dataframe
 
@@ -88,28 +88,12 @@ class CategoricalFeatures:
             raise Exception("Encoding type not understood")
 
     def fit_transform(self, dataframe: pd.DataFrame):
-        if self.handle_na:
-            dataframe = self.nan_handler(dataframe)
-        if self.enc_type == "label":
-            self._label_encoding(dataframe)
-            return self.transform(dataframe)
-        elif self.enc_type == "binary":
-            self._label_binarization(dataframe)
-            return self.transform(dataframe)
-        elif self.enc_type == "ohe":
-            self._one_hot(dataframe)
-            return self.transform(dataframe)
-        elif self.enc_type is None or self.enc_type == "none":
-            return dataframe[self.cat_feats].values
-        else:
-            raise Exception("Encoding type not understood")
+        self.fit(dataframe)
+        return self.transform(dataframe)
 
     def transform(self, dataframe: pd.DataFrame):
         if self.handle_na:
-            for c in self.cat_feats:
-                dataframe.loc[:, c] = (
-                    dataframe.loc[:, c].astype(str).fillna(self.na_value)
-                )
+            dataframe = self.nan_handler(dataframe)
 
         if self.enc_type == "label":
             for c, lbl in self.label_encoders.items():
@@ -128,13 +112,83 @@ class CategoricalFeatures:
             return dataframe
 
         elif self.enc_type == "ohe":
-            val = self.ohe.transform(dataframe[self.cat_feats].values)
+            val = self.ohe.transform(dataframe[self.cat_cols].values)
             for j in range(val.shape(1)):
                 dataframe[self.feat_names[j]] = val[:, j]
             return dataframe
 
+        elif self.enc_type is None or self.enc_type == "none":
+            logger.info(f"Encoding type is none, no action taken.")
+            return dataframe[self.cat_cols].values
         else:
             raise Exception("Encoding type not understood")
+
+
+class NumericalFeatures:
+    """Class to help encode numerical features"""
+
+    def __init__(
+        self,
+        numerical_cols: List[str],
+        numerical_transformer_method: str,
+        handle_na: bool = False,
+        how_handle_na: str = "value",
+        na_value: float = 0.0,
+    ):
+        self.num_cols = numerical_cols
+        self.numerical_transformer_method = numerical_transformer_method
+        self.numerical_transformer = None
+        self.handle_na = handle_na
+        self.how_handle_na = how_handle_na
+        self.na_value = na_value
+
+    def nan_handler(self, dataframe: pd.DataFrame):
+        dataframe[self.num_cols] = dataframe[self.num_cols].astype(float)
+        if self.how_handle_na == "median":
+            dataframe.loc[:, self.num_cols] = dataframe[self.num_cols].fillna(
+                dict(dataframe[self.num_cols].median()), inplace=False
+            )
+        elif self.how_handle_na == "mean":
+            dataframe.loc[:, self.num_cols] = dataframe[self.num_cols].fillna(
+                dict(dataframe[self.num_cols].mean()), inplace=False
+            )
+        elif self.how_handle_na == "value":
+            dataframe.loc[:, self.num_cols] = dataframe[self.num_cols].fillna(
+                self.na_value, inplace=False
+            )
+        else:
+            raise ValueError(f"Unknown NaN handling method {self.how_handle_na}.")
+        return dataframe
+
+    def fit(self, dataframe: pd.DataFrame):
+        if self.handle_na:
+            dataframe = self.nan_handler(dataframe)
+        # Build transformer
+        if self.numerical_transformer_method == "yeo_johnson":
+            self.numerical_transformer = PowerTransformer(method="yeo-johnson")
+        elif self.numerical_transformer_method == "box_cox":
+            self.numerical_transformer = PowerTransformer(method="box-cox")
+        elif self.numerical_transformer_method == "quantile_normal":
+            self.numerical_transformer = QuantileTransformer(
+                output_distribution="normal"
+            )
+        else:
+            raise ValueError(
+                f"preprocessing transformer method "
+                f"{self.numerical_transformer_method} not implemented"
+            )
+        # Fit transformer
+        num_feats = dataframe[self.num_cols].values
+        self.numerical_transformer.fit(num_feats)
+
+    def fit_transform(self, dataframe: pd.DataFrame):
+        self.fit(dataframe)
+        return self.transform(dataframe)
+
+    def transform(self, dataframe: pd.DataFrame):
+        if self.handle_na:
+            dataframe = self.nan_handler(dataframe)
+        return self.numerical_transformer.transform(dataframe[self.num_cols])
 
 
 def change_name_func(x):
