@@ -7,6 +7,8 @@
   "model_name_or_path": "bert-base-uncased",
   "do_train": true,
   "categorical_encode_type": "binary",
+  "categorical_handle_na": true,
+  "categorical_na_value": "-999999",
   "numerical_transformer_method": "quantile_normal",
   "tokenizer_name": "bert-base-uncased",
   "use_simple_classifier": false,

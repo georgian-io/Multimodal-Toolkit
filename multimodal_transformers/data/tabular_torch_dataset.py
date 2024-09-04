@@ -51,7 +51,7 @@ class TorchTabularTextDataset(TorchDataset):
             torch.tensor(self.labels[idx]) if self.labels is not None else None
         )
         item["cat_feats"] = (
-            torch.tensor(self.cat_feats[idx]).float()
+            torch.tensor(self.cat_feats.iloc[idx]).float()
             if self.cat_feats is not None
             else torch.zeros(0)
         )

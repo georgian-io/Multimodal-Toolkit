@@ -267,6 +267,8 @@ def load_train_val_test_helper(
     encoder_save_path=None,
 ):
     if categorical_encode_type == "ohe" or categorical_encode_type == "binary":
+        # Combine all DFs so that we don't run into encoding errors with the
+        # test or validation sets
         dfs = [df for df in [train_df, val_df, test_df] if df is not None]
         data_df = pd.concat(dfs, axis=0).reset_index(drop=False)
 
@@ -277,19 +279,7 @@ def load_train_val_test_helper(
             handle_na=categorical_handle_na,
             na_value=categorical_na_value,
         )
-        data_df = cat_feat_processor.fit_transform(data_df)
-        categorical_cols = cat_feat_processor.feat_names
-
-        len_train = len(train_df)
-        len_val = len(val_df) if val_df is not None else 0
-
-        train_df = data_df.iloc[:len_train]
-        if val_df is not None:
-            val_df = data_df.iloc[len_train : len_train + len_val]
-            len_train = len_train + len_val
-        test_df = data_df.iloc[len_train:]
-
-        categorical_encode_type = None
+        data_df = cat_feat_processor.fit(data_df)
     else:
         cat_feat_processor = None
 
@@ -331,7 +321,7 @@ def load_train_val_test_helper(
         categorical_cols=categorical_cols,
         numerical_cols=numerical_cols,
         sep_text_token_str=sep_text_token_str,
-        categorical_encode_type=categorical_encode_type,
+        categorical_transformer=cat_feat_processor,
         numerical_transformer=numerical_transformer,
         empty_text_values=empty_text_values,
         replace_empty_text=replace_empty_text,
@@ -348,7 +338,7 @@ def load_train_val_test_helper(
         categorical_cols=categorical_cols,
         numerical_cols=numerical_cols,
         sep_text_token_str=sep_text_token_str,
-        categorical_encode_type=categorical_encode_type,
+        categorical_transformer=cat_feat_processor,
         numerical_transformer=numerical_transformer,
         empty_text_values=empty_text_values,
         replace_empty_text=replace_empty_text,
@@ -367,7 +357,7 @@ def load_train_val_test_helper(
             categorical_cols=categorical_cols,
             numerical_cols=numerical_cols,
             sep_text_token_str=sep_text_token_str,
-            categorical_encode_type=categorical_encode_type,
+            categorical_transformer=cat_feat_processor,
             numerical_transformer=numerical_transformer,
             empty_text_values=empty_text_values,
             replace_empty_text=replace_empty_text,
@@ -390,7 +380,7 @@ def load_data(
     categorical_cols=[],
     numerical_cols=[],
     sep_text_token_str=" ",
-    categorical_encode_type="ohe",
+    categorical_transformer=None,
     numerical_transformer=None,
     empty_text_values=None,
     replace_empty_text=None,
@@ -449,10 +439,27 @@ def load_data(
     categorical_cols_func = convert_to_func(categorical_cols)
     numerical_cols_func = convert_to_func(numerical_cols)
 
-    categorical_feats, numerical_feats = load_cat_and_num_feats(
-        data_df, categorical_cols_func, numerical_cols_func, categorical_encode_type
-    )
-    numerical_feats = normalize_numerical_feats(numerical_feats, numerical_transformer)
+    # Build categorical features
+    if len(categorical_cols) > 0:
+        # Find columns in the dataset that are in categorical_cols
+        categorical_cols = get_matching_cols(data_df, categorical_cols_func)
+        if categorical_transformer is not None:
+            categorical_feats = categorical_transformer.transform(
+                data_df[categorical_cols]
+            )
+        else:
+            categorical_feats = data_df[categorical_cols]
+
+    # Build numerical features
+    if len(numerical_cols) > 0:
+        # Find columns in the dataset that are in numerical_cols
+        numerical_cols = get_matching_cols(data_df, numerical_cols_func)
+        if numerical_transformer is not None:
+            numerical_feats = numerical_transformer.transform(data_df[numerical_cols])
+        else:
+            numerical_feats = data_df[numerical_cols]
+
+    # Build text features
     agg_func = partial(agg_text_columns_func, empty_text_values, replace_empty_text)
     texts_cols = get_matching_cols(data_df, text_cols_func)
     logger.info(f"Text columns: {texts_cols}")

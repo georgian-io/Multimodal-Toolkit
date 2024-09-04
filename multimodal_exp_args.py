@@ -114,6 +114,21 @@ class MultimodalDataTrainingArguments:
             "choices": ["ohe", "binary", "label", "none"],
         },
     )
+
+    categorical_handle_na: bool = field(
+        default=False,
+        metadata={
+            "help": "Whether to handle NaN values for categorical columns.",
+        },
+    )
+
+    categorical_na_value: str = field(
+        default="-99999",
+        metadata={
+            "help": "Value to replace NaNs with in categorical columns when categorical_handle_na is set to True.",
+        },
+    )
+
     numerical_transformer_method: str = field(
         default="yeo_johnson",
         metadata={
