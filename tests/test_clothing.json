@@ -5,6 +5,8 @@
     "experiment_name": "bert-base-uncased",
     "model_name_or_path": "bert-base-uncased",
     "categorical_encode_type": "binary",
+    "cat_handle_na": true,
+    "cat_na_value": "-999999",
     "numerical_transformer_method": "quantile_normal",
     "tokenizer_name": "bert-base-uncased",
     "use_simple_classifier": false,

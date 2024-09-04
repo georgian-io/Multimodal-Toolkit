@@ -105,6 +105,8 @@ def test_model(json_file: str, model_string: str):
         label_col=data_args.column_info["label_col"],
         label_list=data_args.column_info["label_list"],
         categorical_cols=data_args.column_info["cat_cols"],
+        categorical_handle_na=data_args.column_info["cat_handle_na"],
+        categorical_na_value=data_args.column_info["cat_na_value"],
         numerical_cols=data_args.column_info["num_cols"],
         categorical_encode_type=data_args.categorical_encode_type,
         numerical_transformer_method=data_args.numerical_transformer_method,
@@ -188,3 +190,5 @@ def test_model(json_file: str, model_string: str):
     # Get predictions
     test_results = trainer.predict(test_dataset=test_dataset)
     assert test_results.predictions[0].shape == (DEBUG_DATASET_SIZE, num_labels)
+
+test_model(CONFIGS[0], MODELS[0])
