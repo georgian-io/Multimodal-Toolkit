@@ -68,12 +68,14 @@ class CategoricalFeatures:
         self.ohe.fit(dataframe[self.cat_feats].values)
         self.feat_names = list(self.ohe.get_feature_names_out(self.cat_feats))
 
+    def nan_handler(self, dataframe: pd.DataFrame):
+        for c in self.cat_feats:
+            dataframe.loc[:, c] = dataframe.loc[:, c].astype(str).fillna(self.na_value)
+        return dataframe
+
     def fit(self, dataframe: pd.DataFrame):
         if self.handle_na:
-            for c in self.cat_feats:
-                dataframe.loc[:, c] = (
-                    dataframe.loc[:, c].astype(str).fillna(self.na_value)
-                )
+            dataframe = self.nan_handler(dataframe)
         if self.enc_type == "label":
             self._label_encoding(dataframe)
         elif self.enc_type == "binary":
@@ -87,10 +89,7 @@ class CategoricalFeatures:
 
     def fit_transform(self, dataframe: pd.DataFrame):
         if self.handle_na:
-            for c in self.cat_feats:
-                dataframe.loc[:, c] = (
-                    dataframe.loc[:, c].astype(str).fillna(self.na_value)
-                )
+            dataframe = self.nan_handler(dataframe)
         if self.enc_type == "label":
             self._label_encoding(dataframe)
             return self.transform(dataframe)
