@@ -28,9 +28,9 @@ def load_data_into_folds(
     text_cols,
     tokenizer,
     label_col,
-    label_list=None,
-    categorical_cols=None,
-    numerical_cols=None,
+    label_list=[],
+    categorical_cols=[],
+    numerical_cols=[],
     sep_text_token_str=" ",
     categorical_encode_type="ohe",
     categorical_handle_na=False,
@@ -146,9 +146,9 @@ def load_data_from_folder(
     text_cols,
     tokenizer,
     label_col,
-    label_list=None,
-    categorical_cols=None,
-    numerical_cols=None,
+    label_list=[],
+    categorical_cols=[],
+    numerical_cols=[],
     sep_text_token_str=" ",
     categorical_encode_type="ohe",
     categorical_handle_na=False,
@@ -251,9 +251,9 @@ def load_train_val_test_helper(
     text_cols,
     tokenizer,
     label_col,
-    label_list=None,
-    categorical_cols=None,
-    numerical_cols=None,
+    label_list=[],
+    categorical_cols=[],
+    numerical_cols=[],
     sep_text_token_str=" ",
     categorical_encode_type="ohe",
     categorical_handle_na=None,
@@ -386,9 +386,9 @@ def load_data(
     text_cols,
     tokenizer,
     label_col=None,
-    label_list=None,
-    categorical_cols=None,
-    numerical_cols=None,
+    label_list=[],
+    categorical_cols=[],
+    numerical_cols=[],
     sep_text_token_str=" ",
     categorical_encode_type="ohe",
     numerical_transformer=None,
@@ -460,13 +460,18 @@ def load_data(
     for i, text in enumerate(texts_list):
         texts_list[i] = f" {sep_text_token_str} ".join(text)
     logger.info(f"Raw text example: {texts_list[0]}")
+
+    # Create tokenizer
     hf_model_text_input = tokenizer(
         texts_list, padding=True, truncation=True, max_length=max_token_length
     )
+
     tokenized_text_ex = " ".join(
         tokenizer.convert_ids_to_tokens(hf_model_text_input["input_ids"][0])
     )
     logger.debug(f"Tokenized text example: {tokenized_text_ex}")
+
+    # Setup labels, if any
     if label_col:
         labels = data_df[label_col].values
     else:
