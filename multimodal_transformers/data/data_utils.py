@@ -124,7 +124,7 @@ class CategoricalFeatures:
                 class_names = [
                     f"{c}__{lbl.classes_[j]}_binary" for j in range(val.shape[1])
                 ]
-                val = pd.DataFrame(val, columns=class_names)
+                val = pd.DataFrame(val, columns=class_names, index=dataframe.index)
                 dataframe = pd.concat([dataframe, val], axis=1)
             return dataframe
 
