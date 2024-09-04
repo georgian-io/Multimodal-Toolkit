@@ -33,6 +33,8 @@ def load_data_into_folds(
     numerical_cols=None,
     sep_text_token_str=" ",
     categorical_encode_type="ohe",
+    categorical_handle_na=False,
+    categorical_na_value="-9999999",
     numerical_transformer_method="quantile_normal",
     empty_text_values=None,
     replace_empty_text=None,
@@ -122,6 +124,8 @@ def load_data_into_folds(
             numerical_cols=numerical_cols,
             sep_text_token_str=sep_text_token_str,
             categorical_encode_type=categorical_encode_type,
+            categorical_handle_na=categorical_handle_na,
+            categorical_na_value=categorical_na_value,
             numerical_transformer_method=numerical_transformer_method,
             empty_text_values=empty_text_values,
             replace_empty_text=replace_empty_text,
@@ -147,6 +151,8 @@ def load_data_from_folder(
     numerical_cols=None,
     sep_text_token_str=" ",
     categorical_encode_type="ohe",
+    categorical_handle_na=False,
+    categorical_na_value="-9999999",
     numerical_transformer_method="quantile_normal",
     empty_text_values=None,
     replace_empty_text=None,
@@ -226,6 +232,8 @@ def load_data_from_folder(
         numerical_cols=numerical_cols,
         sep_text_token_str=sep_text_token_str,
         categorical_encode_type=categorical_encode_type,
+        categorical_handle_na=categorical_handle_na,
+        categorical_na_value=categorical_na_value,
         numerical_transformer_method=numerical_transformer_method,
         empty_text_values=empty_text_values,
         replace_empty_text=replace_empty_text,
@@ -248,6 +256,8 @@ def load_train_val_test_helper(
     numerical_cols=None,
     sep_text_token_str=" ",
     categorical_encode_type="ohe",
+    categorical_handle_na=None,
+    categorical_na_value=None,
     numerical_transformer_method="quantile_normal",
     empty_text_values=None,
     replace_empty_text=None,
@@ -259,8 +269,13 @@ def load_train_val_test_helper(
     if categorical_encode_type == "ohe" or categorical_encode_type == "binary":
         dfs = [df for df in [train_df, val_df, test_df] if df is not None]
         data_df = pd.concat(dfs, axis=0).reset_index(drop=False)
+
+        # Build feature encoder
         cat_feat_processor = CategoricalFeatures(
-            categorical_cols, categorical_encode_type
+            categorical_cols,
+            categorical_encode_type,
+            handle_na=categorical_handle_na,
+            na_value=categorical_na_value,
         )
         data_df = cat_feat_processor.fit_transform(data_df)
         categorical_cols = cat_feat_processor.feat_names
