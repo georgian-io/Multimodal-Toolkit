@@ -93,7 +93,12 @@ def main():
             categorical_cols=data_args.column_info["cat_cols"],
             numerical_cols=data_args.column_info["num_cols"],
             categorical_encode_type=data_args.categorical_encode_type,
+            categorical_handle_na=data_args.categorical_handle_na,
+            categorical_na_value=data_args.categorical_na_value,
             numerical_transformer_method=data_args.numerical_transformer_method,
+            numerical_handle_na=data_args.numerical_handle_na,
+            numerical_how_handle_na=data_args.numerical_how_handle_na,
+            numerical_na_value=data_args.numerical_na_value,
             sep_text_token_str=(
                 tokenizer.sep_token
                 if not data_args.column_info["text_col_sep_token"]
@@ -102,6 +107,7 @@ def main():
             max_token_length=training_args.max_token_length,
             debug=training_args.debug_dataset,
             debug_dataset_size=training_args.debug_dataset_size,
+            output_dir=training_args.output_dir,
         )
         train_datasets = [train_dataset]
         val_datasets = [val_dataset]
@@ -118,7 +124,12 @@ def main():
             categorical_cols=data_args.column_info["cat_cols"],
             numerical_cols=data_args.column_info["num_cols"],
             categorical_encode_type=data_args.categorical_encode_type,
+            categorical_handle_na=data_args.categorical_handle_na,
+            categorical_na_value=data_args.categorical_na_value,
             numerical_transformer_method=data_args.numerical_transformer_method,
+            numerical_handle_na=data_args.numerical_handle_na,
+            numerical_how_handle_na=data_args.numerical_how_handle_na,
+            numerical_na_value=data_args.numerical_na_value,
             sep_text_token_str=(
                 tokenizer.sep_token
                 if not data_args.column_info["text_col_sep_token"]
@@ -127,6 +138,7 @@ def main():
             max_token_length=training_args.max_token_length,
             debug=training_args.debug_dataset,
             debug_dataset_size=training_args.debug_dataset_size,
+            output_dir=training_args.output_dir,
         )
     train_dataset = train_datasets[0]
 

@@ -143,7 +143,7 @@ class NumericalFeatures:
         self.na_value = na_value
 
     def nan_handler(self, dataframe: pd.DataFrame):
-        dataframe[self.num_cols] = dataframe[self.num_cols].astype(float)
+        dataframe.loc[:, self.num_cols] = dataframe[self.num_cols].astype(float)
         if self.how_handle_na == "median":
             dataframe.loc[:, self.num_cols] = dataframe[self.num_cols].fillna(
                 dict(dataframe[self.num_cols].median()), inplace=False
@@ -178,7 +178,7 @@ class NumericalFeatures:
                 f"{self.numerical_transformer_method} not implemented"
             )
         # Fit transformer
-        num_feats = dataframe[self.num_cols].values
+        num_feats = dataframe[self.num_cols]
         self.numerical_transformer.fit(num_feats)
 
     def fit_transform(self, dataframe: pd.DataFrame):

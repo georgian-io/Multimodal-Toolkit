@@ -10,6 +10,8 @@
   "categorical_handle_na": true,
   "categorical_na_value": "-999999",
   "numerical_transformer_method": "quantile_normal",
+  "numerical_handle_na": true,
+  "numerical_how_handle_na": "median",
   "tokenizer_name": "bert-base-uncased",
   "use_simple_classifier": false,
   "logging_dir": "./logs_clothing_review/bertbase_gating_on_cat_and_num_feats_then_sum_full_model_lr_3e-3/",
