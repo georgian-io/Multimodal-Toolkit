@@ -1,10 +1,12 @@
 from functools import partial
 import logging
+from os import makedirs
 from os.path import join, exists
 
 import pandas as pd
 import joblib
 from sklearn.model_selection import KFold, train_test_split
+import torch
 
 from .tabular_torch_dataset import TorchTabularTextDataset
 from .data_utils import (
@@ -41,7 +43,7 @@ def load_data_into_folds(
     max_token_length=None,
     debug=False,
     debug_dataset_size=100,
-    encoder_save_path=None,
+    output_dir=None,
 ):
     """
     Function to load tabular and text data from a specified folder into folds
@@ -135,7 +137,7 @@ def load_data_into_folds(
             max_token_length=max_token_length,
             debug=debug,
             debug_dataset_size=debug_dataset_size,
-            encoder_save_path=encoder_save_path,
+            output_dir=output_dir,
         )
         train_splits.append(train)
         val_splits.append(val)
@@ -165,7 +167,7 @@ def load_data_from_folder(
     max_token_length=None,
     debug=False,
     debug_dataset_size=100,
-    encoder_save_path=None,
+    output_dir=None,
 ):
     """
     Function to load tabular and text data from a specified folder
@@ -249,7 +251,7 @@ def load_data_from_folder(
         max_token_length=max_token_length,
         debug=debug,
         debug_dataset_size=debug_dataset_size,
-        encoder_save_path=encoder_save_path,
+        output_dir=output_dir,
     )
 
 
@@ -276,7 +278,7 @@ def load_train_val_test_helper(
     max_token_length=None,
     debug=False,
     debug_dataset_size=100,
-    encoder_save_path=None,
+    output_dir=None,
 ):
     if categorical_encode_type == "ohe" or categorical_encode_type == "binary":
         # Combine all DFs so that we don't run into encoding errors with the
@@ -306,18 +308,6 @@ def load_train_val_test_helper(
         numerical_transformer.fit(data_df)
     else:
         numerical_transformer = None
-
-    # Save the categorical & numerical transformer if needed
-    if encoder_save_path:
-        if numerical_transformer:
-            joblib.dump(
-                numerical_transformer,
-                join(encoder_save_path, "numerical_transformer.pkl"),
-            )
-        if cat_feat_processor:
-            joblib.dump(
-                cat_feat_processor, join(encoder_save_path, "cat_feat_processor.pkl")
-            )
 
     train_dataset = load_data(
         data_df=train_df,
@@ -374,6 +364,21 @@ def load_train_val_test_helper(
         )
     else:
         val_dataset = None
+
+    # Save transformers and datasets if an output dir is specified
+    if output_dir:
+        makedirs(output_dir, exist_ok=True)
+        if numerical_transformer:
+            joblib.dump(
+                numerical_transformer,
+                join(output_dir, "numerical_transformer.pkl"),
+            )
+        if cat_feat_processor:
+            joblib.dump(cat_feat_processor, join(output_dir, "cat_feat_processor.pkl"))
+        torch.save(train_dataset, join(output_dir, "train_data.pt"))
+        torch.save(test_dataset, join(output_dir, "test_data.pt"))
+        if val_dataset:
+            torch.save(val_dataset, join(output_dir, "val_data.pt"))
 
     return train_dataset, val_dataset, test_dataset
 
@@ -456,6 +461,8 @@ def load_data(
             )
         else:
             categorical_feats = data_df[categorical_cols]
+    else:
+        categorical_feats = None
 
     # Build numerical features
     if len(numerical_cols) > 0:
@@ -465,6 +472,8 @@ def load_data(
             numerical_feats = numerical_transformer.transform(data_df[numerical_cols])
         else:
             numerical_feats = data_df[numerical_cols]
+    else:
+        numerical_feats = None
 
     # Build text features
     agg_func = partial(agg_text_columns_func, empty_text_values, replace_empty_text)

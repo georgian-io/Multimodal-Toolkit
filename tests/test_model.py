@@ -1,5 +1,6 @@
 import os
 import sys
+import shutil
 
 sys.path.append("./")
 from typing import Callable, Dict
@@ -121,7 +122,7 @@ def test_model(json_file: str, model_string: str):
         max_token_length=training_args.max_token_length,
         debug=True,
         debug_dataset_size=DEBUG_DATASET_SIZE,
-        encoder_save_path="./tests",
+        output_dir=training_args.output_dir,
     )
 
     set_seed(training_args.seed)
@@ -193,3 +194,6 @@ def test_model(json_file: str, model_string: str):
     # Get predictions
     test_results = trainer.predict(test_dataset=test_dataset)
     assert test_results.predictions[0].shape == (DEBUG_DATASET_SIZE, num_labels)
+    
+    # Delete created artifacts
+    shutil.rmtree(training_args.output_dir)

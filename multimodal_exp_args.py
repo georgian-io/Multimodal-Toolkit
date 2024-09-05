@@ -223,10 +223,10 @@ class MultimodalDataTrainingArguments:
                 self.column_info = json.load(f)
             assert "text_cols" in self.column_info and "label_col" in self.column_info
             if "cat_cols" not in self.column_info:
-                self.column_info["cat_cols"] = None
+                self.column_info["cat_cols"] = []
                 self.categorical_encode_type = "none"
             if "num_cols" not in self.column_info:
-                self.column_info["num_cols"] = None
+                self.column_info["num_cols"] = []
                 self.numerical_transformer_method = "none"
             if "text_col_sep_token" not in self.column_info:
                 self.column_info["text_col_sep_token"] = None
