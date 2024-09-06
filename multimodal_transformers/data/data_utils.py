@@ -21,10 +21,11 @@ class CategoricalFeatures:
         encoding_type: str,
         handle_na: bool = False,
         na_value: str = "-9999999",
+        ohe_handle_unknown: str = "error"
     ):
         """
         Args:
-            categorical_cols (:obj:`list` of :obj:`str`, optional):
+            categorical_cols (List[str]):
                 the column names in the dataset that contain categorical
                 features
             encoding_type (str): method we want to preprocess our categorical
@@ -33,6 +34,9 @@ class CategoricalFeatures:
             handle_na (bool): whether to handle nan by treating them as a
                 separate categorical value
             na_value (string): what the nan values should be converted to
+            ohe_handle_unknown (string): How the one hot encoder should handle
+                unknown values it encounters.
+                Ref: https://scikit-learn.org/stable/modules/generated/sklearn.preprocessing.OneHotEncoder.html
         """
         self.cat_cols = categorical_cols
         self.enc_type = encoding_type
@@ -42,6 +46,7 @@ class CategoricalFeatures:
         self.handle_na = handle_na
         self.na_value = na_value
         self.feat_names = []
+        self.ohe_handle_unknown = ohe_handle_unknown
 
     def _label_encoding(self, dataframe: pd.DataFrame):
         for c in self.cat_cols:
@@ -64,7 +69,7 @@ class CategoricalFeatures:
                     break
 
     def _one_hot(self, dataframe: pd.DataFrame):
-        self.ohe = preprocessing.OneHotEncoder(sparse=False)
+        self.ohe = preprocessing.OneHotEncoder(sparse=False, handle_unknown=self.ohe_handle_unknown)
         self.ohe.fit(dataframe[self.cat_cols].values)
         self.feat_names = list(self.ohe.get_feature_names_out(self.cat_cols))
 
@@ -135,6 +140,18 @@ class NumericalFeatures:
         how_handle_na: str = "value",
         na_value: float = 0.0,
     ):
+        """
+
+        Args:
+            numerical_cols (List[str]): numerical column names in the dataset
+            numerical_transformer_method (str): what transformation to use
+            handle_na (bool, optional): whether to handle NA. Defaults to False.
+            how_handle_na (str, optional): How to handle NA. Defaults to 
+                "value" which replaces with na_value. You can also use "mean"
+                or "median".
+            na_value (float, optional): Value to replace NA with if 
+                how_handle_na="value". Defaults to 0.0.
+        """
         self.num_cols = numerical_cols
         self.numerical_transformer_method = numerical_transformer_method
         self.numerical_transformer = None

@@ -129,6 +129,14 @@ class MultimodalDataTrainingArguments:
         },
     )
 
+    ohe_handle_unknown: str = field(
+        default="error",
+        metadata={
+            "help": "How a one hot encoder (if used) should handle new unknown classes. Refer: https://scikit-learn.org/stable/modules/generated/sklearn.preprocessing.OneHotEncoder.html",
+            "choices": ["error", "ignore", "infrequent_if_exist"],
+        },
+    )
+
     numerical_transformer_method: str = field(
         default="yeo_johnson",
         metadata={

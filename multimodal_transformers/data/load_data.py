@@ -34,6 +34,7 @@ def load_data_into_folds(
     categorical_encode_type="ohe",
     categorical_handle_na=False,
     categorical_na_value="-9999999",
+    ohe_handle_unknown="error",
     numerical_transformer_method="quantile_normal",
     numerical_handle_na=False,
     numerical_how_handle_na="value",
@@ -128,6 +129,7 @@ def load_data_into_folds(
             categorical_encode_type=categorical_encode_type,
             categorical_handle_na=categorical_handle_na,
             categorical_na_value=categorical_na_value,
+            ohe_handle_unknown=ohe_handle_unknown,
             numerical_transformer_method=numerical_transformer_method,
             numerical_handle_na=numerical_handle_na,
             numerical_how_handle_na=numerical_how_handle_na,
@@ -158,6 +160,7 @@ def load_data_from_folder(
     categorical_encode_type="ohe",
     categorical_handle_na=False,
     categorical_na_value="-9999999",
+    ohe_handle_unknown="error",
     numerical_transformer_method="quantile_normal",
     numerical_handle_na=False,
     numerical_how_handle_na="value",
@@ -242,6 +245,7 @@ def load_data_from_folder(
         categorical_encode_type=categorical_encode_type,
         categorical_handle_na=categorical_handle_na,
         categorical_na_value=categorical_na_value,
+        ohe_handle_unknown=ohe_handle_unknown,
         numerical_transformer_method=numerical_transformer_method,
         numerical_handle_na=numerical_handle_na,
         numerical_how_handle_na=numerical_how_handle_na,
@@ -269,6 +273,7 @@ def load_train_val_test_helper(
     categorical_encode_type="ohe",
     categorical_handle_na=False,
     categorical_na_value=None,
+    ohe_handle_unknown="error",
     numerical_transformer_method="quantile_normal",
     numerical_handle_na=False,
     numerical_how_handle_na="value",
@@ -292,6 +297,7 @@ def load_train_val_test_helper(
             categorical_encode_type,
             handle_na=categorical_handle_na,
             na_value=categorical_na_value,
+            ohe_handle_unknown=ohe_handle_unknown,
         )
         cat_feat_processor.fit(data_df)
     else:
