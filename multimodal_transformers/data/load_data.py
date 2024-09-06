@@ -292,16 +292,16 @@ def load_train_val_test_helper(
         data_df = pd.concat(dfs, axis=0).reset_index(drop=False)
 
         # Build feature encoder
-        cat_feat_processor = CategoricalFeatures(
+        categorical_transformer = CategoricalFeatures(
             categorical_cols,
             categorical_encode_type,
             handle_na=categorical_handle_na,
             na_value=categorical_na_value,
             ohe_handle_unknown=ohe_handle_unknown,
         )
-        cat_feat_processor.fit(data_df)
+        categorical_transformer.fit(data_df)
     else:
-        cat_feat_processor = None
+        categorical_transformer = None
 
     if numerical_transformer_method != "none":
         numerical_transformer = NumericalFeatures(
@@ -324,7 +324,7 @@ def load_train_val_test_helper(
         categorical_cols=categorical_cols,
         numerical_cols=numerical_cols,
         sep_text_token_str=sep_text_token_str,
-        categorical_transformer=cat_feat_processor,
+        categorical_transformer=categorical_transformer,
         numerical_transformer=numerical_transformer,
         empty_text_values=empty_text_values,
         replace_empty_text=replace_empty_text,
@@ -341,7 +341,7 @@ def load_train_val_test_helper(
         categorical_cols=categorical_cols,
         numerical_cols=numerical_cols,
         sep_text_token_str=sep_text_token_str,
-        categorical_transformer=cat_feat_processor,
+        categorical_transformer=categorical_transformer,
         numerical_transformer=numerical_transformer,
         empty_text_values=empty_text_values,
         replace_empty_text=replace_empty_text,
@@ -360,7 +360,7 @@ def load_train_val_test_helper(
             categorical_cols=categorical_cols,
             numerical_cols=numerical_cols,
             sep_text_token_str=sep_text_token_str,
-            categorical_transformer=cat_feat_processor,
+            categorical_transformer=categorical_transformer,
             numerical_transformer=numerical_transformer,
             empty_text_values=empty_text_values,
             replace_empty_text=replace_empty_text,
@@ -379,8 +379,8 @@ def load_train_val_test_helper(
                 numerical_transformer,
                 join(output_dir, "numerical_transformer.pkl"),
             )
-        if cat_feat_processor:
-            joblib.dump(cat_feat_processor, join(output_dir, "cat_feat_processor.pkl"))
+        if categorical_transformer:
+            joblib.dump(categorical_transformer, join(output_dir, "categorical_transformer.pkl"))
         torch.save(train_dataset, join(output_dir, "train_data.pt"))
         torch.save(test_dataset, join(output_dir, "test_data.pt"))
         if val_dataset:
