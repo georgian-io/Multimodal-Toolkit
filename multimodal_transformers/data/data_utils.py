@@ -21,7 +21,7 @@ class CategoricalFeatures:
         encoding_type: str,
         handle_na: bool = False,
         na_value: str = "-9999999",
-        ohe_handle_unknown: str = "error"
+        ohe_handle_unknown: str = "error",
     ):
         """
         Args:
@@ -69,7 +69,9 @@ class CategoricalFeatures:
                     break
 
     def _one_hot(self, dataframe: pd.DataFrame):
-        self.ohe = preprocessing.OneHotEncoder(sparse=False, handle_unknown=self.ohe_handle_unknown)
+        self.ohe = preprocessing.OneHotEncoder(
+            sparse=False, handle_unknown=self.ohe_handle_unknown
+        )
         self.ohe.fit(dataframe[self.cat_cols].values)
         self.feat_names = list(self.ohe.get_feature_names_out(self.cat_cols))
 
@@ -146,10 +148,10 @@ class NumericalFeatures:
             numerical_cols (List[str]): numerical column names in the dataset
             numerical_transformer_method (str): what transformation to use
             handle_na (bool, optional): whether to handle NA. Defaults to False.
-            how_handle_na (str, optional): How to handle NA. Defaults to 
+            how_handle_na (str, optional): How to handle NA. Defaults to
                 "value" which replaces with na_value. You can also use "mean"
                 or "median".
-            na_value (float, optional): Value to replace NA with if 
+            na_value (float, optional): Value to replace NA with if
                 how_handle_na="value". Defaults to 0.0.
         """
         self.num_cols = numerical_cols
@@ -239,33 +241,6 @@ def agg_text_columns_func(empty_row_values, replace_text, texts):
             if replace_text is not None:
                 processed_texts.append(replace_text)
     return processed_texts
-
-
-def load_cat_and_num_feats(df, cat_bool_func, num_bool_func, encode_type=None):
-    cat_feats = load_cat_feats(df, cat_bool_func, encode_type)
-    num_feats = load_num_feats(df, num_bool_func)
-    return cat_feats, num_feats
-
-
-def load_cat_feats(df, cat_bool_func, encode_type=None):
-    """load categorical features from DataFrame and do encoding if specified"""
-    cat_cols = get_matching_cols(df, cat_bool_func)
-    logger.info(f"{len(cat_cols)} categorical columns")
-    if len(cat_cols) == 0:
-        return None
-    cat_feat_processor = CategoricalFeatures(cat_cols, encode_type)
-    return cat_feat_processor.fit_transform(df)
-
-
-def load_num_feats(df, num_bool_func):
-    num_cols = get_matching_cols(df, num_bool_func)
-    logger.info(f"{len(num_cols)} numerical columns")
-    df = df.copy()
-    df[num_cols] = df[num_cols].astype(float)
-    df[num_cols] = df[num_cols].fillna(dict(df[num_cols].median()), inplace=False)
-    if len(num_cols) == 0:
-        return None
-    return df[num_cols].values
 
 
 def get_matching_cols(df, col_match_func):
