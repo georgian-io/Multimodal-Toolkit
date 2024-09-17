@@ -1,20 +1,20 @@
 from functools import partial
 import logging
+from os import makedirs
 from os.path import join, exists
 
 import pandas as pd
+import joblib
 from sklearn.model_selection import KFold, train_test_split
-from sklearn.preprocessing import PowerTransformer, QuantileTransformer
+import torch
 
 from .tabular_torch_dataset import TorchTabularTextDataset
 from .data_utils import (
     CategoricalFeatures,
+    NumericalFeatures,
     agg_text_columns_func,
     convert_to_func,
     get_matching_cols,
-    load_num_feats,
-    load_cat_and_num_feats,
-    normalize_numerical_feats,
 )
 
 logger = logging.getLogger(__name__)
@@ -27,17 +27,24 @@ def load_data_into_folds(
     text_cols,
     tokenizer,
     label_col,
-    label_list=None,
-    categorical_cols=None,
-    numerical_cols=None,
+    label_list=[],
+    categorical_cols=[],
+    numerical_cols=[],
     sep_text_token_str=" ",
     categorical_encode_type="ohe",
+    categorical_handle_na=False,
+    categorical_na_value="-9999999",
+    ohe_handle_unknown="error",
     numerical_transformer_method="quantile_normal",
+    numerical_handle_na=False,
+    numerical_how_handle_na="value",
+    numerical_na_value=0.0,
     empty_text_values=None,
     replace_empty_text=None,
     max_token_length=None,
     debug=False,
     debug_dataset_size=100,
+    output_dir=None,
 ):
     """
     Function to load tabular and text data from a specified folder into folds
@@ -109,23 +116,30 @@ def load_data_into_folds(
         test_df = folds_df.copy().iloc[test_index]
 
         train, val, test = load_train_val_test_helper(
-            train_df,
-            val_df.copy(),
-            test_df,
-            text_cols,
-            tokenizer,
-            label_col,
-            label_list,
-            categorical_cols,
-            numerical_cols,
-            sep_text_token_str,
-            categorical_encode_type,
-            numerical_transformer_method,
-            empty_text_values,
-            replace_empty_text,
-            max_token_length,
-            debug,
-            debug_dataset_size,
+            train_df=train_df,
+            val_df=val_df.copy(),
+            test_df=test_df,
+            text_cols=text_cols,
+            tokenizer=tokenizer,
+            label_col=label_col,
+            label_list=label_list,
+            categorical_cols=categorical_cols,
+            numerical_cols=numerical_cols,
+            sep_text_token_str=sep_text_token_str,
+            categorical_encode_type=categorical_encode_type,
+            categorical_handle_na=categorical_handle_na,
+            categorical_na_value=categorical_na_value,
+            ohe_handle_unknown=ohe_handle_unknown,
+            numerical_transformer_method=numerical_transformer_method,
+            numerical_handle_na=numerical_handle_na,
+            numerical_how_handle_na=numerical_how_handle_na,
+            numerical_na_value=numerical_na_value,
+            empty_text_values=empty_text_values,
+            replace_empty_text=replace_empty_text,
+            max_token_length=max_token_length,
+            debug=debug,
+            debug_dataset_size=debug_dataset_size,
+            output_dir=output_dir,
         )
         train_splits.append(train)
         val_splits.append(val)
@@ -139,17 +153,24 @@ def load_data_from_folder(
     text_cols,
     tokenizer,
     label_col,
-    label_list=None,
-    categorical_cols=None,
-    numerical_cols=None,
+    label_list=[],
+    categorical_cols=[],
+    numerical_cols=[],
     sep_text_token_str=" ",
     categorical_encode_type="ohe",
+    categorical_handle_na=False,
+    categorical_na_value="-9999999",
+    ohe_handle_unknown="error",
     numerical_transformer_method="quantile_normal",
+    numerical_handle_na=False,
+    numerical_how_handle_na="value",
+    numerical_na_value=0.0,
     empty_text_values=None,
     replace_empty_text=None,
     max_token_length=None,
     debug=False,
     debug_dataset_size=100,
+    output_dir=None,
 ):
     """
     Function to load tabular and text data from a specified folder
@@ -211,23 +232,30 @@ def load_data_from_folder(
         val_df = None
 
     return load_train_val_test_helper(
-        train_df,
-        val_df,
-        test_df,
-        text_cols,
-        tokenizer,
-        label_col,
-        label_list,
-        categorical_cols,
-        numerical_cols,
-        sep_text_token_str,
-        categorical_encode_type,
-        numerical_transformer_method,
-        empty_text_values,
-        replace_empty_text,
-        max_token_length,
-        debug,
-        debug_dataset_size,
+        train_df=train_df,
+        val_df=val_df,
+        test_df=test_df,
+        text_cols=text_cols,
+        tokenizer=tokenizer,
+        label_col=label_col,
+        label_list=label_list,
+        categorical_cols=categorical_cols,
+        numerical_cols=numerical_cols,
+        sep_text_token_str=sep_text_token_str,
+        categorical_encode_type=categorical_encode_type,
+        categorical_handle_na=categorical_handle_na,
+        categorical_na_value=categorical_na_value,
+        ohe_handle_unknown=ohe_handle_unknown,
+        numerical_transformer_method=numerical_transformer_method,
+        numerical_handle_na=numerical_handle_na,
+        numerical_how_handle_na=numerical_how_handle_na,
+        numerical_na_value=numerical_na_value,
+        empty_text_values=empty_text_values,
+        replace_empty_text=replace_empty_text,
+        max_token_length=max_token_length,
+        debug=debug,
+        debug_dataset_size=debug_dataset_size,
+        output_dir=output_dir,
     )
 
 
@@ -238,114 +266,169 @@ def load_train_val_test_helper(
     text_cols,
     tokenizer,
     label_col,
-    label_list=None,
-    categorical_cols=None,
-    numerical_cols=None,
+    label_list=[],
+    categorical_cols=[],
+    numerical_cols=[],
     sep_text_token_str=" ",
     categorical_encode_type="ohe",
+    categorical_handle_na=False,
+    categorical_na_value=None,
+    ohe_handle_unknown="error",
     numerical_transformer_method="quantile_normal",
+    numerical_handle_na=False,
+    numerical_how_handle_na="value",
+    numerical_na_value=0.0,
     empty_text_values=None,
     replace_empty_text=None,
     max_token_length=None,
     debug=False,
     debug_dataset_size=100,
+    output_dir=None,
 ):
     if categorical_encode_type == "ohe" or categorical_encode_type == "binary":
+        # Combine all DFs so that we don't run into encoding errors with the
+        # test or validation sets
         dfs = [df for df in [train_df, val_df, test_df] if df is not None]
         data_df = pd.concat(dfs, axis=0).reset_index(drop=False)
-        cat_feat_processor = CategoricalFeatures(
-            data_df, categorical_cols, categorical_encode_type
+
+        # Build feature encoder
+        categorical_transformer = CategoricalFeatures(
+            categorical_cols,
+            categorical_encode_type,
+            handle_na=categorical_handle_na,
+            na_value=categorical_na_value,
+            ohe_handle_unknown=ohe_handle_unknown,
         )
-        vals = cat_feat_processor.fit_transform()
-        cat_df = pd.DataFrame(vals, columns=cat_feat_processor.feat_names)
-        data_df = pd.concat([data_df, cat_df], axis=1)
-        categorical_cols = cat_feat_processor.feat_names
-
-        len_train = len(train_df)
-        len_val = len(val_df) if val_df is not None else 0
-
-        train_df = data_df.iloc[:len_train]
-        if val_df is not None:
-            val_df = data_df.iloc[len_train : len_train + len_val]
-            len_train = len_train + len_val
-        test_df = data_df.iloc[len_train:]
-
-        categorical_encode_type = None
+        categorical_transformer.fit(data_df)
+    else:
+        categorical_transformer = None
 
     if numerical_transformer_method != "none":
-        if numerical_transformer_method == "yeo_johnson":
-            numerical_transformer = PowerTransformer(method="yeo-johnson")
-        elif numerical_transformer_method == "box_cox":
-            numerical_transformer = PowerTransformer(method="box-cox")
-        elif numerical_transformer_method == "quantile_normal":
-            numerical_transformer = QuantileTransformer(output_distribution="normal")
-        else:
-            raise ValueError(
-                f"preprocessing transformer method "
-                f"{numerical_transformer_method} not implemented"
-            )
-        num_feats = load_num_feats(train_df, convert_to_func(numerical_cols))
-        numerical_transformer.fit(num_feats)
+        numerical_transformer = NumericalFeatures(
+            numerical_cols=numerical_cols,
+            numerical_transformer_method=numerical_transformer_method,
+            handle_na=numerical_handle_na,
+            how_handle_na=numerical_how_handle_na,
+            na_value=numerical_na_value,
+        )
+        numerical_transformer.fit(data_df)
     else:
         numerical_transformer = None
 
     train_dataset = load_data(
-        train_df,
-        text_cols,
-        tokenizer,
-        label_col,
-        label_list,
-        categorical_cols,
-        numerical_cols,
-        sep_text_token_str,
-        categorical_encode_type,
-        numerical_transformer,
-        empty_text_values,
-        replace_empty_text,
-        max_token_length,
-        debug,
-        debug_dataset_size,
+        data_df=train_df,
+        text_cols=text_cols,
+        tokenizer=tokenizer,
+        label_col=label_col,
+        label_list=label_list,
+        categorical_cols=categorical_cols,
+        numerical_cols=numerical_cols,
+        sep_text_token_str=sep_text_token_str,
+        categorical_transformer=categorical_transformer,
+        numerical_transformer=numerical_transformer,
+        empty_text_values=empty_text_values,
+        replace_empty_text=replace_empty_text,
+        max_token_length=max_token_length,
+        debug=debug,
+        debug_dataset_size=debug_dataset_size,
     )
     test_dataset = load_data(
-        test_df,
-        text_cols,
-        tokenizer,
-        label_col,
-        label_list,
-        categorical_cols,
-        numerical_cols,
-        sep_text_token_str,
-        categorical_encode_type,
-        numerical_transformer,
-        empty_text_values,
-        replace_empty_text,
-        max_token_length,
-        debug,
-        debug_dataset_size,
+        data_df=test_df,
+        text_cols=text_cols,
+        tokenizer=tokenizer,
+        label_col=label_col,
+        label_list=label_list,
+        categorical_cols=categorical_cols,
+        numerical_cols=numerical_cols,
+        sep_text_token_str=sep_text_token_str,
+        categorical_transformer=categorical_transformer,
+        numerical_transformer=numerical_transformer,
+        empty_text_values=empty_text_values,
+        replace_empty_text=replace_empty_text,
+        max_token_length=max_token_length,
+        debug=debug,
+        debug_dataset_size=debug_dataset_size,
     )
 
     if val_df is not None:
         val_dataset = load_data(
-            val_df,
-            text_cols,
-            tokenizer,
-            label_col,
-            label_list,
-            categorical_cols,
-            numerical_cols,
-            sep_text_token_str,
-            categorical_encode_type,
-            numerical_transformer,
-            empty_text_values,
-            replace_empty_text,
-            max_token_length,
-            debug,
-            debug_dataset_size,
+            data_df=val_df,
+            text_cols=text_cols,
+            tokenizer=tokenizer,
+            label_col=label_col,
+            label_list=label_list,
+            categorical_cols=categorical_cols,
+            numerical_cols=numerical_cols,
+            sep_text_token_str=sep_text_token_str,
+            categorical_transformer=categorical_transformer,
+            numerical_transformer=numerical_transformer,
+            empty_text_values=empty_text_values,
+            replace_empty_text=replace_empty_text,
+            max_token_length=max_token_length,
+            debug=debug,
+            debug_dataset_size=debug_dataset_size,
         )
     else:
         val_dataset = None
 
+    # Save transformers and datasets if an output dir is specified
+    if output_dir:
+        makedirs(output_dir, exist_ok=True)
+        if numerical_transformer:
+            joblib.dump(
+                numerical_transformer,
+                join(output_dir, "numerical_transformer.pkl"),
+            )
+        if categorical_transformer:
+            joblib.dump(
+                categorical_transformer, join(output_dir, "categorical_transformer.pkl")
+            )
+        torch.save(train_dataset, join(output_dir, "train_data.pt"))
+        torch.save(test_dataset, join(output_dir, "test_data.pt"))
+        if val_dataset:
+            torch.save(val_dataset, join(output_dir, "val_data.pt"))
+
     return train_dataset, val_dataset, test_dataset
+
+
+def build_categorical_features(data_df, categorical_cols, categorical_transformer):
+    if len(categorical_cols) > 0:
+        # Find columns in the dataset that are in categorical_cols
+        categorical_cols_func = convert_to_func(categorical_cols)
+        categorical_cols = get_matching_cols(data_df, categorical_cols_func)
+        if categorical_transformer is not None:
+            return categorical_transformer.transform(data_df[categorical_cols])
+        else:
+            return data_df[categorical_cols]
+    else:
+        return None
+
+
+def build_numerical_features(data_df, numerical_cols, numerical_transformer):
+    if len(numerical_cols) > 0:
+        # Find columns in the dataset that are in numerical_cols
+        numerical_cols_func = convert_to_func(numerical_cols)
+        numerical_cols = get_matching_cols(data_df, numerical_cols_func)
+        if numerical_transformer is not None:
+            return numerical_transformer.transform(data_df[numerical_cols])
+        else:
+            return data_df[numerical_cols]
+    else:
+        return None
+
+
+def build_text_features(
+    data_df, text_cols, empty_text_values, replace_empty_text, sep_text_token_str
+):
+    text_cols_func = convert_to_func(text_cols)
+    agg_func = partial(agg_text_columns_func, empty_text_values, replace_empty_text)
+    text_cols = get_matching_cols(data_df, text_cols_func)
+    logger.info(f"Text columns: {text_cols}")
+    texts_list = data_df[text_cols].agg(agg_func, axis=1).tolist()
+    for i, text in enumerate(texts_list):
+        texts_list[i] = f" {sep_text_token_str} ".join(text)
+    logger.info(f"Raw text example: {texts_list[0]}")
+    return texts_list
 
 
 def load_data(
@@ -353,11 +436,11 @@ def load_data(
     text_cols,
     tokenizer,
     label_col=None,
-    label_list=None,
-    categorical_cols=None,
-    numerical_cols=None,
+    label_list=[],
+    categorical_cols=[],
+    numerical_cols=[],
     sep_text_token_str=" ",
-    categorical_encode_type="ohe",
+    categorical_transformer=None,
     numerical_transformer=None,
     empty_text_values=None,
     replace_empty_text=None,
@@ -412,38 +495,45 @@ def load_data(
     if empty_text_values is None:
         empty_text_values = ["nan", "None"]
 
-    text_cols_func = convert_to_func(text_cols)
-    categorical_cols_func = convert_to_func(categorical_cols)
-    numerical_cols_func = convert_to_func(numerical_cols)
-
-    categorical_feats, numerical_feats = load_cat_and_num_feats(
-        data_df, categorical_cols_func, numerical_cols_func, categorical_encode_type
+    # Build categorical features
+    categorical_feats = build_categorical_features(
+        data_df=data_df,
+        categorical_cols=categorical_cols,
+        categorical_transformer=categorical_transformer,
     )
-    numerical_feats = normalize_numerical_feats(numerical_feats, numerical_transformer)
-    agg_func = partial(agg_text_columns_func, empty_text_values, replace_empty_text)
-    texts_cols = get_matching_cols(data_df, text_cols_func)
-    logger.info(f"Text columns: {texts_cols}")
-    texts_list = data_df[texts_cols].agg(agg_func, axis=1).tolist()
-    for i, text in enumerate(texts_list):
-        texts_list[i] = f" {sep_text_token_str} ".join(text)
-    logger.info(f"Raw text example: {texts_list[0]}")
+    # Build numerical features
+    numerical_feats = build_numerical_features(
+        data_df=data_df,
+        numerical_cols=numerical_cols,
+        numerical_transformer=numerical_transformer,
+    )
+
+    # Build text features
+    texts_list = build_text_features(
+        data_df, text_cols, empty_text_values, replace_empty_text, sep_text_token_str
+    )
+
+    # Create tokenized text features
     hf_model_text_input = tokenizer(
         texts_list, padding=True, truncation=True, max_length=max_token_length
     )
+
     tokenized_text_ex = " ".join(
         tokenizer.convert_ids_to_tokens(hf_model_text_input["input_ids"][0])
     )
     logger.debug(f"Tokenized text example: {tokenized_text_ex}")
+
+    # Setup labels, if any
     if label_col:
         labels = data_df[label_col].values
     else:
         labels = None
 
     return TorchTabularTextDataset(
-        hf_model_text_input,
-        categorical_feats,
-        numerical_feats,
-        labels,
-        data_df,
-        label_list,
+        encodings=hf_model_text_input,
+        categorical_feats=categorical_feats,
+        numerical_feats=numerical_feats,
+        labels=labels,
+        df=data_df,
+        label_list=label_list,
     )

@@ -114,6 +114,29 @@ class MultimodalDataTrainingArguments:
             "choices": ["ohe", "binary", "label", "none"],
         },
     )
+
+    categorical_handle_na: bool = field(
+        default=False,
+        metadata={
+            "help": "Whether to handle NaN values for categorical columns.",
+        },
+    )
+
+    categorical_na_value: str = field(
+        default="-99999",
+        metadata={
+            "help": "Value to replace NaNs with in categorical columns when categorical_handle_na is set to True.",
+        },
+    )
+
+    ohe_handle_unknown: str = field(
+        default="error",
+        metadata={
+            "help": "How a one hot encoder (if used) should handle new unknown classes. Refer: https://scikit-learn.org/stable/modules/generated/sklearn.preprocessing.OneHotEncoder.html",
+            "choices": ["error", "ignore", "infrequent_if_exist"],
+        },
+    )
+
     numerical_transformer_method: str = field(
         default="yeo_johnson",
         metadata={
@@ -121,6 +144,29 @@ class MultimodalDataTrainingArguments:
             "choices": ["yeo_johnson", "box_cox", "quantile_normal", "none"],
         },
     )
+
+    numerical_handle_na: bool = field(
+        default=False,
+        metadata={
+            "help": "Whether to handle NaN values for numerical columns.",
+        },
+    )
+
+    numerical_how_handle_na: str = field(
+        default="median",
+        metadata={
+            "help": "How to handle NaN values in numerical columns. Mean/Median replaces NaNs with the mean/median of the column. Value replaces NaNs with numerical_na_value.",
+            "choices": ["median", "mean", "value"],
+        },
+    )
+
+    numerical_na_value: float = field(
+        default=0.0,
+        metadata={
+            "help": "Value to replace NaNs with in numerical columns when numerical_handle_na is set to True.",
+        },
+    )
+
     task: str = field(
         default="classification",
         metadata={
@@ -185,10 +231,10 @@ class MultimodalDataTrainingArguments:
                 self.column_info = json.load(f)
             assert "text_cols" in self.column_info and "label_col" in self.column_info
             if "cat_cols" not in self.column_info:
-                self.column_info["cat_cols"] = None
+                self.column_info["cat_cols"] = []
                 self.categorical_encode_type = "none"
             if "num_cols" not in self.column_info:
-                self.column_info["num_cols"] = None
+                self.column_info["num_cols"] = []
                 self.numerical_transformer_method = "none"
             if "text_col_sep_token" not in self.column_info:
                 self.column_info["text_col_sep_token"] = None

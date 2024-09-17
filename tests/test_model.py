@@ -1,5 +1,6 @@
 import os
 import sys
+import shutil
 
 sys.path.append("./")
 from typing import Callable, Dict
@@ -88,30 +89,40 @@ def test_model(json_file: str, model_string: str):
 
     # Create a tokenizer
     tokenizer = AutoTokenizer.from_pretrained(
-        model_args.tokenizer_name
-        if model_args.tokenizer_name
-        else model_args.model_name_or_path,
+        (
+            model_args.tokenizer_name
+            if model_args.tokenizer_name
+            else model_args.model_name_or_path
+        ),
         cache_dir=model_args.cache_dir,
     )
 
     # Load and preprocess datasets
     # We force debug=True so we load only DEBUG_DATASET_SIZE entries
     train_dataset, val_dataset, test_dataset = load_data_from_folder(
-        data_args.data_path,
-        data_args.column_info["text_cols"],
-        tokenizer,
+        folder_path=data_args.data_path,
+        text_cols=data_args.column_info["text_cols"],
+        tokenizer=tokenizer,
         label_col=data_args.column_info["label_col"],
         label_list=data_args.column_info["label_list"],
         categorical_cols=data_args.column_info["cat_cols"],
         numerical_cols=data_args.column_info["num_cols"],
         categorical_encode_type=data_args.categorical_encode_type,
+        categorical_handle_na=data_args.categorical_handle_na,
+        categorical_na_value=data_args.categorical_na_value,
         numerical_transformer_method=data_args.numerical_transformer_method,
-        sep_text_token_str=tokenizer.sep_token
-        if not data_args.column_info["text_col_sep_token"]
-        else data_args.column_info["text_col_sep_token"],
+        numerical_handle_na=data_args.numerical_handle_na,
+        numerical_how_handle_na=data_args.numerical_how_handle_na,
+        numerical_na_value=data_args.numerical_na_value,
+        sep_text_token_str=(
+            tokenizer.sep_token
+            if not data_args.column_info["text_col_sep_token"]
+            else data_args.column_info["text_col_sep_token"]
+        ),
         max_token_length=training_args.max_token_length,
         debug=True,
         debug_dataset_size=DEBUG_DATASET_SIZE,
+        output_dir=training_args.output_dir,
     )
 
     set_seed(training_args.seed)
@@ -129,28 +140,36 @@ def test_model(json_file: str, model_string: str):
 
     # Setup configs
     config = AutoConfig.from_pretrained(
-        model_args.config_name
-        if model_args.config_name
-        else model_args.model_name_or_path,
+        (
+            model_args.config_name
+            if model_args.config_name
+            else model_args.model_name_or_path
+        ),
         cache_dir=model_args.cache_dir,
     )
     tabular_config = TabularConfig(
         num_labels=num_labels,
-        cat_feat_dim=train_dataset.cat_feats.shape[1]
-        if train_dataset.cat_feats is not None
-        else 0,
-        numerical_feat_dim=train_dataset.numerical_feats.shape[1]
-        if train_dataset.numerical_feats is not None
-        else 0,
+        cat_feat_dim=(
+            train_dataset.cat_feats.shape[1]
+            if train_dataset.cat_feats is not None
+            else 0
+        ),
+        numerical_feat_dim=(
+            train_dataset.numerical_feats.shape[1]
+            if train_dataset.numerical_feats is not None
+            else 0
+        ),
         **vars(data_args)
     )
     config.tabular_config = tabular_config
 
     # Make model
     model = AutoModelWithTabular.from_pretrained(
-        model_args.config_name
-        if model_args.config_name
-        else model_args.model_name_or_path,
+        (
+            model_args.config_name
+            if model_args.config_name
+            else model_args.model_name_or_path
+        ),
         config=config,
         cache_dir=model_args.cache_dir,
     )
@@ -175,3 +194,6 @@ def test_model(json_file: str, model_string: str):
     # Get predictions
     test_results = trainer.predict(test_dataset=test_dataset)
     assert test_results.predictions[0].shape == (DEBUG_DATASET_SIZE, num_labels)
+    
+    # Delete created artifacts
+    shutil.rmtree(training_args.output_dir)

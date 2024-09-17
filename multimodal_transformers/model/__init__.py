@@ -5,7 +5,7 @@ from .tabular_transformers import (
     BertWithTabular,
     RobertaWithTabular,
     DistilBertWithTabular,
-    LongformerWithTabular
+    LongformerWithTabular,
 )
 
 
@@ -16,5 +16,5 @@ __all__ = [
     "BertWithTabular",
     "RobertaWithTabular",
     "DistilBertWithTabular",
-    "LongformerWithTabular"
+    "LongformerWithTabular",
 ]
