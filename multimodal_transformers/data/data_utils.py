@@ -70,7 +70,7 @@ class CategoricalFeatures:
 
     def _one_hot(self, dataframe: pd.DataFrame):
         self.ohe = preprocessing.OneHotEncoder(
-            sparse=False, handle_unknown=self.ohe_handle_unknown
+            sparse_output=False, handle_unknown=self.ohe_handle_unknown
         )
         self.ohe.fit(dataframe[self.cat_cols].values)
         self.feat_names = list(self.ohe.get_feature_names_out(self.cat_cols))
@@ -120,9 +120,10 @@ class CategoricalFeatures:
 
         elif self.enc_type == "ohe":
             val = self.ohe.transform(dataframe[self.cat_cols].values)
-            for j in range(val.shape(1)):
-                dataframe[self.feat_names[j]] = val[:, j]
-            return dataframe
+            new_df = {}
+            for j in range(val.shape[1]):
+                new_df[self.feat_names[j]] = val[:, j]
+            return pd.DataFrame(new_df, index=dataframe.index)
 
         elif self.enc_type is None or self.enc_type == "none":
             logger.info(f"Encoding type is none, no action taken.")
