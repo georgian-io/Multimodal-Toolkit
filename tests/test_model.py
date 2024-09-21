@@ -16,7 +16,7 @@ from transformers import (
     set_seed,
 )
 
-from multimodal_exp_args import (
+from multimodal_transformers.multimodal_arguments import (
     MultimodalDataTrainingArguments,
     ModelArguments,
     OurTrainingArguments,
