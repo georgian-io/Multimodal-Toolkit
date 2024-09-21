@@ -6,6 +6,7 @@ from typing import List, Optional, Tuple
 
 import joblib
 import pandas as pd
+import numpy as np
 import torch
 import transformers
 from sklearn.model_selection import KFold, train_test_split
@@ -497,7 +498,7 @@ def build_numerical_features(
     data_df: pd.DataFrame,
     numerical_cols: List[str],
     numerical_transformer: NumericalFeatures,
-) -> Optional[pd.DataFrame]:
+) -> Optional[np.ndarray]:
     if len(numerical_cols) > 0:
         # Find columns in the dataset that are in numerical_cols
         numerical_cols_func = convert_to_func(numerical_cols)
@@ -505,7 +506,7 @@ def build_numerical_features(
         if numerical_transformer is not None:
             return numerical_transformer.transform(data_df[numerical_cols])
         else:
-            return data_df[numerical_cols]
+            return data_df[numerical_cols].values
     else:
         return None
 
