@@ -15,13 +15,13 @@ import pandas as pd
 import torch
 from transformers import AutoConfig, AutoTokenizer, HfArgumentParser, set_seed
 
-from multimodal_exp_args import (
+from multimodal_transformers.data import load_data
+from multimodal_transformers.model import AutoModelWithTabular, TabularConfig
+from multimodal_transformers.multimodal_arguments import (
     ModelArguments,
     MultimodalDataTrainingArguments,
     OurTrainingArguments,
 )
-from multimodal_transformers.data import load_data
-from multimodal_transformers.model import AutoModelWithTabular, TabularConfig
 
 if __name__ == "__main__":
     DEBUG = True

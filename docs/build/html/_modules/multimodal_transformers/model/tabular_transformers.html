@@ -15,7 +15,7 @@
         <script src="../../../_static/jquery.js?v=5d32c60e"></script>
         <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
         <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
-        <script src="../../../_static/doctools.js?v=888ff710"></script>
+        <script src="../../../_static/doctools.js?v=9a2dae69"></script>
         <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
@@ -123,7 +123,6 @@
 <span class="sd">            This object must also have a tabular_config member variable that is a</span>
 <span class="sd">            :obj:`TabularConfig` instance specifying the configs for :obj:`TabularFeatCombiner`</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">hf_model_config</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">hf_model_config</span><span class="p">)</span>
         <span class="n">tabular_config</span> <span class="o">=</span> <span class="n">hf_model_config</span><span class="o">.</span><span class="n">tabular_config</span>
@@ -196,7 +195,6 @@
 <span class="sd">            classifier_layer_outputs(:obj:`list` of :obj:`torch.FloatTensor`):</span>
 <span class="sd">                The outputs of each layer of the final classification layers. The 0th index of this list is the</span>
 <span class="sd">                combining module&#39;s output</span>
-
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">outputs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">bert</span><span class="p">(</span>
             <span class="n">input_ids</span><span class="p">,</span>
@@ -239,7 +237,6 @@
 <span class="sd">            This object must also have a tabular_config member variable that is a</span>
 <span class="sd">            :obj:`TabularConfig` instance specifying the configs for :obj:`TabularFeatCombiner`</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">hf_model_config</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">hf_model_config</span><span class="p">)</span>
         <span class="n">tabular_config</span> <span class="o">=</span> <span class="n">hf_model_config</span><span class="o">.</span><span class="n">tabular_config</span>
@@ -313,7 +310,6 @@
 <span class="sd">            classifier_layer_outputs(:obj:`list` of :obj:`torch.FloatTensor`):</span>
 <span class="sd">                The outputs of each layer of the final classification layers. The 0th index of this list is the</span>
 <span class="sd">                combining module&#39;s output</span>
-
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">outputs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">roberta</span><span class="p">(</span>
             <span class="n">input_ids</span><span class="p">,</span>
@@ -368,7 +364,6 @@
 <span class="sd">            This object must also have a tabular_config member variable that is a</span>
 <span class="sd">            :obj:`TabularConfig` instance specifying the configs for :obj:`TabularFeatCombiner`</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">hf_model_config</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">hf_model_config</span><span class="p">)</span>
         <span class="n">tabular_config</span> <span class="o">=</span> <span class="n">hf_model_config</span><span class="o">.</span><span class="n">tabular_config</span>
@@ -429,6 +424,7 @@
 <span class="sd">                Categorical features to be passed in to the TabularFeatCombiner</span>
 <span class="sd">            numerical_feats (:obj:`torch.FloatTensor` of shape :obj:`(batch_size, tabular_config.numerical_feat_dim)`,`optional`, defaults to :obj:`None`):</span>
 <span class="sd">                Numerical features to be passed in to the TabularFeatCombiner</span>
+
 <span class="sd">        Returns:</span>
 <span class="sd">            :obj:`tuple` comprising various elements depending on configuration and inputs:</span>
 <span class="sd">            loss (:obj:`torch.FloatTensor` of shape :obj:`(1,)`, `optional`, returned when :obj:`label` is provided):</span>
@@ -439,7 +435,6 @@
 <span class="sd">                The outputs of each layer of the final classification layers. The 0th index of this list is the</span>
 <span class="sd">                combining module&#39;s output</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-
         <span class="n">distilbert_output</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">distilbert</span><span class="p">(</span>
             <span class="n">input_ids</span><span class="p">,</span>
             <span class="n">attention_mask</span><span class="o">=</span><span class="n">attention_mask</span><span class="p">,</span>
@@ -479,6 +474,7 @@
 <span class="sd">            Model configuration class with all the parameters of the model.</span>
 <span class="sd">            This object must also have a tabular_config member variable that is a</span>
 <span class="sd">            :obj:`TabularConfig` instance specifying the configs for :obj:`TabularFeatCombiner`</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">hf_model_config</span><span class="p">):</span>
@@ -810,7 +806,6 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Longformer Model With Sequence Classification Head</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">hf_model_config</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">hf_model_config</span><span class="p">)</span>
         <span class="n">tabular_config</span> <span class="o">=</span> <span class="n">hf_model_config</span><span class="o">.</span><span class="n">tabular_config</span>

@@ -1,31 +1,30 @@
 import logging
 import os
-from statistics import mean, stdev
 import sys
+from pprint import pformat
+from statistics import mean, stdev
 from typing import Callable, Dict
 
 import numpy as np
-from pprint import pformat
-from scipy.special import softmax
 import torch
+from scipy.special import softmax
 from transformers import (
-    AutoTokenizer,
     AutoConfig,
+    AutoTokenizer,
+    EvalPrediction,
     HfArgumentParser,
     Trainer,
-    EvalPrediction,
     set_seed,
 )
 
-from multimodal_exp_args import (
-    MultimodalDataTrainingArguments,
-    ModelArguments,
-    OurTrainingArguments,
-)
 from evaluation import calc_classification_metrics, calc_regression_metrics
 from multimodal_transformers.data import load_data_from_folder, load_data_into_folds
-from multimodal_transformers.model import TabularConfig
-from multimodal_transformers.model import AutoModelWithTabular
+from multimodal_transformers.model import AutoModelWithTabular, TabularConfig
+from multimodal_transformers.multimodal_arguments import (
+    ModelArguments,
+    MultimodalDataTrainingArguments,
+    OurTrainingArguments,
+)
 from util import create_dir_if_not_exists, get_args_info_as_str
 
 os.environ["COMET_MODE"] = "DISABLED"

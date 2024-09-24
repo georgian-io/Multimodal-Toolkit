@@ -1,14 +1,16 @@
-from functools import partial
 import logging
+from functools import partial
 from os import makedirs
-from os.path import join, exists
+from os.path import exists, join
+from typing import List, Optional, Tuple
 
-import pandas as pd
 import joblib
-from sklearn.model_selection import KFold, train_test_split
+import pandas as pd
+import numpy as np
 import torch
+import transformers
+from sklearn.model_selection import KFold, train_test_split
 
-from .tabular_torch_dataset import TorchTabularTextDataset
 from .data_utils import (
     CategoricalFeatures,
     NumericalFeatures,
@@ -16,88 +18,132 @@ from .data_utils import (
     convert_to_func,
     get_matching_cols,
 )
+from .tabular_torch_dataset import TorchTabularTextDataset
 
 logger = logging.getLogger(__name__)
 
 
 def load_data_into_folds(
-    data_csv_path,
-    num_splits,
-    validation_ratio,
-    text_cols,
-    tokenizer,
-    label_col,
-    label_list=[],
-    categorical_cols=[],
-    numerical_cols=[],
-    sep_text_token_str=" ",
-    categorical_encode_type="ohe",
-    categorical_handle_na=False,
-    categorical_na_value="-9999999",
-    ohe_handle_unknown="error",
-    numerical_transformer_method="quantile_normal",
-    numerical_handle_na=False,
-    numerical_how_handle_na="value",
-    numerical_na_value=0.0,
-    empty_text_values=None,
-    replace_empty_text=None,
-    max_token_length=None,
-    debug=False,
-    debug_dataset_size=100,
-    output_dir=None,
-):
+    data_csv_path: str,
+    num_splits: int,
+    validation_ratio: float,
+    text_cols: List[str],
+    tokenizer: transformers.PreTrainedTokenizer,
+    label_col: str,
+    label_list: Optional[List[str]] = [],
+    categorical_cols: Optional[List[str]] = [],
+    numerical_cols: Optional[List[str]] = [],
+    sep_text_token_str: str = " ",
+    categorical_encode_type: str = "ohe",
+    categorical_handle_na: bool = False,
+    categorical_na_value: str = "-9999999",
+    ohe_handle_unknown: str = "error",
+    numerical_transformer_method: str = "quantile_normal",
+    numerical_handle_na: bool = False,
+    numerical_how_handle_na: str = "value",
+    numerical_na_value: float = 0.0,
+    empty_text_values: Optional[List[str]] = None,
+    replace_empty_text: Optional[str] = None,
+    max_token_length: Optional[int] = None,
+    debug: bool = False,
+    debug_dataset_size: int = 100,
+    output_dir: Optional[str] = None,
+) -> Tuple[
+    List[TorchTabularTextDataset],
+    List[Optional[TorchTabularTextDataset]],
+    List[TorchTabularTextDataset],
+]:
     """
-    Function to load tabular and text data from a specified folder into folds
+    Load tabular and text data from a specified folder into folds.
 
-    Loads train, test and/or validation text and tabular data from specified
-    csv path into num_splits of train, val and test for Kfold cross validation.
-    Performs categorical and numerical data preprocessing if specified. `data_csv_path` is a path to
+    This function loads training, testing, and optionally validation data from a CSV file into the specified number of cross-validation folds. The function performs categorical and numerical preprocessing as specified.
 
-    Args:
-        data_csv_path (str): The path to the csv containing the data
-        num_splits (int): The number of cross validation folds to split the data into.
-        validation_ratio (float): A float between 0 and 1 representing the percent of the data to hold as a consistent validation set.
-        text_cols (:obj:`list` of :obj:`str`): The column names in the dataset that contain text
-            from which we want to load
-        tokenizer (:obj:`transformers.tokenization_utils.PreTrainedTokenizer`):
-            HuggingFace tokenizer used to tokenize the input texts as specifed by text_cols
-        label_col (str): The column name of the label, for classification the column should have
-            int values from 0 to n_classes-1 as the label for each class.
-            For regression the column can have any numerical value
-        label_list (:obj:`list` of :obj:`str`, optional): Used for classification;
-            the names of the classes indexed by the values in label_col.
-        categorical_cols (:obj:`list` of :obj:`str`, optional): The column names in the dataset that
-            contain categorical features. The features can be already prepared numerically, or
-            could be preprocessed by the method specified by categorical_encode_type
-        numerical_cols (:obj:`list` of :obj:`str`, optional): The column names in the dataset that contain numerical features.
-            These columns should contain only numeric values.
-        sep_text_token_str (str, optional): The string token that is used to separate between the
-            different text columns for a given data example. For Bert for example,
-            this could be the [SEP] token.
-        categorical_encode_type (str, optional): Given categorical_cols, this specifies
-            what method we want to preprocess our categorical features.
-            choices: [ 'ohe', 'binary', None]
-            see encode_features.CategoricalFeatures for more details
-        numerical_transformer_method (str, optional): Given numerical_cols, this specifies
-            what method we want to use for normalizing our numerical data.
-            choices: ['yeo_johnson', 'box_cox', 'quantile_normal', None]
-            see https://scikit-learn.org/stable/auto_examples/preprocessing/plot_all_scaling.html
-            for more details
-        empty_text_values (:obj:`list` of :obj:`str`, optional): specifies what texts should be considered as
-            missing which would be replaced by replace_empty_text
-        replace_empty_text (str, optional): The value of the string that will replace the texts
-            that match with those in empty_text_values. If this argument is None then
-            the text that match with empty_text_values will be skipped
-        max_token_length (int, optional): The token length to pad or truncate to on the
-            input text
-        debug (bool, optional): Whether or not to load a smaller debug version of the dataset
+    Returns a tuple containing three lists representing the splits of training, validation, and testing sets. The length of the lists is equal to the number of folds specified by `num_splits`.
 
-    Returns:
-        :obj:`tuple` of `list` of `tabular_torch_dataset.TorchTextDataset`:
-            This tuple contains three lists representing the splits of
-            training, validation and testing sets. The length of the lists is
-            equal to the number of folds specified by `num_splits`
+    :param data_csv_path:
+        The path to the CSV containing the data.
+
+    :param num_splits:
+        The number of cross-validation folds to split the data into.
+
+    :param validation_ratio:
+        A float between 0 and 1 representing the percentage of the data to hold as a consistent validation set.
+
+    :param text_cols:
+        The column names in the dataset that contain text data.
+
+    :param tokenizer:
+        HuggingFace tokenizer used for tokenizing text columns specified in `text_cols`.
+
+    :param label_col:
+        Column name containing the target labels. For classification, the values should be integers representing class indices. For regression, they can be any numeric values.
+
+    :param label_list:
+        List of class names for classification tasks, corresponding to the values in `label_col`.
+
+    :param categorical_cols:
+        List of column names containing categorical features. These features can either be preprocessed numerically or processed according to the `categorical_encode_type`.
+
+    :param numerical_cols:
+        List of column names containing numerical features, which should contain only numeric values.
+
+    :param sep_text_token_str:
+        String used to separate different text columns for a single data sample. For example, for BERT models, this could be the `[SEP]` token.
+
+    :param categorical_encode_type:
+        Method for encoding categorical features. Options are:
+        - `'ohe'`: One-hot encoding
+        - `'binary'`: Binary encoding
+        - `None`: No encoding
+
+    :param categorical_handle_na:
+        Whether to handle missing values in categorical features.
+
+    :param categorical_na_value:
+        Value used to replace missing categorical values, if `categorical_handle_na` is set to `True`.
+
+    :param ohe_handle_unknown:
+        Strategy for handling unknown categories in one-hot encoding. Options are:
+        - `'error'`: Raise an error for unknown categories
+        - `'ignore'`: Ignore unknown categories during encoding
+
+    :param numerical_transformer_method:
+        Method for normalizing numerical features. Options are:
+        - `'yeo_johnson'`
+        - `'box_cox'`
+        - `'quantile_normal'`
+        - `None`: No transformation
+
+    :param numerical_handle_na:
+        Whether to handle missing values in numerical features.
+
+    :param numerical_how_handle_na:
+        Method for handling missing numerical values. Options are:
+        - `'value'`: Replace with a specific value.
+        - `'mean'`: Replace with the mean of the column.
+
+    :param numerical_na_value:
+        Value used to replace missing numerical values, if `numerical_handle_na` is set to `True`.
+
+    :param empty_text_values:
+        List of text values that should be treated as missing.
+
+    :param replace_empty_text:
+        Value to replace empty text values (specified by `empty_text_values`). If `None`, empty text values are ignored.
+
+    :param max_token_length:
+        Maximum token length to pad or truncate the input text to.
+
+    :param debug:
+        Whether to load a smaller debug version of the dataset.
+
+    :param debug_dataset_size:
+        The size of the dataset to load when `debug` is set to `True`.
+
+    :param output_dir:
+        Directory to save the processed dataset files.
     """
+
     assert 0 <= validation_ratio <= 1, "validation ratio needs to be between 0 and 1"
     all_data_df = pd.read_csv(data_csv_path)
     folds_df, val_df = train_test_split(
@@ -149,80 +195,118 @@ def load_data_into_folds(
 
 
 def load_data_from_folder(
-    folder_path,
-    text_cols,
-    tokenizer,
-    label_col,
-    label_list=[],
-    categorical_cols=[],
-    numerical_cols=[],
-    sep_text_token_str=" ",
-    categorical_encode_type="ohe",
-    categorical_handle_na=False,
-    categorical_na_value="-9999999",
-    ohe_handle_unknown="error",
-    numerical_transformer_method="quantile_normal",
-    numerical_handle_na=False,
-    numerical_how_handle_na="value",
-    numerical_na_value=0.0,
-    empty_text_values=None,
-    replace_empty_text=None,
-    max_token_length=None,
-    debug=False,
-    debug_dataset_size=100,
-    output_dir=None,
-):
+    folder_path: str,
+    text_cols: List[str],
+    tokenizer: transformers.PreTrainedTokenizer,
+    label_col: str,
+    label_list: Optional[List[str]] = [],
+    categorical_cols: Optional[List[str]] = [],
+    numerical_cols: Optional[List[str]] = [],
+    sep_text_token_str: str = " ",
+    categorical_encode_type: str = "ohe",
+    categorical_handle_na: bool = False,
+    categorical_na_value: str = "-9999999",
+    ohe_handle_unknown: str = "error",
+    numerical_transformer_method: str = "quantile_normal",
+    numerical_handle_na: bool = False,
+    numerical_how_handle_na: str = "value",
+    numerical_na_value: float = 0.0,
+    empty_text_values: Optional[List[str]] = None,
+    replace_empty_text: Optional[str] = None,
+    max_token_length: Optional[int] = None,
+    debug: bool = False,
+    debug_dataset_size: int = 100,
+    output_dir: Optional[str] = None,
+) -> Tuple[
+    TorchTabularTextDataset, Optional[TorchTabularTextDataset], TorchTabularTextDataset
+]:
     """
-    Function to load tabular and text data from a specified folder
+    Load tabular and text data from a specified folder.
 
-    Loads train, test and/or validation text and tabular data from specified
-    folder path into TorchTextDataset class and does categorical and numerical
-    data preprocessing if specified. Inside the folder, there is expected to be
-    a train.csv, and test.csv (and if given val.csv) containing the training, testing,
-    and validation sets respectively
+    This function loads training, testing, and optionally validation data from
+    a folder into the `TorchTextDataset` class, performing preprocessing on
+    categorical and numerical data as specified. The folder should contain
+    `train.csv`, `test.csv`, and optionally `val.csv` files.
 
-    Args:
-        folder_path (str): The path to the folder containing `train.csv`, and `test.csv` (and if given `val.csv`)
-        text_cols (:obj:`list` of :obj:`str`): The column names in the dataset that contain text
-            from which we want to load
-        tokenizer (:obj:`transformers.tokenization_utils.PreTrainedTokenizer`):
-            HuggingFace tokenizer used to tokenize the input texts as specifed by text_cols
-        label_col (str): The column name of the label, for classification the column should have
-            int values from 0 to n_classes-1 as the label for each class.
-            For regression the column can have any numerical value
-        label_list (:obj:`list` of :obj:`str`, optional): Used for classification;
-            the names of the classes indexed by the values in label_col.
-        categorical_cols (:obj:`list` of :obj:`str`, optional): The column names in the dataset that
-            contain categorical features. The features can be already prepared numerically, or
-            could be preprocessed by the method specified by categorical_encode_type
-        numerical_cols (:obj:`list` of :obj:`str`, optional): The column names in the dataset that contain numerical features.
-            These columns should contain only numeric values.
-        sep_text_token_str (str, optional): The string token that is used to separate between the
-            different text columns for a given data example. For Bert for example,
-            this could be the [SEP] token.
-        categorical_encode_type (str, optional): Given categorical_cols, this specifies
-            what method we want to preprocess our categorical features.
-            choices: [ 'ohe', 'binary', None]
-            see encode_features.CategoricalFeatures for more details
-        numerical_transformer_method (str, optional): Given numerical_cols, this specifies
-            what method we want to use for normalizing our numerical data.
-            choices: ['yeo_johnson', 'box_cox', 'quantile_normal', None]
-            see https://scikit-learn.org/stable/auto_examples/preprocessing/plot_all_scaling.html
-            for more details
-        empty_text_values (:obj:`list` of :obj:`str`, optional): specifies what texts should be considered as
-            missing which would be replaced by replace_empty_text
-        replace_empty_text (str, optional): The value of the string that will replace the texts
-            that match with those in empty_text_values. If this argument is None then
-            the text that match with empty_text_values will be skipped
-        max_token_length (int, optional): The token length to pad or truncate to on the
-            input text
-        debug (bool, optional): Whether or not to load a smaller debug version of the dataset
+    Returns a tuple containing the training, validation, and testing datasets. The validation dataset is `None` if no `val.csv` is found in `folder_path`.
 
-    Returns:
-        :obj:`tuple` of `tabular_torch_dataset.TorchTextDataset`:
-            This tuple contains the
-            training, validation and testing sets. The val dataset is :obj:`None` if
-            there is no `val.csv` in folder_path
+    :param folder_path:
+        Path to the folder containing the `train.csv`, `test.csv`, and optionally `val.csv` files.
+
+    :param text_cols:
+        List of column names in the dataset that contain text data.
+
+    :param tokenizer:
+        HuggingFace tokenizer used for tokenizing text columns specified in `text_cols`.
+
+    :param label_col:
+        Column name containing the target labels. For classification, the values should be integers representing class indices. For regression, they can be any numeric values.
+
+    :param label_list:
+        List of class names for classification tasks, corresponding to the values in `label_col`.
+
+    :param categorical_cols:
+        List of column names containing categorical features. These features can either be preprocessed numerically or processed according to the `categorical_encode_type`.
+
+    :param numerical_cols:
+        List of column names containing numerical features, which should contain only numeric values.
+
+    :param sep_text_token_str:
+        String used to separate different text columns for a single data sample. For example, for BERT models, this could be the `[SEP]` token.
+
+    :param categorical_encode_type:
+        Method for encoding categorical features. Options are:
+        - `'ohe'`: One-hot encoding
+        - `'binary'`: Binary encoding
+        - `None`: No encoding
+
+    :param categorical_handle_na:
+        Whether to handle missing values in categorical features.
+
+    :param categorical_na_value:
+        Value used to replace missing categorical values, if `categorical_handle_na` is set to `True`.
+
+    :param ohe_handle_unknown:
+        Strategy for handling unknown categories in one-hot encoding. Options are:
+        - `'error'`: Raise an error for unknown categories
+        - `'ignore'`: Ignore unknown categories during encoding
+
+    :param numerical_transformer_method:
+        Method for normalizing numerical features. Options are:
+        - `'yeo_johnson'`
+        - `'box_cox'`
+        - `'quantile_normal'`
+        - `None`: No transformation
+
+    :param numerical_handle_na:
+        Whether to handle missing values in numerical features.
+
+    :param numerical_how_handle_na:
+        Method for handling missing numerical values. Options are:
+        - `'value'`: Replace with a specific value.
+        - `'mean'`: Replace with the mean of the column.
+
+    :param numerical_na_value:
+        Value used to replace missing numerical values, if `numerical_handle_na` is set to `True`.
+
+    :param empty_text_values:
+        List of text values that should be treated as missing.
+
+    :param replace_empty_text:
+        Value to replace empty text values (specified by `empty_text_values`). If `None`, empty text values are ignored.
+
+    :param max_token_length:
+        Maximum token length to pad or truncate the input text to.
+
+    :param debug:
+        Whether to load a smaller debug version of the dataset.
+
+    :param debug_dataset_size:
+        The size of the dataset to load when `debug` is set to `True`.
+
+    :param output_dir:
+        Directory to save the processed dataset files.
+
     """
     train_df = pd.read_csv(join(folder_path, "train.csv"), index_col=0)
     test_df = pd.read_csv(join(folder_path, "test.csv"), index_col=0)
@@ -260,31 +344,33 @@ def load_data_from_folder(
 
 
 def load_train_val_test_helper(
-    train_df,
-    val_df,
-    test_df,
-    text_cols,
-    tokenizer,
-    label_col,
-    label_list=[],
-    categorical_cols=[],
-    numerical_cols=[],
-    sep_text_token_str=" ",
-    categorical_encode_type="ohe",
-    categorical_handle_na=False,
-    categorical_na_value=None,
-    ohe_handle_unknown="error",
-    numerical_transformer_method="quantile_normal",
-    numerical_handle_na=False,
-    numerical_how_handle_na="value",
-    numerical_na_value=0.0,
-    empty_text_values=None,
-    replace_empty_text=None,
-    max_token_length=None,
-    debug=False,
-    debug_dataset_size=100,
-    output_dir=None,
-):
+    train_df: pd.DataFrame,
+    val_df: pd.DataFrame,
+    test_df: pd.DataFrame,
+    text_cols: List[str],
+    tokenizer: transformers.PreTrainedTokenizer,
+    label_col: str,
+    label_list: Optional[List[str]] = [],
+    categorical_cols: Optional[List[str]] = [],
+    numerical_cols: Optional[List[str]] = [],
+    sep_text_token_str: str = " ",
+    categorical_encode_type: str = "ohe",
+    categorical_handle_na: bool = False,
+    categorical_na_value: str = "-9999999",
+    ohe_handle_unknown: str = "error",
+    numerical_transformer_method: str = "quantile_normal",
+    numerical_handle_na: bool = False,
+    numerical_how_handle_na: str = "value",
+    numerical_na_value: float = 0.0,
+    empty_text_values: Optional[List[str]] = None,
+    replace_empty_text: Optional[str] = None,
+    max_token_length: Optional[int] = None,
+    debug: bool = False,
+    debug_dataset_size: int = 100,
+    output_dir: Optional[str] = None,
+) -> Tuple[
+    TorchTabularTextDataset, Optional[TorchTabularTextDataset], TorchTabularTextDataset
+]:
     if categorical_encode_type == "ohe" or categorical_encode_type == "binary":
         # Combine all DFs so that we don't run into encoding errors with the
         # test or validation sets
@@ -391,7 +477,11 @@ def load_train_val_test_helper(
     return train_dataset, val_dataset, test_dataset
 
 
-def build_categorical_features(data_df, categorical_cols, categorical_transformer):
+def build_categorical_features(
+    data_df: pd.DataFrame,
+    categorical_cols: List[str],
+    categorical_transformer: CategoricalFeatures,
+) -> Optional[pd.DataFrame]:
     if len(categorical_cols) > 0:
         # Find columns in the dataset that are in categorical_cols
         categorical_cols_func = convert_to_func(categorical_cols)
@@ -404,7 +494,11 @@ def build_categorical_features(data_df, categorical_cols, categorical_transforme
         return None
 
 
-def build_numerical_features(data_df, numerical_cols, numerical_transformer):
+def build_numerical_features(
+    data_df: pd.DataFrame,
+    numerical_cols: List[str],
+    numerical_transformer: NumericalFeatures,
+) -> Optional[np.ndarray]:
     if len(numerical_cols) > 0:
         # Find columns in the dataset that are in numerical_cols
         numerical_cols_func = convert_to_func(numerical_cols)
@@ -412,14 +506,18 @@ def build_numerical_features(data_df, numerical_cols, numerical_transformer):
         if numerical_transformer is not None:
             return numerical_transformer.transform(data_df[numerical_cols])
         else:
-            return data_df[numerical_cols]
+            return data_df[numerical_cols].values
     else:
         return None
 
 
 def build_text_features(
-    data_df, text_cols, empty_text_values, replace_empty_text, sep_text_token_str
-):
+    data_df: pd.DataFrame,
+    text_cols: List[str],
+    empty_text_values: List[str],
+    replace_empty_text: str,
+    sep_text_token_str: str,
+) -> List[str]:
     text_cols_func = convert_to_func(text_cols)
     agg_func = partial(agg_text_columns_func, empty_text_values, replace_empty_text)
     text_cols = get_matching_cols(data_df, text_cols_func)
@@ -432,63 +530,72 @@ def build_text_features(
 
 
 def load_data(
-    data_df,
-    text_cols,
-    tokenizer,
-    label_col=None,
-    label_list=[],
-    categorical_cols=[],
-    numerical_cols=[],
-    sep_text_token_str=" ",
-    categorical_transformer=None,
-    numerical_transformer=None,
-    empty_text_values=None,
-    replace_empty_text=None,
-    max_token_length=None,
-    debug=False,
-    debug_dataset_size=100,
-):
-    """Function to load a single dataset given a pandas DataFrame
+    data_df: pd.DataFrame,
+    text_cols: List[str],
+    tokenizer: transformers.PreTrainedTokenizer,
+    label_col: Optional[str] = None,
+    label_list: Optional[List[str]] = [],
+    categorical_cols: Optional[List[str]] = [],
+    numerical_cols: Optional[List[str]] = [],
+    sep_text_token_str: str = " ",
+    categorical_transformer: Optional[CategoricalFeatures] = None,
+    numerical_transformer: Optional[NumericalFeatures] = None,
+    empty_text_values: Optional[List[str]] = None,
+    replace_empty_text: Optional[str] = None,
+    max_token_length: Optional[int] = None,
+    debug: bool = False,
+    debug_dataset_size: int = 100,
+) -> TorchTabularTextDataset:
+    """
+    Load a single dataset from a pandas DataFrame.
 
-    Given a DataFrame, this function loads the data to a :obj:`torch_dataset.TorchTextDataset`
-    object which can be used in a :obj:`torch.utils.data.DataLoader`.
+    Given a DataFrame, this function loads the data into a :obj:`torch_dataset.TorchTextDataset` object, which can be used in a :obj:`torch.utils.data.DataLoader`.
 
-    Args:
-        data_df (:obj:`pd.DataFrame`): The DataFrame to convert to a TorchTextDataset
-        text_cols (:obj:`list` of :obj:`str`): the column names in the dataset that contain text
-            from which we want to load
-        tokenizer (:obj:`transformers.tokenization_utils.PreTrainedTokenizer`):
-            HuggingFace tokenizer used to tokenize the input texts as specifed by text_cols
-        label_col (str): The column name of the label, for classification the column should have
-            int values from 0 to n_classes-1 as the label for each class.
-            For regression the column can have any numerical value
-        label_list (:obj:`list` of :obj:`str`, optional): Used for classification;
-            the names of the classes indexed by the values in label_col.
-        categorical_cols (:obj:`list` of :obj:`str`, optional): The column names in the dataset that
-            contain categorical features. The features can be already prepared numerically, or
-            could be preprocessed by the method specified by categorical_encode_type
-        numerical_cols (:obj:`list` of :obj:`str`, optional): The column names in the dataset that contain numerical features.
-            These columns should contain only numeric values.
-        sep_text_token_str (str, optional): The string token that is used to separate between the
-            different text columns for a given data example. For Bert for example,
-            this could be the [SEP] token.
-        categorical_encode_type (str, optional): Given categorical_cols, this specifies
-            what method we want to preprocess our categorical features.
-            choices: [ 'ohe', 'binary', None]
-            see encode_features.CategoricalFeatures for more details
-        numerical_transformer (:obj:`sklearn.base.TransformerMixin`): The sklearn numeric
-            transformer instance to transform our numerical features
-        empty_text_values (:obj:`list` of :obj:`str`, optional): Specifies what texts should be considered as
-            missing which would be replaced by replace_empty_text
-        replace_empty_text (str, optional): The value of the string that will replace the texts
-            that match with those in empty_text_values. If this argument is None then
-            the text that match with empty_text_values will be skipped
-        max_token_length (int, optional): The token length to pad or truncate to on the
-            input text
-        debug (bool, optional): Whether or not to load a smaller debug version of the dataset
+    :param data_df:
+        The DataFrame to convert to a TorchTextDataset.
 
-    Returns:
-        :obj:`tabular_torch_dataset.TorchTextDataset`: The converted dataset
+    :param text_cols:
+        The column names in the dataset that contain text data.
+
+    :param tokenizer:
+        HuggingFace tokenizer used for tokenizing text columns specified in `text_cols`.
+
+    :param label_col:
+        The column name containing the target labels. For classification, the values should be integers representing class indices. For regression, they can be any numeric values.
+
+    :param label_list:
+        List of class names for classification tasks, corresponding to the values in `label_col`.
+
+    :param categorical_cols:
+        List of column names containing categorical features. These features can either be preprocessed numerically or processed according to the specified transformer.
+
+    :param numerical_cols:
+        List of column names containing numerical features, which should contain only numeric values.
+
+    :param sep_text_token_str:
+        String used to separate different text columns for a single data sample. For example, for BERT models, this could be the `[SEP]` token.
+
+    :param categorical_transformer:
+        Sklearn transformer instance for preprocessing categorical features.
+
+    :param numerical_transformer:
+        Sklearn transformer instance for preprocessing numerical features.
+
+    :param empty_text_values:
+        List of text values that should be treated as missing.
+
+    :param replace_empty_text:
+        Value to replace empty text values (specified by `empty_text_values`). If `None`, empty text values are ignored.
+
+    :param max_token_length:
+        Maximum token length to pad or truncate the input text to.
+
+    :param debug:
+        Whether to load a smaller debug version of the dataset.
+
+    :param debug_dataset_size:
+        The size of the dataset to load when `debug` is set to `True`.
+
     """
     if debug:
         data_df = data_df[:debug_dataset_size]

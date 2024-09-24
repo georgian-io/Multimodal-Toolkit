@@ -3,7 +3,7 @@ import types
 
 import numpy as np
 import pandas as pd
-from typing import List
+from typing import List, Callable
 from sklearn import preprocessing
 from sklearn.preprocessing import PowerTransformer, QuantileTransformer
 
@@ -70,12 +70,12 @@ class CategoricalFeatures:
 
     def _one_hot(self, dataframe: pd.DataFrame):
         self.ohe = preprocessing.OneHotEncoder(
-            sparse=False, handle_unknown=self.ohe_handle_unknown
+            sparse_output=False, handle_unknown=self.ohe_handle_unknown
         )
         self.ohe.fit(dataframe[self.cat_cols].values)
         self.feat_names = list(self.ohe.get_feature_names_out(self.cat_cols))
 
-    def nan_handler(self, dataframe: pd.DataFrame):
+    def nan_handler(self, dataframe: pd.DataFrame) -> pd.DataFrame:
         for c in self.cat_cols:
             dataframe.loc[:, c] = dataframe.loc[:, c].astype(str).fillna(self.na_value)
         return dataframe
@@ -94,11 +94,11 @@ class CategoricalFeatures:
         else:
             raise Exception("Encoding type not understood")
 
-    def fit_transform(self, dataframe: pd.DataFrame):
+    def fit_transform(self, dataframe: pd.DataFrame) -> pd.DataFrame:
         self.fit(dataframe)
         return self.transform(dataframe)
 
-    def transform(self, dataframe: pd.DataFrame):
+    def transform(self, dataframe: pd.DataFrame) -> pd.DataFrame:
         if self.handle_na:
             dataframe = self.nan_handler(dataframe)
 
@@ -120,9 +120,10 @@ class CategoricalFeatures:
 
         elif self.enc_type == "ohe":
             val = self.ohe.transform(dataframe[self.cat_cols].values)
-            for j in range(val.shape(1)):
-                dataframe[self.feat_names[j]] = val[:, j]
-            return dataframe
+            new_df = {}
+            for j in range(val.shape[1]):
+                new_df[self.feat_names[j]] = val[:, j]
+            return pd.DataFrame(new_df, index=dataframe.index)
 
         elif self.enc_type is None or self.enc_type == "none":
             logger.info(f"Encoding type is none, no action taken.")
@@ -161,7 +162,7 @@ class NumericalFeatures:
         self.how_handle_na = how_handle_na
         self.na_value = na_value
 
-    def nan_handler(self, dataframe: pd.DataFrame):
+    def nan_handler(self, dataframe: pd.DataFrame) -> pd.DataFrame:
         dataframe.loc[:, self.num_cols] = dataframe[self.num_cols].astype(float)
         if self.how_handle_na == "median":
             dataframe.loc[:, self.num_cols] = dataframe[self.num_cols].fillna(
@@ -200,24 +201,18 @@ class NumericalFeatures:
         num_feats = dataframe[self.num_cols]
         self.numerical_transformer.fit(num_feats)
 
-    def fit_transform(self, dataframe: pd.DataFrame):
+    def fit_transform(self, dataframe: pd.DataFrame) -> pd.DataFrame:
         self.fit(dataframe)
         return self.transform(dataframe)
 
-    def transform(self, dataframe: pd.DataFrame):
+    def transform(self, dataframe: pd.DataFrame) -> pd.DataFrame:
         if self.handle_na:
             dataframe = self.nan_handler(dataframe)
         return self.numerical_transformer.transform(dataframe[self.num_cols])
 
 
-def change_name_func(x):
+def change_name_func(x: str) -> str:
     return x.lower().replace(", ", "_").replace(" ", "_")
-
-
-def normalize_numerical_feats(numerical_feats, transformer=None):
-    if numerical_feats is None or transformer is None:
-        return numerical_feats
-    return transformer.transform(numerical_feats)
 
 
 def convert_to_func(container_arg):
@@ -231,7 +226,9 @@ def convert_to_func(container_arg):
         return container_arg
 
 
-def agg_text_columns_func(empty_row_values, replace_text, texts):
+def agg_text_columns_func(
+    empty_row_values: List[str], replace_text: str, texts: List[str]
+) -> List[str]:
     """replace empty texts or remove empty text str from a list of text str"""
     processed_texts = []
     for text in texts.astype("str"):
@@ -243,5 +240,7 @@ def agg_text_columns_func(empty_row_values, replace_text, texts):
     return processed_texts
 
 
-def get_matching_cols(df, col_match_func):
+def get_matching_cols(
+    df: pd.DataFrame, col_match_func: Callable[[pd.DataFrame, str], bool]
+) -> List[str]:
     return [c for c in df.columns if col_match_func(df, c)]

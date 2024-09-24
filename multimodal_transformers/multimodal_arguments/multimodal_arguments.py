@@ -1,17 +1,8 @@
-from dataclasses import dataclass, field
 import json
-import logging
-from typing import Optional, Tuple, List
+from dataclasses import dataclass, field
+from typing import Optional
 
-import torch
-from transformers.training_args import (
-    TrainingArguments,
-    requires_backends,
-    cached_property,
-)
-
-
-logger = logging.getLogger(__name__)
+from transformers.training_args import TrainingArguments
 
 
 @dataclass

@@ -15,7 +15,7 @@
         <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
         <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
         <script src="../../../../_static/documentation_options.js?v=5929fcd5"></script>
-        <script src="../../../../_static/doctools.js?v=888ff710"></script>
+        <script src="../../../../_static/doctools.js?v=9a2dae69"></script>
         <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../../genindex.html" />
@@ -105,22 +105,8 @@
 
 <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">get_logger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
-<span class="n">XLM_ROBERTA_PRETRAINED_CONFIG_ARCHIVE_MAP</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s2">&quot;xlm-roberta-base&quot;</span><span class="p">:</span> <span class="s2">&quot;https://huggingface.co/xlm-roberta-base/resolve/main/config.json&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;xlm-roberta-large&quot;</span><span class="p">:</span> <span class="s2">&quot;https://huggingface.co/xlm-roberta-large/resolve/main/config.json&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;xlm-roberta-large-finetuned-conll02-dutch&quot;</span><span class="p">:</span> <span class="p">(</span>
-        <span class="s2">&quot;https://huggingface.co/xlm-roberta-large-finetuned-conll02-dutch/resolve/main/config.json&quot;</span>
-    <span class="p">),</span>
-    <span class="s2">&quot;xlm-roberta-large-finetuned-conll02-spanish&quot;</span><span class="p">:</span> <span class="p">(</span>
-        <span class="s2">&quot;https://huggingface.co/xlm-roberta-large-finetuned-conll02-spanish/resolve/main/config.json&quot;</span>
-    <span class="p">),</span>
-    <span class="s2">&quot;xlm-roberta-large-finetuned-conll03-english&quot;</span><span class="p">:</span> <span class="p">(</span>
-        <span class="s2">&quot;https://huggingface.co/xlm-roberta-large-finetuned-conll03-english/resolve/main/config.json&quot;</span>
-    <span class="p">),</span>
-    <span class="s2">&quot;xlm-roberta-large-finetuned-conll03-german&quot;</span><span class="p">:</span> <span class="p">(</span>
-        <span class="s2">&quot;https://huggingface.co/xlm-roberta-large-finetuned-conll03-german/resolve/main/config.json&quot;</span>
-    <span class="p">),</span>
-<span class="p">}</span>
+
+<span class="kn">from</span> <span class="nn">..deprecated._archive_maps</span> <span class="kn">import</span> <span class="n">XLM_ROBERTA_PRETRAINED_CONFIG_ARCHIVE_MAP</span>  <span class="c1"># noqa: F401, E402</span>
 
 
 <span class="k">class</span> <span class="nc">XLMRobertaConfig</span><span class="p">(</span><span class="n">PretrainedConfig</span><span class="p">):</span>
@@ -128,7 +114,7 @@
 <span class="sd">    This is the configuration class to store the configuration of a [`XLMRobertaModel`] or a [`TFXLMRobertaModel`]. It</span>
 <span class="sd">    is used to instantiate a XLM-RoBERTa model according to the specified arguments, defining the model architecture.</span>
 <span class="sd">    Instantiating a configuration with the defaults will yield a similar configuration to that of the XLMRoBERTa</span>
-<span class="sd">    [xlm-roberta-base](https://huggingface.co/xlm-roberta-base) architecture.</span>
+<span class="sd">    [FacebookAI/xlm-roberta-base](https://huggingface.co/FacebookAI/xlm-roberta-base) architecture.</span>
 
 <span class="sd">    Configuration objects inherit from [`PretrainedConfig`] and can be used to control the model outputs. Read the</span>
 <span class="sd">    documentation from [`PretrainedConfig`] for more information.</span>
@@ -182,15 +168,16 @@
 <span class="sd">    ```python</span>
 <span class="sd">    &gt;&gt;&gt; from transformers import XLMRobertaConfig, XLMRobertaModel</span>
 
-<span class="sd">    &gt;&gt;&gt; # Initializing a XLM-RoBERTa xlm-roberta-base style configuration</span>
+<span class="sd">    &gt;&gt;&gt; # Initializing a XLM-RoBERTa FacebookAI/xlm-roberta-base style configuration</span>
 <span class="sd">    &gt;&gt;&gt; configuration = XLMRobertaConfig()</span>
 
-<span class="sd">    &gt;&gt;&gt; # Initializing a model (with random weights) from the xlm-roberta-base style configuration</span>
+<span class="sd">    &gt;&gt;&gt; # Initializing a model (with random weights) from the FacebookAI/xlm-roberta-base style configuration</span>
 <span class="sd">    &gt;&gt;&gt; model = XLMRobertaModel(configuration)</span>
 
 <span class="sd">    &gt;&gt;&gt; # Accessing the model configuration</span>
 <span class="sd">    &gt;&gt;&gt; configuration = model.config</span>
 <span class="sd">    ```&quot;&quot;&quot;</span>
+
     <span class="n">model_type</span> <span class="o">=</span> <span class="s2">&quot;xlm-roberta&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
