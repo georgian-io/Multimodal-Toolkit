@@ -42,7 +42,7 @@ class TorchTabularTextDataset(TorchDataset):
     ):
         self.df = df
         self.encodings = encodings
-        self.cat_feats = categorical_feats.values
+        self.cat_feats = categorical_feats.values if categorical_feats is not None else None
         self.numerical_feats = numerical_feats
         self.labels = labels
         self.label_list = (
